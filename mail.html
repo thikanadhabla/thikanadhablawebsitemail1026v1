@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1D1310">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Mail — Thikana Dhabla Ghosi</title>
+
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --teak-950: #170E0A;
+    --teak-900: #1D1310;
+    --teak-800: #2B1810;
+    --lac-900: #3A0E0E;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-200: #F0D68A;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --card: #FFFFFF;
+    --line: #E6DCC6;
+    --line-soft: #F0E8D6;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --ok: #2E7D32;   --ok-bg: #E6F3E7;
+    --warn: #9A6A0B; --warn-bg: #FBF0D2;
+    --bad: #B3261E;  --bad-bg: #FBE5E3;
+    --info: #1B3A5C; --info-bg: #E2ECF6;
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --devnag: 'Tiro Devanagari Hindi', serif;
+    --sidebar-w: 264px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --shadow-pop: 0 24px 60px rgba(23, 14, 10, 0.35);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--paper);
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+    overscroll-behavior-y: contain; overflow-x: hidden;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+  [hidden] { display: none !important; }
+
+  /* ============ LOGIN ============ */
+  #login {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1.05fr 1fr;
+    background: var(--paper);
+  }
+  .login-art {
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; padding: 64px;
+    color: var(--gold-100);
+    background:
+      radial-gradient(circle at 18% 12%, rgba(232,193,102,.20), transparent 45%),
+      linear-gradient(160deg, var(--lac-900) 0%, var(--lac-800) 55%, var(--teak-900) 100%);
+  }
+  .login-art::after {
+    content: ""; position: absolute; right: -140px; bottom: -140px;
+    width: 520px; height: 520px; border-radius: 50%;
+    border: 1px solid rgba(232,193,102,.28);
+    box-shadow: 0 0 0 44px rgba(232,193,102,.05), 0 0 0 88px rgba(232,193,102,.035);
+  }
+  .login-art-inner { position: relative; z-index: 1; max-width: 460px; }
+  .crest {
+    width: 92px; height: 92px; border-radius: 50%; overflow: hidden;
+    border: 3px solid var(--gold-500); background: var(--gold-100);
+    box-shadow: 0 0 40px rgba(201,154,58,.45); margin-bottom: 28px;
+  }
+  .crest img { width: 100%; height: 100%; object-fit: cover; }
+  .devnag-line { font-family: var(--devnag); font-size: 1.15rem; color: var(--gold-400); margin-bottom: 14px; }
+  .login-art h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 5vw, 4rem); line-height: 1.02; color: #fff; margin-bottom: 18px; }
+  .art-sub { font-size: 1.02rem; color: rgba(247,235,201,.78); max-width: 34ch; }
+  .login-side { display: flex; align-items: center; justify-content: center; padding: 32px 24px; }
+  .login-card { width: 100%; max-width: 420px; }
+  .login-card h2 { font-family: var(--display); font-size: 2.2rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; }
+  .login-card .lead { color: var(--muted); margin: 6px 0 26px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--lac-800); margin-bottom: 6px; }
+  .input, .select, .textarea {
+    width: 100%; padding: 11px 14px;
+    border: 1px solid #D9CDB3; border-radius: var(--r-md);
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 16px;
+    transition: border-color .15s, box-shadow .15s;
+    box-sizing: border-box;
+  }
+  .input:focus, .select:focus, .textarea:focus {
+    outline: none; border-color: var(--gold-500);
+    box-shadow: 0 0 0 4px rgba(201,154,58,.22);
+  }
+  .textarea { min-height: 120px; resize: vertical; }
+  .select { padding-right: 32px; cursor: pointer; }
+
+  .pw-wrap { position: relative; }
+  .pw-wrap .input { padding-right: 46px; }
+  .pw-toggle { position: absolute; right: 4px; top: 4px; width: 34px; height: 34px; border: none; background: transparent; color: var(--muted); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .pw-toggle:hover { background: rgba(0,0,0,.05); color: var(--text); }
+
+  /* Math captcha */
+  .captcha-box {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; margin-bottom: 12px;
+    background: linear-gradient(135deg, #FFF8E1, #FFF3CC);
+    border: 2px dashed var(--gold-500); border-radius: var(--r-md);
+  }
+  .captcha-box .question {
+    font-family: var(--mono); font-size: 1.4rem;
+    font-weight: 600; color: var(--lac-800); letter-spacing: .05em;
+  }
+  .captcha-box button {
+    border: none; background: transparent; color: var(--lac-700);
+    font-size: 13px; text-decoration: underline; font-weight: 500;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 42px; padding: 0 18px; border-radius: var(--r-md);
+    border: 1px solid transparent;
+    font-size: 14px; font-weight: 600;
+    transition: background .15s, box-shadow .15s, border-color .15s, transform .1s;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: rgba(201,154,58,.18);
+    touch-action: manipulation;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); box-shadow: 0 6px 16px rgba(92,23,23,.28); }
+  .btn-secondary { background: #fff; color: var(--text); border-color: #D9CDB3; }
+  .btn-secondary:hover:not(:disabled) { background: #FBF7EC; border-color: var(--gold-500); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid transparent; }
+  .btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,.05); color: var(--text); }
+  .btn-danger { background: var(--bad); color: #fff; }
+  .btn-danger:hover:not(:disabled) { background: #8F1D17; }
+  .btn-danger-soft { background: var(--bad-bg); color: var(--bad); }
+  .btn-ok-soft { background: var(--ok-bg); color: var(--ok); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+  .btn-block { width: 100%; height: 48px; font-size: 15px; }
+
+  .login-msg { min-height: 20px; font-size: 14px; font-weight: 500; margin-top: 14px; text-align: center; }
+  .login-msg.err { color: var(--bad); }
+  .login-msg.ok { color: var(--ok); }
+
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ APP SHELL ============ */
+  #app { display: none; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; }
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(201,154,58,.08) 1px, transparent 0) 0 0 / 20px 20px,
+      linear-gradient(180deg, var(--teak-900), var(--teak-950));
+    color: #D9CBB2; border-right: 1px solid rgba(201,154,58,.25);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; text-decoration: none; }
+  .brand .crest-sm { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); background: var(--gold-100); box-shadow: 0 0 16px rgba(201,154,58,.4); flex-shrink: 0; }
+  .brand .crest-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .brand-name { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.05; color: #fff; }
+  .brand-sub { font-size: 12px; color: var(--gold-400); margin-top: 2px; }
+  .nav { padding: 6px 12px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .nav-group { font-size: 12px; font-weight: 600; color: rgba(240,214,138,.55); padding: 18px 12px 6px; }
+  .nav-item {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; height: 42px; padding: 0 12px;
+    background: transparent; border: none; border-radius: 10px;
+    color: #D9CBB2; font-size: 14px; font-weight: 500; text-align: left;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active { background: rgba(201,154,58,.16); color: var(--gold-200); font-weight: 600; }
+  .nav-item.active::before { content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--gold-400); }
+  .nav-item .badge-count {
+    margin-left: auto; padding: 2px 8px; border-radius: 999px;
+    background: var(--bad); color: #fff; font-size: 11px; font-weight: 700;
+  }
+  .side-foot { padding: 12px; border-top: 1px solid rgba(201,154,58,.18); display: flex; gap: 10px; align-items: center; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-500), var(--gold-400)); color: var(--teak-900); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-transform: uppercase; }
+  .user-meta { min-width: 0; flex: 1; }
+  .user-meta strong { display: block; color: #fff; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-meta span { font-size: 12px; color: rgba(217,203,178,.65); }
+  .logout-btn { width: 38px; height: 38px; border-radius: 10px; border: none; background: rgba(255,255,255,.06); color: #D9CBB2; display: flex; align-items: center; justify-content: center; }
+  .logout-btn:hover { background: var(--bad); color: #fff; }
+
+  .mobilebar { display: none; }
+  .scrim { display: none; }
+
+  .main { min-width: 0; }
+  .page { padding: 28px 32px 80px; max-width: 1400px; margin: 0 auto; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .page-head h1 { font-family: var(--display); font-size: 2.3rem; font-weight: 700; color: var(--lac-800); line-height: 1.05; }
+  .page-head .sub { color: var(--muted); margin-top: 4px; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* Panels */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); margin-bottom: 18px; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line-soft); }
+  .panel-head h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+  .panel-body { padding: 20px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 20px; }
+  .kpi { background: #fff; padding: 16px 18px; }
+  .kpi .label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+  .kpi .value { font-family: var(--display); font-size: 2.1rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; margin-top: 4px; font-variant-numeric: lining-nums tabular-nums; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .toolbar .search { flex: 1 1 240px; max-width: 340px; position: relative; }
+  .toolbar .search .input { padding-left: 38px; }
+  .toolbar .search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .toolbar .spacer { flex: 1; }
+
+  /* Lists */
+  .email-list { display: flex; flex-direction: column; }
+  .email-row {
+    display: grid; grid-template-columns: 200px 200px 1fr 130px;
+    gap: 16px; align-items: center;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line-soft);
+    cursor: pointer; transition: background .12s;
+    font-size: 14px;
+  }
+  .email-row:hover { background: #FCF9F0; }
+  .email-row.unread { background: #FFFCF2; }
+  .email-row.unread .from-cell, .email-row.unread .subject-cell { font-weight: 600; }
+  .email-row .from-cell, .email-row .subject-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .email-row .date-cell { text-align: right; color: var(--muted); font-size: 12.5px; }
+  .email-row .to-cell { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .email-row .badge-new {
+    display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px;
+    background: var(--bad); color: #fff; font-size: 10.5px; font-weight: 700;
+    vertical-align: middle;
+  }
+
+  .empty { padding: 50px 20px; text-align: center; color: var(--muted); }
+  .empty svg { margin: 0 auto 12px; color: var(--gold-500); display: block; }
+  .empty h4 { color: var(--text); font-size: 16px; margin-bottom: 4px; }
+
+  /* View email */
+  .email-view { padding: 24px 28px; }
+  .email-view .head-meta { border-bottom: 1px solid var(--line-soft); padding-bottom: 16px; margin-bottom: 20px; }
+  .email-view .head-meta h2 { font-family: var(--display); font-size: 1.7rem; color: var(--lac-800); margin-bottom: 12px; line-height: 1.2; }
+  .email-view .meta-line { font-size: 13.5px; margin-bottom: 4px; color: var(--muted); }
+  .email-view .meta-line b { color: var(--text); font-weight: 600; }
+  .email-view .body-text {
+    font-family: var(--ui); font-size: 14.5px; line-height: 1.75;
+    white-space: pre-wrap; word-wrap: break-word;
+    color: var(--text);
+  }
+
+  /* Compose */
+  .compose { max-width: 720px; margin: 0 auto; }
+  .compose .row { display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+  .compose .row label { font-weight: 600; color: var(--lac-800); font-size: 13px; }
+  .compose .row .input, .compose .row .select { border: none; padding: 6px 0; background: transparent; box-shadow: none; }
+  .compose .row .input:focus, .compose .row .select:focus { box-shadow: none; border-color: transparent; outline: 1px dashed var(--gold-500); outline-offset: 4px; }
+  .compose .subject-row .input { font-size: 1.1rem; font-weight: 500; }
+  .compose .body-row { padding: 14px 0; }
+  .compose .body-row .textarea {
+    min-height: 320px; border: none; padding: 12px 0;
+    box-shadow: none; background: transparent; font-size: 15px; line-height: 1.7;
+    font-family: var(--ui); resize: vertical;
+  }
+  .compose .body-row .textarea:focus { box-shadow: none; outline: 1px dashed var(--gold-500); outline-offset: 4px; }
+  .compose-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  .attachment-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--info-bg); color: var(--info);
+    font-size: 13px; font-weight: 500;
+  }
+
+  /* Toast */
+  .toasts { position: fixed; right: 20px; bottom: 20px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast {
+    display: flex; align-items: center; gap: 10px;
+    max-width: 380px; padding: 13px 18px; border-radius: 12px;
+    background: var(--teak-900); color: #fff; font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow-pop);
+    opacity: 0; transform: translateY(14px); transition: opacity .25s, transform .25s;
+  }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.success { background: #1F5C24; }
+  .toast.error { background: #7A1712; }
+
+  /* Modal */
+  .modal-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(23,14,10,.65); backdrop-filter: blur(3px); }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    width: 100%; max-width: 560px; background: #fff;
+    border-radius: 18px; padding: 28px;
+    box-shadow: var(--shadow-pop);
+    max-height: 92vh; overflow-y: auto;
+  }
+  .modal h3 { font-family: var(--display); font-size: 1.6rem; color: var(--lac-800); margin-bottom: 8px; }
+  .modal .hint { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* Responsive */
+  input, select, textarea, button { font-size: 16px; }
+  @media (min-width: 561px) { input, select, textarea, button { font-size: inherit; } }
+
+  @media (max-width: 960px) {
+    #app { grid-template-columns: 1fr; }
+    .sidebar { position: fixed; z-index: 950; left: 0; top: 0; bottom: 0; width: 290px; transform: translateX(-100%); transition: transform .25s; box-shadow: 8px 0 32px rgba(0,0,0,.4); }
+    .sidebar.open { transform: none; }
+    .scrim { position: fixed; inset: 0; z-index: 940; background: rgba(23,14,10,.55); backdrop-filter: blur(2px); display: none; }
+    .sidebar.open ~ .scrim { display: block; }
+    .mobilebar { display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; padding: 12px 16px; background: var(--teak-900); color: #fff; border-bottom: 1px solid rgba(201,154,58,.3); }
+    .mobilebar button { width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(201,154,58,.4); background: transparent; color: var(--gold-200); display: flex; align-items: center; justify-content: center; }
+    .mobilebar strong { font-family: var(--display); font-size: 1.3rem; }
+    .page { padding: 22px 16px 80px; }
+    .page-head h1 { font-size: 1.85rem; }
+    .login { grid-template-columns: 1fr; }
+    .login-art { display: none; }
+    .email-row { grid-template-columns: 1fr; gap: 4px; padding: 12px 14px; }
+    .email-row .date-cell { text-align: left; }
+    .compose .row { grid-template-columns: 1fr; }
+    .compose .row label { padding-bottom: 4px; }
+    .kpi .value { font-size: 1.8rem; }
+    .toasts { left: 16px; right: 16px; bottom: 16px; }
+    .toast { max-width: none; }
+  }
+  @media (max-width: 700px) {
+    .login { grid-template-columns: 1fr; }
+    .login-art { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div id="login" class="login" hidden>
+  <section class="login-art" aria-hidden="true">
+    <div class="login-art-inner">
+      <div class="crest"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></div>
+      <p class="devnag-line">॥ राघवाय नमः ॥</p>
+      <h1>Thikana<br>Dhabla Ghosi</h1>
+      <p class="art-sub">Family mail server — send, receive and manage emails from your domain.</p>
+    </div>
+  </section>
+
+  <section class="login-side">
+    <div class="login-card">
+      <h2>Mail sign in</h2>
+      <p class="lead">Sign in with your @thikanadhabla.in mailbox.</p>
+
+      <form id="loginForm" onsubmit="event.preventDefault(); doLogin();" novalidate>
+        <div class="field">
+          <label for="loginEmail">Email address</label>
+          <input class="input" type="email" id="loginEmail" placeholder="support@thikanadhabla.in" autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="pw-wrap">
+            <input class="input" type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password">
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" onclick="togglePw('loginPassword', this)"></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Verification</label>
+          <div class="captcha-box">
+            <div class="question" id="captchaQuestion">— × — = ?</div>
+            <button type="button" onclick="generateCaptcha()">↻ New question</button>
+          </div>
+          <input class="input" type="text" id="loginCaptcha" placeholder="Your answer" inputmode="numeric" autocomplete="off" style="text-align:center;font-family:var(--mono);font-size:1.2rem;">
+        </div>
+
+        <button class="btn btn-primary btn-block" id="loginBtn" type="submit">Sign in</button>
+        <p class="login-msg err" id="loginMsg"></p>
+      </form>
+
+      <p style="margin-top:24px;font-size:12.5px;color:var(--muted);text-align:center;">
+        <a href="index.html" style="color:var(--lac-700);">← Back to main site</a>
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="index.html" class="brand">
+      <span class="crest-sm"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></span>
+      <span>
+        <div class="brand-name">Thikana<br>Dhabla Ghosi</div>
+        <div class="brand-sub">Family Mail</div>
+      </span>
+    </a>
+    <nav class="nav">
+      <div class="nav-group">Mailbox</div>
+      <button class="nav-item active" data-tab="inbox" onclick="showTab('inbox')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <span>Inbox</span>
+        <span class="badge-count" id="inboxBadge" hidden>0</span>
+      </button>
+      <button class="nav-item" data-tab="sent" onclick="showTab('sent')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>Sent</span>
+      </button>
+      <button class="nav-item" data-tab="compose" onclick="showTab('compose')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>Compose</span>
+      </button>
+
+      <div class="nav-group" id="adminGroup" hidden>Admin</div>
+      <button class="nav-item" data-tab="admin_overview" onclick="showTab('admin_overview')" id="navAdminOverview" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-tab="admin_all_inbox" onclick="showTab('admin_all_inbox')" id="navAdminInbox" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <span>All Inbox</span>
+      </button>
+      <button class="nav-item" data-tab="admin_all_sent" onclick="showTab('admin_all_sent')" id="navAdminSent" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>All Sent</span>
+      </button>
+      <button class="nav-item" data-tab="admin_logs" onclick="showTab('admin_logs')" id="navAdminLogs" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Activity Logs</span>
+      </button>
+      <button class="nav-item" data-tab="admin_sessions" onclick="showTab('admin_sessions')" id="navAdminSessions" hidden>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Sessions</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar" id="userAvatar">?</span>
+      <span class="user-meta"><strong id="userName">—</strong><span id="userEmail">—</span></span>
+      <button class="logout-btn" onclick="doLogout()" aria-label="Sign out" id="logoutBtn"></button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" onclick="toggleSidebar(false)"></div>
+
+  <div class="main">
+    <header class="mobilebar">
+      <button onclick="toggleSidebar(true)" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <strong>Mail</strong>
+    </header>
+    <main class="page" id="content"></main>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- Confirm delete modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirm</h3>
+    <p class="hint" id="confirmHint">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-danger" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = "https://fmrmiylqjokyrsztfmgp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cNHjqBdWpu98niKZqMvIuA_96VjEQxk";
+const FN_URL = SUPABASE_URL + "/functions/v1/mail-api";
+
+let sb = null;
+let currentUser = null;
+let currentSession = null;
+let isAdmin = false;
+let sessionId = null;
+let loginTime = null;
+let currentCaptchaAnswer = 0;
+let currentTab = "inbox";
+let inboxData = [];
+let sentData = [];
+let allInboxData = [];
+let allSentData = [];
+let logsData = [];
+let sessionsData = [];
+let adminStats = null;
+
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// ICONS
+// ============================================================
+const ICONS = {
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  alert: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  back: '<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+  send: '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
+};
+const ic = (n, s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ""}</svg>`;
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmt(ts) {
+  if (!ts) return "—";
+  try {
+    return new Date(ts).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "numeric", month: "short", year: "numeric",
+      hour: "numeric", minute: "2-digit"
+    });
+  } catch { return ts; }
+}
+function fmtShort(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60_000) return "just now";
+  if (diff < 3600_000) return Math.floor(diff / 60_000) + "m ago";
+  if (diff < 86400_000) return Math.floor(diff / 3600_000) + "h ago";
+  if (diff < 7 * 86400_000) return Math.floor(diff / 86400_000) + "d ago";
+  return d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short" });
+}
+const num = n => Number(n || 0).toLocaleString("en-IN");
+
+function showToast(msg, type = "success") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.innerHTML = `${ic(type === "error" ? "alert" : "check", 18)}<span></span>`;
+  el.querySelector("span").textContent = msg;
+  $("toasts").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, 3600);
+}
+
+function togglePw(id, btn) {
+  const inp = $(id);
+  const show = inp.type === "password";
+  inp.type = show ? "text" : "password";
+  btn.innerHTML = ic(show ? "eyeoff" : "eye", 18);
+}
+
+function toggleSidebar(open) {
+  $("sidebar").classList.toggle("open", open);
+  document.body.style.overflow = (open && window.innerWidth <= 960) ? "hidden" : "";
+}
+
+// ============================================================
+// CAPTCHA — Simple arithmetic
+// ============================================================
+function generateCaptcha() {
+  const ops = ["+", "−", "×"];
+  const op = ops[Math.floor(Math.random() * ops.length)];
+  let a, b, answer;
+
+  if (op === "+") {
+    a = Math.floor(Math.random() * 15) + 2;
+    b = Math.floor(Math.random() * 15) + 2;
+    answer = a + b;
+  } else if (op === "−") {
+    a = Math.floor(Math.random() * 15) + 5;
+    b = Math.floor(Math.random() * (a - 1)) + 1;
+    answer = a - b;
+  } else {
+    a = Math.floor(Math.random() * 9) + 2;
+    b = Math.floor(Math.random() * 9) + 2;
+    answer = a * b;
+  }
+
+  currentCaptchaAnswer = answer;
+  $("captchaQuestion").textContent = `${a} ${op} ${b} = ?`;
+  $("loginCaptcha").value = "";
+}
+
+// ============================================================
+// API CALL HELPER
+// ============================================================
+async function apiCall(action, payload = {}, method = "POST") {
+  const headers = { "Content-Type": "application/json" };
+  if (currentSession?.access_token) {
+    headers.Authorization = `Bearer ${currentSession.access_token}`;
+  }
+
+  let url = `${FN_URL}?action=${action}`;
+  const opts = { method, headers };
+
+  if (method === "POST") {
+    opts.body = JSON.stringify(payload);
+  }
+
+  const res = await fetch(url, opts);
+  const text = await res.text();
+
+  let data;
+  try { data = JSON.parse(text); } catch { data = { error: text }; }
+
+  if (!res.ok) {
+    throw new Error(data.error || `Request failed (${res.status})`);
+  }
+  return data;
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function doLogin() {
+  const email = $("loginEmail").value.trim().toLowerCase();
+  const password = $("loginPassword").value;
+  const captcha = parseInt($("loginCaptcha").value, 10);
+  const msg = $("loginMsg");
+  msg.className = "login-msg err";
+  msg.textContent = "";
+
+  if (!email || !password) { msg.textContent = "Enter email and password."; return; }
+  if (captcha !== currentCaptchaAnswer) {
+    msg.textContent = "Wrong answer to the verification question.";
+    generateCaptcha();
+    return;
+  }
+
+  const btn = $("loginBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  try {
+    const res = await fetch(`${FN_URL}?action=login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      msg.textContent = "❌ " + (data.error || "Login failed");
+      generateCaptcha();
+      btn.disabled = false;
+      btn.textContent = "Sign in";
+      return;
+    }
+
+    // Store session
+    sessionStorage.setItem("_mail_token", data.access_token);
+    sessionStorage.setItem("_mail_user_id", data.user.id);
+    sessionStorage.setItem("_mail_user_email", data.user.email);
+    sessionStorage.setItem("_mail_is_admin", data.isAdmin ? "1" : "0");
+    sessionStorage.setItem("_mail_session_id", data.session_id);
+    sessionStorage.setItem("_mail_login_time", String(Date.now()));
+
+    await enterApp();
+  } catch (e) {
+    msg.textContent = "❌ " + e.message;
+    btn.disabled = false;
+    btn.textContent = "Sign in";
+    generateCaptcha();
+  }
+}
+
+async function enterApp() {
+  $("login").hidden = true;
+  $("app").style.display = "grid";
+
+  const userEmail = sessionStorage.getItem("_mail_user_email") || "";
+  isAdmin = sessionStorage.getItem("_mail_is_admin") === "1";
+  sessionId = sessionStorage.getItem("_mail_session_id") || "";
+  loginTime = parseInt(sessionStorage.getItem("_mail_login_time") || "0", 10);
+
+  $("userEmail").textContent = userEmail;
+  $("userName").textContent = userEmail.split("@")[0] || "user";
+  $("userAvatar").textContent = (userEmail[0] || "?").toUpperCase();
+  $("logoutBtn").innerHTML = ic("logout", 18);
+
+  if (isAdmin) {
+    $("adminGroup").hidden = false;
+    $("navAdminOverview").hidden = false;
+    $("navAdminInbox").hidden = false;
+    $("navAdminSent").hidden = false;
+    $("navAdminLogs").hidden = false;
+    $("navAdminSessions").hidden = false;
+  }
+
+  showTab("inbox");
+}
+
+async function doLogout() {
+  const dur = loginTime ? Math.round((Date.now() - loginTime) / 1000) : 0;
+  try {
+    await apiCall("log_logout", { session_id: sessionId, duration_sec: dur });
+  } catch (e) { /* ignore */ }
+
+  sessionStorage.clear();
+  location.reload();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".nav-item[data-tab]").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+  toggleSidebar(false);
+
+  const c = $("content");
+  c.innerHTML = '<div style="padding:60px;text-align:center;color:#7B6E5C;">Loading…</div>';
+
+  if (tab === "inbox") renderInbox();
+  else if (tab === "sent") renderSent();
+  else if (tab === "compose") renderCompose();
+  else if (tab === "admin_overview") renderAdminOverview();
+  else if (tab === "admin_all_inbox") renderAllInbox();
+  else if (tab === "admin_all_sent") renderAllSent();
+  else if (tab === "admin_logs") renderAdminLogs();
+  else if (tab === "admin_sessions") renderAdminSessions();
+}
+
+// ============================================================
+// INBOX
+// ============================================================
+async function renderInbox() {
+  const c = $("content");
+  try {
+    inboxData = await apiCall("inbox", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load inbox", e.message);
+    return;
+  }
+
+  const unread = inboxData.filter(e => e.status === "unread").length;
+  const badge = $("inboxBadge");
+  if (unread > 0) { badge.textContent = unread; badge.hidden = false; }
+  else { badge.hidden = true; }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1>Inbox</h1>
+        <p class="sub">${num(inboxData.length)} messages · ${num(unread)} unread</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderInbox()">${ic("inbox", 15)} Refresh</button>
+      </div>
+    </div>
+
+    ${inboxData.length === 0
+      ? emptyBlock("inbox", "Inbox is empty", "Emails sent to your @thikanadhabla.in address will appear here.")
+      : `<div class="panel">
+          <div class="toolbar" style="padding:14px 18px;margin:0;border-bottom:1px solid var(--line-soft);">
+            <div class="search">
+              ${ic("search", 16)}
+              <input class="input" type="search" placeholder="Search inbox…" oninput="filterList('inbox', this.value)">
+            </div>
+          </div>
+          <div class="email-list" id="inboxList">
+            ${inboxData.map((e, i) => emailRow(e, i, "inbox")).join("")}
+          </div>
+        </div>`}
+  `;
+}
+
+// ============================================================
+// SENT
+// ============================================================
+async function renderSent() {
+  const c = $("content");
+  try {
+    sentData = await apiCall("sent", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load sent items", e.message);
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1>Sent</h1>
+        <p class="sub">${num(sentData.length)} messages</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderSent()">${ic("inbox", 15)} Refresh</button>
+        <button class="btn btn-primary btn-sm" onclick="showTab('compose')">${ic("send", 15)} Compose</button>
+      </div>
+    </div>
+
+    ${sentData.length === 0
+      ? emptyBlock("send", "No sent messages yet", "Emails you send will appear here.")
+      : `<div class="panel">
+          <div class="toolbar" style="padding:14px 18px;margin:0;border-bottom:1px solid var(--line-soft);">
+            <div class="search">
+              ${ic("search", 16)}
+              <input class="input" type="search" placeholder="Search sent…" oninput="filterList('sent', this.value)">
+            </div>
+          </div>
+          <div class="email-list" id="sentList">
+            ${sentData.map((e, i) => emailRow(e, i, "sent")).join("")}
+          </div>
+        </div>`}
+  `;
+}
+
+// Email row helper
+function emailRow(e, idx, listName) {
+  const isUnread = listName === "inbox" && e.status === "unread";
+  const fromCell = listName === "inbox" ? e.from_email : ("To: " + (e.to_email || ""));
+  const dateCell = fmtShort(e.created_at || e.sent_at);
+
+  return `
+    <div class="email-row ${isUnread ? "unread" : ""}" onclick="openEmail('${listName}', ${idx})">
+      <div class="from-cell">
+        ${isUnread ? '<span class="badge-new">NEW</span>' : ""}
+        ${esc(fromCell)}
+      </div>
+      <div class="to-cell">${listName === "inbox" ? "To: " + esc(e.recipient_email) : esc(e.subject || "(no subject)")}</div>
+      <div class="subject-cell">${esc(e.subject || "(no subject)")}</div>
+      <div class="date-cell">${esc(dateCell)}</div>
+    </div>
+  `;
+}
+
+function filterList(listName, query) {
+  const q = query.toLowerCase().trim();
+  const containerId = listName + "List";
+  const el = $(containerId);
+  if (!el) return;
+
+  const rows = el.querySelectorAll(".email-row");
+  rows.forEach((row, i) => {
+    const data = listName === "inbox" ? inboxData[i] : sentData[i];
+    if (!data) return;
+    const hay = `${data.from_email || ""} ${data.to_email || ""} ${data.recipient_email || ""} ${data.subject || ""}`.toLowerCase();
+    row.style.display = !q || hay.includes(q) ? "" : "none";
+  });
+}
+
+// Open a single email
+async function openEmail(listName, idx) {
+  const data = listName === "inbox" ? inboxData : sentData;
+  const email = data[idx];
+  if (!email) return;
+
+  const c = $("content");
+
+  if (listName === "inbox") {
+    // Fetch full body
+    try {
+      const full = await apiCall("inbox_get", {}, "GET", { id: email.id });
+      c.innerHTML = renderEmailView(full, "inbox");
+      // Update badge
+      if (full.status === "read") {
+        email.status = "read";
+        const unread = inboxData.filter(e => e.status === "unread").length;
+        const badge = $("inboxBadge");
+        if (unread > 0) { badge.textContent = unread; badge.hidden = false; }
+        else badge.hidden = true;
+      }
+    } catch (e) {
+      c.innerHTML = errorBlock("Could not open email", e.message);
+    }
+  } else {
+    // Sent — full data already has body
+    c.innerHTML = renderEmailView(email, "sent");
+  }
+}
+
+function renderEmailView(email, source) {
+  const body = email.body || "(no body)";
+  const backTab = source === "inbox" ? "inbox" : "sent";
+
+  return `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="showTab('${backTab}')" style="margin-bottom:8px;">${ic("back", 15)} Back to ${backTab}</button>
+        <h1 style="font-size:1.8rem;">${esc(email.subject || "(no subject)")}</h1>
+      </div>
+      <div class="page-actions">
+        ${source === "inbox"
+          ? `<button class="btn btn-danger-soft btn-sm" onclick="deleteInbox(${email.id})">${ic("trash", 15)} Delete</button>`
+          : ""}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="email-view">
+        <div class="head-meta">
+          <div class="meta-line"><b>From:</b> ${esc(source === "inbox" ? email.from_email : (email.from_email || "you"))}</div>
+          <div class="meta-line"><b>To:</b> ${esc(source === "inbox" ? email.recipient_email : email.to_email)}</div>
+          ${email.cc_email ? `<div class="meta-line"><b>Cc:</b> ${esc(email.cc_email)}</div>` : ""}
+          <div class="meta-line"><b>Date:</b> ${esc(fmt(email.created_at || email.sent_at))}</div>
+          ${email.attachment_url
+            ? `<div class="meta-line" style="margin-top:10px;">
+                <a class="attachment-chip" href="${esc(email.attachment_url)}" target="_blank" rel="noopener">
+                  📎 ${esc(email.attachment_name || "Attachment")}
+                </a>
+              </div>`
+            : ""}
+        </div>
+        <div class="body-text">${esc(body)}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// DELETE INBOX
+// ============================================================
+async function deleteInbox(id) {
+  if (!await confirmDialog("Delete this email?", "It will be permanently removed.", "Delete")) return;
+  try {
+    await apiCall("inbox_delete", { id });
+    showToast("Email deleted");
+    renderInbox();
+  } catch (e) {
+    showToast("Delete failed: " + e.message, "error");
+  }
+}
+
+// ============================================================
+// COMPOSE
+// ============================================================
+async function renderCompose() {
+  const c = $("content");
+
+  let senders = [];
+  try {
+    senders = await apiCall("senders", {}, "GET");
+  } catch (e) { /* ignore */ }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1>Compose</h1>
+        <p class="sub">Send from your @thikanadhabla.in addresses</p>
+      </div>
+    </div>
+
+    <div class="panel compose">
+      <div class="panel-body">
+        <div class="row">
+          <label>From</label>
+          <select class="select" id="cFrom">
+            ${senders.map(s => `<option value="${esc(s.email)}">${esc(s.display_name)} &lt;${esc(s.email)}&gt;</option>`).join("")}
+          </select>
+        </div>
+        <div class="row">
+          <label>To</label>
+          <input class="input" id="cTo" placeholder="recipient@example.com (separate multiple with commas)">
+        </div>
+        <div class="row">
+          <label>Cc</label>
+          <input class="input" id="cCc" placeholder="(optional)">
+        </div>
+        <div class="row">
+          <label>Bcc</label>
+          <input class="input" id="cBcc" placeholder="(optional)">
+        </div>
+        <div class="row subject-row">
+          <label>Subject</label>
+          <input class="input" id="cSubject" placeholder="Email subject">
+        </div>
+        <div class="row body-row">
+          <textarea class="textarea" id="cBody" placeholder="Write your message…"></textarea>
+        </div>
+        <div class="compose-actions">
+          <button class="btn btn-secondary" onclick="clearCompose()">Clear</button>
+          <button class="btn btn-primary" id="sendBtn" onclick="sendEmailNow()">${ic("send", 15)} Send</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function clearCompose() {
+  ["cTo", "cCc", "cBcc", "cSubject", "cBody"].forEach(id => { if ($(id)) $(id).value = ""; });
+}
+
+async function sendEmailNow() {
+  const from = $("cFrom").value;
+  const to = $("cTo").value.trim();
+  const cc = $("cCc").value.trim();
+  const bcc = $("cBcc").value.trim();
+  const subject = $("cSubject").value.trim();
+  const body = $("cBody").value;
+
+  if (!to || !subject || !body) {
+    showToast("To, subject and body are required", "error");
+    return;
+  }
+
+  const btn = $("sendBtn");
+  btn.disabled = true;
+  btn.innerHTML = "Sending…";
+
+  try {
+    const html = body.split("\n").map(l => `<p>${esc(l)}</p>`).join("");
+    const res = await apiCall("send", { from, to, cc, bcc, subject, html });
+    if (res.ok) {
+      showToast("✅ Email sent");
+      clearCompose();
+      setTimeout(() => showTab("sent"), 800);
+    } else {
+      showToast("❌ " + (res.resend?.message || "Failed"), "error");
+    }
+  } catch (e) {
+    showToast("❌ " + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = ic("send", 15) + " Send";
+  }
+}
+
+// ============================================================
+// ADMIN OVERVIEW
+// ============================================================
+async function renderAdminOverview() {
+  const c = $("content");
+  try {
+    adminStats = await apiCall("admin_stats", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load stats", e.message);
+    return;
+  }
+
+  const s = adminStats;
+  const actionRows = Object.entries(s.actionCounts || {}).sort((a, b) => b[1] - a[1]);
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <p class="sub">Overview of all mail activity</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderAdminOverview()">${ic("inbox", 15)} Refresh</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="label">Total received</div><div class="value">${num(s.totalInbound)}</div></div>
+      <div class="kpi"><div class="label">Unread</div><div class="value" style="color:var(--bad);">${num(s.unread)}</div></div>
+      <div class="kpi"><div class="label">Total sent</div><div class="value">${num(s.totalSent)}</div></div>
+      <div class="kpi"><div class="label">Log entries</div><div class="value">${num(s.totalUsers)}</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Activity by action</h3></div>
+      <div class="panel-body">
+        ${actionRows.length
+          ? actionRows.map(([k, v]) => `
+              <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line-soft);">
+                <span style="text-transform:capitalize;">${esc(k)}</span>
+                <strong>${num(v)}</strong>
+              </div>`).join("")
+          : '<div style="color:var(--muted);">No activity yet.</div>'}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// ADMIN: ALL INBOX
+// ============================================================
+async function renderAllInbox() {
+  const c = $("content");
+  try {
+    allInboxData = await apiCall("admin_inbox_all", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load", e.message);
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>All Inbox</h1><p class="sub">${num(allInboxData.length)} messages across all mailboxes</p></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderAllInbox()">${ic("inbox", 15)} Refresh</button>
+      </div>
+    </div>
+    ${allInboxData.length === 0
+      ? emptyBlock("inbox", "No messages", "Nothing received yet.")
+      : `<div class="panel"><div class="email-list">
+          ${allInboxData.map((e, i) => `
+            <div class="email-row ${e.status === "unread" ? "unread" : ""}" onclick="openAdminInbox('${e.id}')">
+              <div class="from-cell">
+                ${e.status === "unread" ? '<span class="badge-new">NEW</span>' : ""}
+                ${esc(e.from_email)}
+              </div>
+              <div class="to-cell">To: ${esc(e.recipient_email)}</div>
+              <div class="subject-cell">${esc(e.subject || "(no subject)")}</div>
+              <div class="date-cell">${esc(fmtShort(e.created_at))}</div>
+            </div>`).join("")}
+        </div></div>`}
+  `;
+}
+
+async function openAdminInbox(id) {
+  const c = $("content");
+  try {
+    const full = await apiCall("inbox_get", {}, "GET", { id });
+    c.innerHTML = `
+      <div class="page-head">
+        <div>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('admin_all_inbox')" style="margin-bottom:8px;">${ic("back", 15)} Back</button>
+          <h1 style="font-size:1.8rem;">${esc(full.subject || "(no subject)")}</h1>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="email-view">
+          <div class="head-meta">
+            <div class="meta-line"><b>From:</b> ${esc(full.from_email)}</div>
+            <div class="meta-line"><b>To:</b> ${esc(full.recipient_email)}</div>
+            <div class="meta-line"><b>Date:</b> ${esc(fmt(full.created_at))}</div>
+          </div>
+          <div class="body-text">${esc(full.body || "(no body)")}</div>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not open", e.message);
+  }
+}
+
+// ============================================================
+// ADMIN: ALL SENT
+// ============================================================
+async function renderAllSent() {
+  const c = $("content");
+  try {
+    allSentData = await apiCall("admin_sent_all", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load", e.message);
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>All Sent</h1><p class="sub">${num(allSentData.length)} messages sent</p></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderAllSent()">${ic("inbox", 15)} Refresh</button>
+      </div>
+    </div>
+    ${allSentData.length === 0
+      ? emptyBlock("send", "No sent messages", "Nothing has been sent yet.")
+      : `<div class="panel"><div class="email-list">
+          ${allSentData.map(e => `
+            <div class="email-row" onclick='openSentDetail(${JSON.stringify(e).replace(/'/g, "&apos;")})'>
+              <div class="from-cell">${esc(e.from_email || "—")}</div>
+              <div class="to-cell">To: ${esc(e.to_email)}</div>
+              <div class="subject-cell">${esc(e.subject || "(no subject)")}</div>
+              <div class="date-cell">${esc(fmtShort(e.created_at))}</div>
+            </div>`).join("")}
+        </div></div>`}
+  `;
+}
+
+function openSentDetail(email) {
+  const c = $("content");
+  c.innerHTML = `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="showTab('admin_all_sent')" style="margin-bottom:8px;">${ic("back", 15)} Back</button>
+        <h1 style="font-size:1.8rem;">${esc(email.subject || "(no subject)")}</h1>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="email-view">
+        <div class="head-meta">
+          <div class="meta-line"><b>From:</b> ${esc(email.from_email || "—")}</div>
+          <div class="meta-line"><b>To:</b> ${esc(email.to_email)}</div>
+          <div class="meta-line"><b>Status:</b> ${esc(email.status)}</div>
+          <div class="meta-line"><b>Date:</b> ${esc(fmt(email.created_at))}</div>
+        </div>
+        <div class="body-text">${email.body || "(no body)"}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// ADMIN: LOGS
+// ============================================================
+async function renderAdminLogs() {
+  const c = $("content");
+  try {
+    logsData = await apiCall("admin_logs", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load logs", e.message);
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Activity Logs</h1><p class="sub">${num(logsData.length)} entries</p></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderAdminLogs()">${ic("inbox", 15)} Refresh</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:800px;">
+          <thead>
+            <tr style="background:#FAF6EC;">
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">Time</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">User</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">Action</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">Details</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logsData.length === 0
+              ? '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">No activity yet.</td></tr>'
+              : logsData.map(l => `
+                <tr style="border-bottom:1px solid var(--line-soft);">
+                  <td style="padding:10px 14px;font-family:var(--mono);font-size:12px;">${esc(fmt(l.created_at))}</td>
+                  <td style="padding:10px 14px;">${esc(l.user_email || "—")}</td>
+                  <td style="padding:10px 14px;"><strong>${esc(l.action)}</strong></td>
+                  <td style="padding:10px 14px;color:var(--muted);">${esc(l.details || "—")}</td>
+                  <td style="padding:10px 14px;font-family:var(--mono);font-size:12px;">${esc(l.ip || "—")}</td>
+                </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// ADMIN: SESSIONS
+// ============================================================
+async function renderAdminSessions() {
+  const c = $("content");
+  try {
+    sessionsData = await apiCall("admin_sessions", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load sessions", e.message);
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Sessions</h1><p class="sub">${num(sessionsData.length)} login sessions</p></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderAdminSessions()">${ic("inbox", 15)} Refresh</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13.5px;min-width:800px;">
+          <thead>
+            <tr style="background:#FAF6EC;">
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">User</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">Login</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">Logout</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">Duration</th>
+              <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:12px;text-transform:uppercase;">IP</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sessionsData.length === 0
+              ? '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted);">No sessions yet.</td></tr>'
+              : sessionsData.map(s => `
+                <tr style="border-bottom:1px solid var(--line-soft);">
+                  <td style="padding:10px 14px;">${esc(s.user_email || "—")}</td>
+                  <td style="padding:10px 14px;font-family:var(--mono);font-size:12px;">${esc(s.login_at ? fmt(s.login_at) : "—")}</td>
+                  <td style="padding:10px 14px;font-family:var(--mono);font-size:12px;">${esc(s.logout_at ? fmt(s.logout_at) : "still open")}</td>
+                  <td style="padding:10px 14px;">${s.duration_sec ? Math.floor(s.duration_sec / 60) + "m " + (s.duration_sec % 60) + "s" : "—"}</td>
+                  <td style="padding:10px 14px;font-family:var(--mono);font-size:12px;">${esc(s.ip || "—")}</td>
+                </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// UI helpers
+// ============================================================
+function emptyBlock(icon, title, text) {
+  return `
+    <div class="panel">
+      <div class="empty">
+        ${ic(icon, 40)}
+        <h4>${esc(title)}</h4>
+        <p>${esc(text)}</p>
+      </div>
+    </div>
+  `;
+}
+function errorBlock(title, msg) {
+  return `
+    <div class="panel">
+      <div class="empty">
+        ${ic("alert", 40)}
+        <h4>${esc(title)}</h4>
+        <p>${esc(msg)}</p>
+      </div>
+    </div>
+  `;
+}
+function confirmDialog(title, hint, okText) {
+  return new Promise(resolve => {
+    $("confirmTitle").textContent = title;
+    $("confirmHint").textContent = hint;
+    $("confirmYes").textContent = okText || "Confirm";
+    $("confirmModal").classList.add("open");
+
+    const done = (v) => {
+      $("confirmModal").classList.remove("open");
+      resolve(v);
+    };
+    $("confirmYes").onclick = () => done(true);
+    $("confirmModal").onclick = (e) => { if (e.target === $("confirmModal")) done(false); };
+  });
+}
+function closeConfirm(v) {
+  $("confirmModal").classList.remove("open");
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+async function init() {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  generateCaptcha();
+  $("pwToggle").innerHTML = ic("eye", 18);
+  $("logoutBtn").innerHTML = ic("logout", 18);
+
+  // Restore session
+  const token = sessionStorage.getItem("_mail_token");
+  if (token) {
+    // Verify token still valid
+    try {
+      const { data, error } = await sb.auth.getUser(token);
+      if (!error && data?.user) {
+        currentUser = data.user;
+        currentSession = { access_token: token };
+        $("login").hidden = true;
+        await enterApp();
+        return;
+      }
+    } catch (e) { /* invalid */ }
+    sessionStorage.clear();
+  }
+
+  // Show login
+  $("login").hidden = false;
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

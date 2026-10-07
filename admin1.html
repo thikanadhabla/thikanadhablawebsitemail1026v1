@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="theme-color" content="#4a0e0e">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Admin Panel — Thikana Dhabla Ghosi</title>
+
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&family=Tiro+Devanagari+Hindi&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+  :root {
+    --wood: #2B1810;
+    --wood-deep: #1C0F0A;
+    --lac: #7A1F1F;
+    --lac-deep: #5C1717;
+    --lac-bright: #9B2D2D;
+    --gold: #C99A3A;
+    --gold-bright: #E8C166;
+    --gold-pale: #F0D68A;
+    --sand: #F2E8D5;
+    --paper: #E8DCC4;
+    --paper-light: #F7F1E4;
+    --indigo: #1B3A5C;
+    --ink: #2A2118;
+    --smoke: #4A3C2C;
+    --ash: #9C8D76;
+    --green: #138808;
+    --red: #B00020;
+    --display: 'Cormorant Garamond', serif;
+    --eyebrow: 'Cinzel', serif;
+    --body: 'Lora', serif;
+    --devnag: 'Tiro Devanagari Hindi', serif;
+    --sidebar-w: 260px;
+    --shadow-card: 0 8px 22px rgba(43, 24, 16, 0.08);
+    --shadow-elevated: 0 20px 50px rgba(0, 0, 0, 0.35);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--sand);
+    background-image: radial-gradient(circle at 1px 1px, rgba(122, 31, 31, 0.05) 1px, transparent 0);
+    background-size: 24px 24px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  a { color: inherit; }
+  img { max-width: 100%; display: block; height: auto; }
+  :focus-visible { outline: 3px solid var(--indigo); outline-offset: 3px; border-radius: 3px; }
+
+  /* ================= LOGIN ================= */
+  #loginScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 20px;
+    background: linear-gradient(160deg, #1C0F0A 0%, #2B1810 40%, #5C1717 100%);
+    position: relative; overflow: hidden;
+  }
+  #loginScreen::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(45deg, rgba(201,154,58,0.04) 0 2px, transparent 2px 30px);
+    pointer-events: none;
+  }
+  .login-box {
+    background: var(--paper-light);
+    border: 2px solid #d6c39a; border-radius: 16px;
+    padding: 44px 40px; max-width: 460px; width: 100%;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.5), var(--shadow-elevated);
+    position: relative; z-index: 2;
+  }
+  .login-box::before {
+    content: ""; position: absolute; inset: 12px;
+    border: 1px solid rgba(122,31,31,0.2);
+    border-radius: 10px; pointer-events: none;
+  }
+  .login-box > * { position: relative; }
+  .login-crest {
+    width: 84px; height: 84px; border-radius: 50%;
+    border: 3px solid var(--gold); background: var(--sand);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; margin: 0 auto 20px;
+    box-shadow: 0 0 28px rgba(201,154,58,0.5);
+  }
+  .login-crest img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+  .login-box h1 {
+    font-family: var(--display); font-size: 2rem;
+    color: var(--lac-deep); text-align: center;
+    margin-bottom: 4px; font-weight: 700;
+  }
+  .login-box .devnag {
+    font-family: var(--devnag); font-size: 1.05rem;
+    color: var(--lac); text-align: center; margin-bottom: 28px;
+  }
+  .login-box label {
+    font-family: var(--eyebrow); font-size: 0.72rem;
+    letter-spacing: 0.1em; color: var(--lac-deep);
+    text-transform: uppercase; display: block; margin-bottom: 6px;
+  }
+  .login-box input {
+    width: 100%; padding: 12px 14px;
+    border: 2px solid var(--gold); border-radius: 8px;
+    font-size: 1rem; font-family: var(--body);
+    background: #fff; color: var(--ink);
+    margin-bottom: 16px; transition: all 0.2s;
+  }
+  .login-box input:focus {
+    outline: none; border-color: var(--gold-bright);
+    box-shadow: 0 0 0 4px rgba(201,154,58,0.18);
+    background: #fffef9;
+  }
+  .captcha-block {
+    background: linear-gradient(135deg, #fff9e6, #fff);
+    border: 2px dashed var(--gold); border-radius: 10px;
+    padding: 16px; margin: 6px 0 16px; text-align: center;
+  }
+  .captcha-label {
+    font-family: var(--eyebrow); font-size: 0.66rem;
+    letter-spacing: 0.08em; color: var(--lac-deep);
+    text-transform: uppercase; margin-bottom: 10px;
+  }
+  .captcha-code {
+    font-family: 'Courier New', monospace; font-size: 2.1rem;
+    letter-spacing: 0.4em; color: var(--lac-deep); font-weight: bold;
+    background: #fff3cd; padding: 12px 18px;
+    border-radius: 8px; display: inline-block;
+    min-width: 150px; user-select: all; -webkit-user-select: all;
+  }
+  .captcha-refresh {
+    background: none; border: none; color: var(--lac-deep);
+    font-size: 0.78rem; text-decoration: underline;
+    cursor: pointer; margin-top: 8px; font-family: var(--body);
+  }
+  .login-btn {
+    width: 100%; padding: 14px;
+    background: var(--lac-deep); color: var(--gold-bright);
+    border: none; border-radius: 8px;
+    font-family: var(--eyebrow); font-size: 0.88rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    cursor: pointer; font-weight: 700;
+    transition: all 0.2s; box-shadow: 0 4px 14px rgba(92,23,23,0.3);
+  }
+  .login-btn:hover:not(:disabled) { background: var(--lac-bright); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(92,23,23,0.4); }
+  .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .login-links {
+    display: flex; justify-content: space-between;
+    margin-top: 18px; font-size: 0.84rem;
+  }
+  .login-links a { color: var(--lac-deep); text-decoration: underline; cursor: pointer; }
+  .login-msg { color: var(--red); font-size: 0.88rem; text-align: center; margin-top: 14px; min-height: 20px; font-weight: 600; }
+  .login-success { color: var(--green); font-size: 0.88rem; text-align: center; margin-top: 14px; font-weight: 600; }
+
+  /* ================= APP ================= */
+  #app { display: none; }
+  .topbar {
+    background: var(--wood-deep);
+    border-bottom: 2px solid rgba(201, 154, 58, 0.3);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+  .topbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .topbar-crest {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid var(--gold); background: var(--sand);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 12px rgba(201,154,58,0.4);
+  }
+  .topbar-crest img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+  .topbar-brand .name {
+    font-family: var(--eyebrow); font-size: 0.68rem;
+    letter-spacing: 0.13em; color: var(--sand); line-height: 1.4;
+  }
+  .topbar-brand .name strong {
+    display: block; color: var(--gold-bright);
+    font-size: 0.92rem; font-weight: 600;
+  }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .user-badge {
+    font-family: var(--eyebrow); font-size: 0.68rem;
+    letter-spacing: 0.08em; color: var(--gold-bright);
+    background: rgba(201,154,58,0.15);
+    border: 1px solid var(--gold);
+    padding: 7px 14px; border-radius: 6px;
+    text-transform: uppercase; max-width: 220px;
+    overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; display: flex; align-items: center; gap: 6px;
+  }
+  .logout-btn {
+    font-family: var(--eyebrow); font-size: 0.68rem;
+    letter-spacing: 0.08em; color: var(--sand);
+    background: var(--lac-deep); border: 1px solid var(--lac-bright);
+    padding: 8px 16px; border-radius: 6px;
+    cursor: pointer; text-transform: uppercase;
+  }
+  .logout-btn:hover { background: var(--lac-bright); }
+  .menu-toggle {
+    display: none; background: none;
+    border: 1px solid var(--gold); color: var(--gold-bright);
+    padding: 8px 14px; border-radius: 6px;
+    font-family: var(--eyebrow); font-size: 0.7rem;
+    cursor: pointer; text-transform: uppercase;
+  }
+
+  .layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: calc(100vh - 68px); }
+
+  /* Sidebar */
+  .sidebar {
+    background: var(--wood-deep);
+    background-image:
+      repeating-linear-gradient(45deg, rgba(201,154,58,0.03) 0 2px, transparent 2px 26px),
+      linear-gradient(180deg, #1C0F0A 0%, #2B1810 100%);
+    border-right: 2px solid rgba(201, 154, 58, 0.3);
+    padding: 24px 14px; position: sticky; top: 68px;
+    align-self: start; max-height: calc(100vh - 68px); overflow-y: auto;
+  }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-nav .nav-item {
+    background: transparent; border: none;
+    color: #cfc2ad; font-family: var(--eyebrow);
+    font-size: 0.72rem; letter-spacing: 0.08em;
+    padding: 13px 16px; border-radius: 8px;
+    cursor: pointer; text-transform: uppercase;
+    text-align: left; display: flex; align-items: center;
+    gap: 12px; transition: all 0.15s; width: 100%;
+  }
+  .sidebar-nav .nav-item:hover {
+    background: rgba(201,154,58,0.12);
+    color: var(--gold-bright); padding-left: 20px;
+  }
+  .sidebar-nav .nav-item.active {
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+    color: var(--wood-deep); font-weight: 700;
+    box-shadow: 0 4px 14px rgba(201,154,58,0.4);
+  }
+  .sidebar-nav .nav-item .icon { font-size: 1.05rem; width: 22px; text-align: center; flex-shrink: 0; }
+  .sidebar-section-title {
+    font-family: var(--eyebrow); font-size: 0.58rem;
+    letter-spacing: 0.14em; color: var(--gold-pale);
+    text-transform: uppercase; padding: 20px 16px 8px;
+    margin-top: 8px; opacity: 0.6;
+  }
+
+  .main-content { padding: 28px 30px 80px; max-width: 100%; overflow-x: auto; }
+
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 14px;
+    margin-bottom: 24px; padding-bottom: 16px;
+    border-bottom: 2px solid rgba(201,154,58,0.3);
+  }
+  .page-header h1 {
+    font-family: var(--display); font-size: 2rem;
+    color: var(--lac-deep); font-weight: 700;
+    line-height: 1.2; display: flex; align-items: center; gap: 10px;
+  }
+  .page-header .sub { font-family: var(--body); font-size: 0.92rem; color: var(--smoke); margin-top: 4px; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px; margin-bottom: 24px;
+  }
+  .stat-card {
+    background: #fff; border: 1px solid #d6c39a;
+    border-radius: 12px; padding: 20px 18px;
+    text-align: center; transition: transform 0.2s, box-shadow 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0;
+    height: 4px; background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(201,154,58,0.3); }
+  .stat-card .stat-icon { font-size: 1.6rem; margin-bottom: 6px; display: block; }
+  .stat-card .stat-label {
+    font-family: var(--eyebrow); font-size: 0.62rem;
+    letter-spacing: 0.1em; color: var(--ash);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  .stat-card .stat-value {
+    font-family: var(--display); font-size: 2rem;
+    font-weight: 700; color: var(--lac-deep); line-height: 1;
+  }
+
+  .filter-bar {
+    background: #fff; border: 1px solid #d6c39a;
+    border-radius: 10px; padding: 14px 18px;
+    margin-bottom: 16px; display: flex;
+    gap: 14px; flex-wrap: wrap; align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .filter-bar label {
+    font-family: var(--eyebrow); font-size: 0.66rem;
+    letter-spacing: 0.06em; color: var(--smoke);
+    text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+  }
+  .filter-bar select, .filter-bar input {
+    padding: 8px 12px; border: 1px solid var(--gold);
+    border-radius: 6px; font-family: var(--body);
+    font-size: 0.88rem; background: #fff; color: var(--ink);
+  }
+  .filter-bar select:focus, .filter-bar input:focus {
+    outline: none; border-color: var(--gold-bright);
+    box-shadow: 0 0 0 3px rgba(201,154,58,0.15);
+  }
+
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 8px;
+    font-family: var(--eyebrow); font-size: 0.72rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; font-weight: 700; transition: all 0.15s;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--lac-deep), var(--lac-bright)); color: var(--gold-bright); box-shadow: 0 3px 10px rgba(92,23,23,0.25); }
+  .btn-primary:hover { box-shadow: 0 5px 18px rgba(92,23,23,0.4); transform: translateY(-1px); }
+  .btn-secondary { background: var(--smoke); color: #fff; }
+  .btn-secondary:hover { background: var(--wood); }
+  .btn-danger { background: linear-gradient(135deg, #8B0000, var(--red)); color: #fff; }
+  .btn-danger:hover { box-shadow: 0 5px 18px rgba(139,0,0,0.4); }
+  .btn-success { background: linear-gradient(135deg, #0F6B06, var(--green)); color: #fff; }
+  .btn-success:hover { box-shadow: 0 5px 18px rgba(19,136,8,0.4); }
+  .btn-small { padding: 6px 12px; font-size: 0.62rem; letter-spacing: 0.05em; }
+
+  .table-wrap {
+    overflow-x: auto; border-radius: 12px;
+    border: 1px solid #d6c39a; background: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 1200px; }
+  thead th {
+    background: linear-gradient(135deg, var(--lac-deep), var(--wood));
+    color: var(--gold-bright); font-family: var(--eyebrow);
+    font-size: 0.6rem; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: left;
+    padding: 14px 14px; position: sticky; top: 0;
+    white-space: nowrap; font-weight: 700;
+  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:nth-child(even) { background: rgba(201,154,58,0.04); }
+  tbody tr:hover { background: rgba(201,154,58,0.12); }
+  tbody td {
+    padding: 12px 14px; border-bottom: 1px solid rgba(214,195,154,0.35);
+    color: var(--smoke); vertical-align: top;
+  }
+  tbody td.mono { font-family: 'Courier New', monospace; font-size: 0.78rem; color: var(--lac-deep); letter-spacing: 0.02em; }
+  tbody td.time { font-family: 'Courier New', monospace; font-size: 0.74rem; white-space: nowrap; }
+
+  .badge {
+    display: inline-block; padding: 4px 9px;
+    border-radius: 4px; font-family: var(--eyebrow);
+    font-size: 0.6rem; letter-spacing: 0.06em;
+    text-transform: uppercase; font-weight: 700;
+  }
+  .badge-mobile { background: #fff3cd; color: #8B6914; }
+  .badge-desktop { background: #e3f2fd; color: var(--indigo); }
+  .badge-en { background: rgba(201,154,58,0.2); color: var(--lac-deep); }
+  .badge-hi { background: rgba(122,31,31,0.18); color: var(--lac-deep); }
+  .badge-blocked { background: #ffebee; color: var(--red); }
+  .badge-ok { background: #e8f5e9; color: var(--green); }
+  .badge-pageview { background: #e3f2fd; color: var(--indigo); }
+  .badge-click { background: #fce4ec; color: var(--lac-bright); }
+  .badge-scroll { background: #fff3cd; color: #8B6914; }
+  .badge-time_spent { background: #e8f5e9; color: var(--green); }
+  .badge-login { background: #e8f5e9; color: var(--green); }
+  .badge-logout { background: #ffebee; color: var(--red); }
+  .badge-edit { background: #fff3cd; color: #8B6914; }
+  .badge-add { background: #e8f5e9; color: var(--green); }
+  .badge-delete { background: #ffebee; color: var(--red); }
+  .badge-block { background: #ffebee; color: var(--red); }
+  .badge-unblock { background: #e8f5e9; color: var(--green); }
+  .badge-change { background: #e3f2fd; color: var(--indigo); }
+  .badge-view { background: rgba(201,154,58,0.15); color: var(--lac-deep); }
+
+  .form-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px; margin-bottom: 18px;
+  }
+  .form-field label {
+    display: block; font-family: var(--eyebrow);
+    font-size: 0.66rem; letter-spacing: 0.08em;
+    color: var(--lac-deep); text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .form-field input, .form-field select, .form-field textarea {
+    width: 100%; padding: 11px 14px;
+    border: 2px solid var(--gold); border-radius: 8px;
+    font-family: var(--body); font-size: 0.94rem;
+    background: #fff; color: var(--ink);
+  }
+  .form-field input:focus, .form-field select:focus {
+    outline: none; border-color: var(--gold-bright);
+    box-shadow: 0 0 0 3px rgba(201,154,58,0.15);
+  }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  @media (max-width: 900px) { .summary-grid, .chart-grid { grid-template-columns: 1fr; } }
+
+  .pagination { display: flex; gap: 6px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .pagination button {
+    min-width: 38px; height: 38px;
+    border: 1px solid var(--gold); background: #fff;
+    color: var(--lac-deep); border-radius: 6px;
+    font-family: var(--eyebrow); font-size: 0.72rem; cursor: pointer;
+  }
+  .pagination button:hover:not(:disabled) { background: rgba(201,154,58,0.15); }
+  .pagination button.active { background: var(--lac-deep); color: var(--gold-bright); border-color: var(--lac-deep); }
+  .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(28,15,10,0.78);
+    display: none; align-items: center; justify-content: center;
+    z-index: 999; padding: 20px; backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--paper-light); border: 2px solid var(--gold);
+    border-radius: 14px; padding: 32px 30px;
+    max-width: 540px; width: 100%;
+    box-shadow: var(--shadow-elevated);
+    max-height: 90vh; overflow-y: auto;
+  }
+  .modal-box h3 { font-family: var(--display); font-size: 1.6rem; color: var(--lac-deep); margin-bottom: 20px; font-weight: 700; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--lac-deep); color: var(--gold-bright);
+    padding: 16px 24px; border-radius: 10px;
+    font-family: var(--body); font-size: 0.92rem;
+    box-shadow: var(--shadow-elevated);
+    opacity: 0; transform: translateY(24px);
+    transition: all 0.3s; z-index: 9999;
+    pointer-events: none; max-width: 360px; font-weight: 500;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: var(--green); }
+  .toast.error { background: var(--red); }
+
+  .empty-state { padding: 60px 20px; text-align: center; color: var(--ash); font-style: italic; font-size: 0.95rem; }
+  .loading { padding: 60px 20px; text-align: center; font-family: var(--eyebrow); font-size: 0.8rem; letter-spacing: 0.1em; color: var(--ash); text-transform: uppercase; }
+  .loading::before {
+    content: ""; display: inline-block; width: 20px; height: 20px;
+    border: 3px solid var(--gold); border-top-color: transparent;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-right: 12px; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .action-row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .menu-toggle { display: block; }
+    .layout { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed; left: 0; top: 68px; bottom: 0;
+      width: 280px; z-index: 200;
+      transform: translateX(-100%); transition: transform 0.25s;
+      box-shadow: 6px 0 20px rgba(0,0,0,0.4); max-height: none;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { padding: 20px 16px 60px; }
+    .page-header h1 { font-size: 1.5rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .topbar-brand .name strong { font-size: 0.8rem; }
+    .user-badge { max-width: 130px; font-size: 0.6rem; }
+  }
+  @media (max-width: 480px) {
+    .stats-grid { grid-template-columns: 1fr; }
+    .login-box { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-crest"><img src="thikanadhabla.jpeg" alt="Thikana Dhabla Ghosi"></div>
+    <h1>Admin Access</h1>
+    <p class="devnag">॥ राघवाय नमः ॥</p>
+
+    <div id="loginFormView">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="xyz@example.com" autocomplete="username">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      <label>Verification Code</label>
+      <div class="captcha-block">
+        <div class="captcha-label">Type the 4-digit code below</div>
+        <div class="captcha-code" id="captchaCode">••••</div>
+        <div><button class="captcha-refresh" onclick="generateCaptcha()">↻ New code</button></div>
+      </div>
+      <input type="text" id="loginCaptcha" placeholder="0000" maxlength="4"
+             inputmode="numeric" pattern="[0-9]*" autocomplete="off"
+             style="width:100%;padding:12px 14px;border:2px solid var(--gold);border-radius:8px;
+                    font-size:1.5rem;font-family:'Courier New',monospace;text-align:center;
+                    letter-spacing:0.4em;background:#fff;color:var(--ink);margin-bottom:16px;">
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+      <div class="login-links">
+        <a onclick="showForgotPassword()">Forgot password?</a>
+        <a href="index.html" style="opacity:0.6;">← Back to site</a>
+      </div>
+      <p class="login-msg" id="loginMsg"></p>
+    </div>
+
+    <div id="forgotView" style="display:none;">
+      <label for="forgotEmail">Your admin email</label>
+      <input type="email" id="forgotEmail" placeholder="admin@example.com">
+      <button class="login-btn" id="forgotBtn" onclick="doForgotPassword()">Send Reset Link</button>
+      <div class="login-links"><a onclick="showLogin()">← Back to login</a></div>
+      <p class="login-msg" id="forgotMsg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="topbar">
+    <a href="index.html" class="topbar-brand">
+      <span class="topbar-crest"><img src="thikanadhabla.jpeg" alt="Crest"></span>
+      <span class="name">
+        Thikana Dhabla Ghosi
+        <strong>Admin Panel</strong>
+      </span>
+    </a>
+    <div class="topbar-right">
+      <span class="user-badge" id="userBadge">👤 admin</span>
+      <button class="menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="visitors" onclick="showTab('visitors')">
+          <span class="icon">👥</span> Visitors
+        </button>
+        <button class="nav-item" data-tab="logs" onclick="showTab('logs')">
+          <span class="icon">📊</span> Access Logs
+        </button>
+        <button class="nav-item" data-tab="bots" onclick="showTab('bots')">
+          <span class="icon">🤖</span> Blocked Bots
+        </button>
+
+        <div class="sidebar-section-title">Analytics</div>
+        <button class="nav-item" data-tab="charts" onclick="showTab('charts')">
+          <span class="icon">📈</span> Charts & Graphs
+        </button>
+        <button class="nav-item" data-tab="adminlogs" onclick="showTab('adminlogs')">
+          <span class="icon">🔐</span> Admin Activity
+        </button>
+
+        <div class="sidebar-section-title">IP Management</div>
+        <button class="nav-item" data-tab="blockedips" onclick="showTab('blockedips')">
+          <span class="icon">🚫</span> Blocked IPs
+        </button>
+        <button class="nav-item" data-tab="blocknew" onclick="showTab('blocknew')">
+          <span class="icon">➕</span> Block an IP
+        </button>
+
+        <div class="sidebar-section-title">Contacts</div>
+        <button class="nav-item" data-tab="contacts" onclick="showTab('contacts')">
+          <span class="icon">📋</span> Manage Contacts
+        </button>
+        <button class="nav-item" data-tab="addcontact" onclick="showTab('addcontact')">
+          <span class="icon">➕</span> Add Contact
+        </button>
+
+        <div class="sidebar-section-title">Account</div>
+        <button class="nav-item" data-tab="account" onclick="showTab('account')">
+          <span class="icon">⚙️</span> Account
+        </button>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div id="content"><div class="loading">Loading dashboard…</div></div>
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Edit Contact</h3>
+    <div class="form-grid">
+      <div class="form-field"><label>Name</label><input type="text" id="editName"></div>
+      <div class="form-field"><label>Phone (10 digits)</label><input type="text" id="editPhone" maxlength="10" inputmode="numeric"></div>
+      <div class="form-field"><label>Relation</label><input type="text" id="editRelation"></div>
+      <div class="form-field"><label>City</label><input type="text" id="editCity"></div>
+    </div>
+    <input type="hidden" id="editId">
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveContact()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = "https://fmrmiylqjokyrsztfmgp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cNHjqBdWpu98niKZqMvIuA_96VjEQxk";
+
+let sb = null;
+let currentUser = null;
+let currentCaptcha = null;
+let allContacts = [];
+let adminSessionId = null;
+let adminLoginTime = null;
+let chartInstances = {};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show " + type;
+  setTimeout(() => t.className = "toast " + type, 3200);
+}
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+function fmt(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }); }
+  catch { return ts; }
+}
+function timeAgo(ts) {
+  if (!ts) return "—";
+  const diff = Date.now() - new Date(ts).getTime();
+  const s = Math.floor(diff / 1000);
+  if (s < 60) return s + "s ago";
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + "h ago";
+  return Math.floor(h / 24) + "d ago";
+}
+function dashIfEmpty(v) { return (v === null || v === undefined || v === "" || v === "unknown") ? "—" : v; }
+function shortUA(ua) { return !ua ? "—" : (ua.length > 55 ? ua.slice(0, 55) + "…" : ua); }
+function shortRef(ref) {
+  if (!ref || ref === "Direct") return "Direct";
+  try { return new URL(ref).hostname; } catch { return ref.slice(0, 30); }
+}
+function escCSV(v) {
+  if (v === null || v === undefined) return "";
+  const s = String(v).replace(/"/g, '""');
+  return /[",\n]/.test(s) ? `"${s}"` : s;
+}
+function downloadCSV(csv, filename) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// CAPTCHA
+// ============================================================
+function generateCaptcha() {
+  currentCaptcha = String(Math.floor(1000 + Math.random() * 9000));
+  document.getElementById("captchaCode").textContent = currentCaptcha;
+  document.getElementById("loginCaptcha").value = "";
+}
+
+// ============================================================
+// ADMIN ACTIVITY LOGGER
+// ============================================================
+function getAdminSessionId() {
+  if (!adminSessionId) {
+    adminSessionId = "admin_" + Date.now() + "_" + Math.random().toString(36).substring(2, 8);
+    sessionStorage.setItem("_admin_session", adminSessionId);
+  }
+  return adminSessionId;
+}
+async function logAdminActivity(action, details = {}) {
+  try {
+    await sb.from("admin_activity").insert({
+      admin_email: currentUser?.email || "unknown",
+      admin_id: currentUser?.id || null,
+      action,
+      details,
+      ip: sessionStorage.getItem("_admin_ip") || null,
+      country: sessionStorage.getItem("_admin_country") || null,
+      city: sessionStorage.getItem("_admin_city") || null,
+      region: sessionStorage.getItem("_admin_region") || null,
+      latitude: parseFloat(sessionStorage.getItem("_admin_lat")) || null,
+      longitude: parseFloat(sessionStorage.getItem("_admin_lon")) || null,
+      browser: navigator.userAgent,
+      device: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop",
+      session_id: getAdminSessionId(),
+    });
+  } catch (e) { console.warn("Admin log failed:", e); }
+}
+async function fetchAdminGeo() {
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const d = await res.json();
+    if (d.ip) {
+      sessionStorage.setItem("_admin_ip", d.ip);
+      sessionStorage.setItem("_admin_country", d.country_name || "");
+      sessionStorage.setItem("_admin_city", d.city || "");
+      sessionStorage.setItem("_admin_region", d.region || "");
+      sessionStorage.setItem("_admin_lat", d.latitude || "");
+      sessionStorage.setItem("_admin_lon", d.longitude || "");
+    }
+  } catch (e) { console.warn(e); }
+}
+
+// ============================================================
+// LOGIN / LOGOUT / FORGOT
+// ============================================================
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const captcha = document.getElementById("loginCaptcha").value.trim();
+  const msg = document.getElementById("loginMsg");
+  msg.textContent = "";
+  if (!email || !password) { msg.textContent = "Enter email and password."; return; }
+  if (captcha !== currentCaptcha) { msg.textContent = "Wrong verification code."; generateCaptcha(); return; }
+
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = true; btn.textContent = "Signing in…";
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = "Sign In";
+
+  if (error) { msg.textContent = "❌ " + error.message; generateCaptcha(); return; }
+
+  currentUser = data.user;
+  adminLoginTime = Date.now();
+  await fetchAdminGeo();
+  await logAdminActivity("login", { method: "password" });
+  enterApp();
+}
+function showForgotPassword() {
+  document.getElementById("loginFormView").style.display = "none";
+  document.getElementById("forgotView").style.display = "block";
+  document.getElementById("forgotEmail").value = document.getElementById("loginEmail").value;
+}
+function showLogin() {
+  document.getElementById("forgotView").style.display = "none";
+  document.getElementById("loginFormView").style.display = "block";
+}
+async function doForgotPassword() {
+  const email = document.getElementById("forgotEmail").value.trim();
+  const msg = document.getElementById("forgotMsg");
+  if (!email) { msg.textContent = "Enter your email."; return; }
+  const btn = document.getElementById("forgotBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/admin.html" });
+  btn.disabled = false; btn.textContent = "Send Reset Link";
+  if (error) { msg.textContent = "❌ " + error.message; return; }
+  msg.className = "login-success";
+  msg.textContent = "✅ Reset link sent! Check your email.";
+  setTimeout(() => { msg.className = "login-msg"; showLogin(); }, 4000);
+}
+async function doLogout() {
+  const dur = adminLoginTime ? Math.round((Date.now() - adminLoginTime) / 1000) : 0;
+  await logAdminActivity("logout", { session_duration_seconds: dur });
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// ============================================================
+// APP BOOT
+// ============================================================
+function enterApp() {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  document.getElementById("userBadge").textContent = "👤 " + (currentUser?.email || "admin");
+  showTab("visitors");
+}
+function toggleSidebar() { document.getElementById("sidebar").classList.toggle("open"); }
+function showTab(tab) {
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.getElementById("sidebar")?.classList.remove("open");
+  document.getElementById("content").innerHTML = '<div class="loading">Loading…</div>';
+  if (currentUser && tab !== "adminlogs") logAdminActivity("view_tab", { tab });
+
+  if (tab === "visitors") renderVisitors(1);
+  else if (tab === "logs") renderLogs(1);
+  else if (tab === "bots") renderBots(1);
+  else if (tab === "blockedips") renderBlockedIPs(1);
+  else if (tab === "blocknew") renderBlockNew();
+  else if (tab === "contacts") renderContacts();
+  else if (tab === "addcontact") renderAddContact();
+  else if (tab === "account") renderAccount();
+  else if (tab === "charts") renderCharts();
+  else if (tab === "adminlogs") renderAdminLogs(1);
+}
+
+// ============================================================
+// TAB: VISITORS
+// ============================================================
+async function renderVisitors(page = 1) {
+  const fSite = document.getElementById("fSite")?.value || "";
+  const fPage = document.getElementById("fPage")?.value || "";
+  const fLang = document.getElementById("fLang")?.value || "";
+  const pageSize = parseInt(document.getElementById("fPageSize")?.value || "100", 10);
+
+  let q = sb.from("visitor_events").select("*", { count: "exact" });
+  if (fSite) q = q.eq("site", fSite);
+  if (fPage) q = q.eq("page_name", fPage);
+  if (fLang) q = q.eq("page_lang", fLang);
+  q = q.order("created_at", { ascending: false }).range((page - 1) * pageSize, page * pageSize - 1);
+
+  const { data, error, count } = await q;
+  if (error) { document.getElementById("content").innerHTML = `<div class="empty-state">Failed: ${esc(error.message)}</div>`; return; }
+  const rows = data || [];
+  const total = count || 0;
+  const totalPages = Math.ceil(total / pageSize);
+  const stats = await computeVisitorStats(fSite, fPage, fLang);
+
+  document.getElementById("content").innerHTML = `
+    <div class="page-header">
+      <div><h1>👥 Visitors</h1><div class="sub">Showing ${rows.length} of <strong>${total.toLocaleString()}</strong> events</div></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-small" onclick="renderVisitors(${page})">↻ Refresh</button>
+        <button class="btn btn-primary btn-small" onclick="exportVisitorsCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-icon">🌐</span><div class="stat-label">Unique IPs</div><div class="stat-value">${stats.uniqueIPs}</div></div>
+      <div class="stat-card"><span class="stat-icon">👥</span><div class="stat-label">Sessions</div><div class="stat-value">${stats.sessions}</div></div>
+      <div class="stat-card"><span class="stat-icon">📄</span><div class="stat-label">Pageviews</div><div class="stat-value">${stats.pageviews}</div></div>
+      <div class="stat-card"><span class="stat-icon">📱</span><div class="stat-label">Mobile</div><div class="stat-value">${stats.mobile}</div></div>
+      <div class="stat-card"><span class="stat-icon">📊</span><div class="stat-label">Total Events</div><div class="stat-value">${stats.total}</div></div>
+      <div class="stat-card"><span class="stat-icon">⏱️</span><div class="stat-label">Avg Time</div><div class="stat-value">${stats.avgTime}s</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <label>Site:
+        <select id="fSite" onchange="renderVisitors(1)">
+          <option value="">All</option>
+          <option ${fSite === 'Thikana Dhabla Ghosi' ? 'selected' : ''}>Thikana Dhabla Ghosi</option>
+          <option ${fSite === 'Rajvardhan Singh' ? 'selected' : ''}>Rajvardhan Singh</option>
+        </select>
+      </label>
+      <label>Page:
+        <select id="fPage" onchange="renderVisitors(1)">
+          <option value="">All</option>
+          ${['Home','History','Family Tree','Location & Map','Directory','About','Contact','Privacy','Sitemap'].map(p => `<option ${fPage === p ? 'selected' : ''}>${p}</option>`).join("")}
+        </select>
+      </label>
+      <label>Lang:
+        <select id="fLang" onchange="renderVisitors(1)">
+          <option value="">All</option>
+          <option value="en" ${fLang === 'en' ? 'selected' : ''}>English</option>
+          <option value="hi" ${fLang === 'hi' ? 'selected' : ''}>हिन्दी</option>
+        </select>
+      </label>
+      <label>Show:
+        <select id="fPageSize" onchange="renderVisitors(1)">
+          ${[50,100,250,500,1000,5000].map(n => `<option value="${n}" ${pageSize === n ? 'selected' : ''}>${n}</option>`).join("")}
+        </select>
+      </label>
+    </div>
+
+    <div class="summary-grid">
+      <div class="table-wrap"><table style="min-width:auto;"><thead><tr><th>Site</th><th style="text-align:right;">Views</th></tr></thead>
+        <tbody>${Object.entries(stats.bySite).map(([k,v]) => `<tr><td>${esc(k)}</td><td style="text-align:right;font-weight:700;">${v}</td></tr>`).join("") || '<tr><td colspan="2" class="empty-state">No data</td></tr>'}</tbody></table></div>
+      <div class="table-wrap"><table style="min-width:auto;"><thead><tr><th>Page (Lang)</th><th style="text-align:right;">Views</th></tr></thead>
+        <tbody>${Object.entries(stats.byPage).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([k,v]) => `<tr><td>${esc(k)}</td><td style="text-align:right;font-weight:700;">${v}</td></tr>`).join("") || '<tr><td colspan="2" class="empty-state">No data</td></tr>'}</tbody></table></div>
+    </div>
+
+    <div class="table-wrap">${renderVisitorTable(rows)}</div>
+    ${totalPages > 1 ? renderPagination("renderVisitors", page, totalPages) : ""}
+  `;
+}
+function renderVisitorTable(rows) {
+  if (!rows.length) return '<div class="empty-state">No events.</div>';
+  return `<table><thead><tr>
+    <th>Time (IST)</th><th>When</th><th>Site</th><th>Event</th><th>Page</th><th>Lang</th>
+    <th>IP</th><th>City</th><th>Country</th><th>Lat, Lon</th><th>Device</th>
+    <th>Screen</th><th>Browser</th><th>Ref</th><th>Scroll</th><th>Time</th>
+  </tr></thead><tbody>
+    ${rows.map(v => `
+      <tr>
+        <td class="time">${fmt(v.created_at)}</td>
+        <td class="time" style="color:var(--ash);">${timeAgo(v.created_at)}</td>
+        <td>${esc(dashIfEmpty(v.site))}</td>
+        <td><span class="badge badge-${esc(v.event_type)}">${esc(v.event_type || "—")}</span></td>
+        <td>${esc(dashIfEmpty(v.page_name))}</td>
+        <td><span class="badge badge-${v.page_lang === 'hi' ? 'hi' : 'en'}">${esc(v.page_lang || "en")}</span></td>
+        <td class="mono">${esc(dashIfEmpty(v.ip))}</td>
+        <td>${esc(dashIfEmpty(v.city))}</td>
+        <td>${esc(dashIfEmpty(v.country))}</td>
+        <td class="mono" style="font-size:0.72rem;">${v.latitude ? `${v.latitude}, ${v.longitude}` : "—"}</td>
+        <td><span class="badge badge-${v.device === 'Mobile' ? 'mobile' : 'desktop'}">${esc(v.device || "—")}</span></td>
+        <td class="mono" style="font-size:0.72rem;">${esc(dashIfEmpty(v.screen))}</td>
+        <td title="${esc(v.browser)}">${esc(shortUA(v.browser))}</td>
+        <td title="${esc(v.referrer)}">${esc(shortRef(v.referrer))}</td>
+        <td>${v.scroll_percent ? v.scroll_percent + "%" : "—"}</td>
+        <td>${v.time_spent ? v.time_spent + "s" : "—"}</td>
+      </tr>
+    `).join("")}
+  </tbody></table>`;
+}
+async function computeVisitorStats(fSite, fPage, fLang) {
+  let q = sb.from("visitor_events").select("ip,session_id,event_type,site,page_name,page_lang,device,time_spent");
+  if (fSite) q = q.eq("site", fSite);
+  if (fPage) q = q.eq("page_name", fPage);
+  if (fLang) q = q.eq("page_lang", fLang);
+  const { data } = await q.limit(50000);
+  if (!data) return { uniqueIPs:0, sessions:0, pageviews:0, mobile:0, total:0, avgTime:0, bySite:{}, byPage:{} };
+  const uniqueIPs = new Set(data.filter(x => x.ip).map(x => x.ip)).size;
+  const sessions = new Set(data.filter(x => x.session_id).map(x => x.session_id)).size;
+  const pageviews = data.filter(x => x.event_type === "pageview").length;
+  const mobile = data.filter(x => x.device === "Mobile").length;
+  const ts = data.filter(x => x.event_type === "time_spent" && x.time_spent);
+  const avgTime = ts.length ? Math.round(ts.reduce((s,x) => s + x.time_spent, 0) / ts.length) : 0;
+  const bySite = {}, byPage = {};
+  data.filter(x => x.event_type === "pageview").forEach(x => {
+    const s = x.site || "Unknown";
+    bySite[s] = (bySite[s] || 0) + 1;
+    const p = `${x.page_name || "Unknown"} (${x.page_lang || "en"})`;
+    byPage[p] = (byPage[p] || 0) + 1;
+  });
+  return { uniqueIPs, sessions, pageviews, mobile, total: data.length, avgTime, bySite, byPage };
+}
+
+// ============================================================
+// TAB: LOGS
+// ============================================================
+async function renderLogs(page = 1) {
+  const pageSize = parseInt(document.getElementById("logPageSize")?.value || "100", 10);
+  let q = sb.from("access_logs").select("*", { count: "exact" })
+    .order("timestamp", { ascending: false })
+    .range((page-1)*pageSize, page*pageSize-1);
+  const { data, error, count } = await q;
+  if (error) { document.getElementById("content").innerHTML = `<div class="empty-state">Failed: ${esc(error.message)}</div>`; return; }
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / pageSize);
+
+  document.getElementById("content").innerHTML = `
+    <div class="page-header">
+      <div><h1>📊 Access Logs</h1><div class="sub">${total.toLocaleString()} events</div></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-small" onclick="renderLogs(${page})">↻ Refresh</button>
+        <button class="btn btn-primary btn-small" onclick="exportLogsCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <label>Show: <select id="logPageSize" onchange="renderLogs(1)">
+        ${[100,250,500,1000].map(n => `<option value="${n}" ${pageSize === n ? 'selected' : ''}>${n}</option>`).join("")}
+      </select></label>
+    </div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>Time (IST)</th><th>When</th><th>IP</th><th>Location</th><th>Action</th><th>Contact</th><th>Flags</th>
+    </tr></thead><tbody>
+      ${rows.length ? rows.map(l => `
+        <tr>
+          <td class="time">${fmt(l.timestamp)}</td>
+          <td class="time" style="color:var(--ash);">${timeAgo(l.timestamp)}</td>
+          <td class="mono">${esc(dashIfEmpty(l.ip))}</td>
+          <td>${esc([l.city,l.region,l.country].filter(Boolean).join(", ") || "—")}</td>
+          <td><span class="badge badge-blocked">${esc(l.action || "—")}</span></td>
+          <td>${l.contact_id ? "#" + l.contact_id : "—"}</td>
+          <td>${l.suspicious ? '<span class="badge badge-blocked">🚩 Suspicious</span>' : "—"}</td>
+        </tr>
+      `).join("") : '<tr><td colspan="7" class="empty-state">No logs.</td></tr>'}
+    </tbody></table></div>
+    ${totalPages > 1 ? renderPagination("renderLogs", page, totalPages) : ""}
+  `;
+}
+
+// ============================================================
+// TAB: BOTS
+// ============================================================
+async function renderBots(page = 1) {
+  const pageSize = 100;
+  let q = sb.from("bot_signatures").select("*", { count: "exact" })
+    .order("detected_at", { ascending: false })
+    .range((page-1)*pageSize, page*pageSize-1);
+  const { data, error, count } = await q;
+  if (error) { document.getElementById("content").innerHTML = `<div class="empty-state">Failed: ${esc(error.message)}</div>`; return; }
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / pageSize);
+
+  document.getElementById("content").innerHTML = `
+    <div class="page-header"><div><h1>🤖 Blocked Bots</h1><div class="sub">${total.toLocaleString()} total</div></div></div>
+    <div class="table-wrap"><table><thead><tr>
+      <th>Time (IST)</th><th>When</th><th>IP</th><th>Reason</th><th>User Agent</th><th>Action</th>
+    </tr></thead><tbody>
+      ${rows.length ? rows.map(b => `
+        <tr>
+          <td class="time">${fmt(b.detected_at)}</td>
+          <td class="time" style="color:var(--ash);">${timeAgo(b.detected_at)}</td>
+          <td class="mono">${esc(b.ip || "—")}</td>
+          <td style="color:var(--red);font-weight:600;">${esc(b.reason || "—")}</td>
+          <td style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(b.user_agent)}">${esc(b.user_agent || "—")}</td>
+          <td>${b.ip ? `<button class="btn btn-danger btn-small" onclick="quickBlockIP('${esc(b.ip)}','${esc(b.reason || "Bot")}')">🚫 Block</button>` : "—"}</td>
+        </tr>
+      `).join("") : '<tr><td colspan="6" class="empty-state">No bots blocked yet.</td></tr>'}
+    </tbody></table></div>
+    ${totalPages > 1 ? renderPagination("renderBots", page, totalPages) : ""}
+  `;
+}
+
+// ============================================================
+// TAB: BLOCKED IPS
+// ============================================================
+async function renderBlockedIPs(page = 1) {
+  const pageSize = 100;
+  let q = sb.from("blocked_ips").select("*", { count: "exact" })
+    .order("blocked_at", { ascending: false })
+    .range((page-1)*pageSize, page*pageSize-1);
+  const { data, error, count } = await q;
+
+  if (error) {
+    document.getElementById("content").innerHTML = `
+      <div class="page-header"><div><h1>🚫 Blocked IPs</h1></div></div>
+      <div class="empty-state">Table <code>blocked_ips</code> doesn't exist. Run the SQL from Step 1.</div>`;
+    return;
+  }
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / pageSize);
+
+  document.getElementById("content").innerHTML = `
+    <div class="page-header">
+      <div><h1>🚫 Blocked IPs</h1><div class="sub">${total.toLocaleString()} IPs blocked</div></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-small" onclick="renderBlockedIPs(1)">↻ Refresh</button>
+        <button class="btn btn-primary btn-small" onclick="showTab('blocknew')">➕ Block New IP</button>
+      </div>
+    </div>
+    ${rows.length ? `
+      <div class="filter-bar">
+        <label>Search: <input type="text" id="blockedSearch" placeholder="IP or reason…" oninput="filterBlockedTable()" style="width:260px;"></label>
+        <button class="btn btn-danger btn-small" onclick="unblockAllBlocked()">🗑 Unblock All</button>
+      </div>
+      <div class="table-wrap" id="blockedTableWrap">${renderBlockedTable(rows)}</div>
+      ${totalPages > 1 ? renderPagination("renderBlockedIPs", page, totalPages) : ""}
+    ` : '<div class="empty-state">No IPs blocked. All visitors can access the site.</div>'}
+  `;
+}
+function renderBlockedTable(rows) {
+  if (!rows.length) return '<div class="empty-state">No matching IPs.</div>';
+  return `<table><thead><tr>
+    <th>IP</th><th>Reason</th><th>Blocked By</th><th>When</th><th>Expires</th><th>Ago</th><th>Actions</th>
+  </tr></thead><tbody>
+    ${rows.map(b => {
+      const isTemp = b.expires_at;
+      const expired = isTemp && new Date(b.expires_at) < new Date();
+      const expireLabel = !isTemp ? "Permanent" : expired ? "Expired" : timeAgo(b.expires_at).replace(" ago", "") + " left";
+      return `
+      <tr>
+        <td class="mono" style="font-weight:700;color:var(--lac-deep);">${esc(b.ip)}</td>
+        <td>${esc(b.reason || "—")}</td>
+        <td>${esc(b.blocked_by || "—")}</td>
+        <td class="time">${fmt(b.blocked_at)}</td>
+        <td><span class="badge ${isTemp ? (expired ? 'badge-blocked' : 'badge-mobile') : 'badge-blocked'}">${expireLabel}</span></td>
+        <td class="time" style="color:var(--ash);">${timeAgo(b.blocked_at)}</td>
+        <td><div class="action-row">
+          <button class="btn btn-success btn-small" onclick="unblockIP(${b.id}, '${esc(b.ip)}')">✓ Unblock</button>
+          <button class="btn btn-secondary btn-small" onclick="copyIP('${esc(b.ip)}')">📋 Copy</button>
+        </div></td>
+      </tr>`;
+    }).join("")}
+  </tbody></table>`;
+}
+function filterBlockedTable() {
+  const q = (document.getElementById("blockedSearch")?.value || "").toLowerCase();
+  document.querySelectorAll("#blockedTableWrap tbody tr").forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+}
+async function unblockIP(id, ip) {
+  if (!confirm(`Unblock IP ${ip}?`)) return;
+  const { error } = await sb.from("blocked_ips").delete().eq("id", id);
+  if (error) { showToast("Failed: " + error.message, "error"); return; }
+  await logAdminActivity("unblock_ip", { ip });
+  showToast(`✅ Unblocked ${ip}`);
+  renderBlockedIPs(1);
+}
+async function unblockAllBlocked() {
+  if (!confirm("⚠️ Unblock ALL blocked IPs?\n\nThis will remove every entry from the blocklist.")) return;
+  if (!confirm("This cannot be undone. Continue?")) return;
+  const { error } = await sb.from("blocked_ips").delete().neq("id", 0);
+  if (error) { showToast("Failed: " + error.message, "error"); return; }
+  await logAdminActivity("unblock_all_ips", {});
+  showToast("✅ All IPs unblocked");
+  renderBlockedIPs(1);
+}
+function copyIP(ip) {
+  navigator.clipboard.writeText(ip).then(() => showToast("📋 Copied: " + ip))
+    .catch(() => showToast("Failed to copy", "error"));
+}
+
+// ============================================================
+// TAB: BLOCK NEW
+// ============================================================
+function renderBlockNew() {
+  document.getElementById("content").innerHTML = `
+    <div class="page-header"><div><h1>➕ Block a New IP</h1><div class="sub">Visitors from this IP will be denied access</div></div></div>
+    <div class="form-grid">
+      <div class="form-field"><label>IP Address *</label><input type="text" id="blockIp" placeholder="e.g., 106.222.217.103"></div>
+      <div class="form-field"><label>Reason</label><input type="text" id="blockReason" placeholder="e.g., Scraping, spam"></div>
+      <div class="form-field"><label>Duration</label>
+        <select id="blockDuration">
+          <option value="0">Permanent</option>
+          <option value="1">1 hour</option>
+          <option value="24">24 hours</option>
+          <option value="168">1 week</option>
+          <option value="720">30 days</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="clearBlockForm()">Clear</button>
+      <button class="btn btn-danger" onclick="submitBlockIP()">🚫 Block IP</button>
+    </div>
+  `;
+}
+function clearBlockForm() {
+  document.getElementById("blockIp").value = "";
+  document.getElementById("blockReason").value = "";
+}
+async function submitBlockIP() {
+  const ip = document.getElementById("blockIp").value.trim();
+  const reason = document.getElementById("blockReason").value.trim();
+  const hours = parseInt(document.getElementById("blockDuration").value, 10);
+  if (!ip) { showToast("IP required", "error"); return; }
+  if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) { showToast("Invalid IPv4", "error"); return; }
+  const payload = { ip, reason: reason || "Manually blocked", blocked_by: currentUser?.email || "admin" };
+  if (hours > 0) payload.expires_at = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+  const { error } = await sb.from("blocked_ips").insert(payload);
+  if (error) {
+    if (error.code === "23505") showToast("IP already blocked", "error");
+    else showToast("Failed: " + error.message, "error");
+    return;
+  }
+  await logAdminActivity("block_ip", { ip, reason: payload.reason, expires_hours: hours });
+  showToast(`✅ Blocked ${ip}${hours > 0 ? " for " + hours + "h" : " permanently"}`);
+  clearBlockForm();
+  setTimeout(() => showTab("blockedips"), 800);
+}
+function quickBlockIP(ip, reason) {
+  if (!confirm(`Block IP ${ip}?`)) return;
+  sb.from("blocked_ips").insert({ ip, reason: reason || "Bot", blocked_by: currentUser?.email || "admin" })
+    .then(async ({ error }) => {
+      if (error) showToast(error.code === "23505" ? "Already blocked" : "Failed", "error");
+      else {
+        await logAdminActivity("block_ip", { ip, reason });
+        showToast("✅ Blocked " + ip);
+      }
+    });
+}
+
+// ============================================================
+// TAB: CONTACTS
+// ============================================================
+async function renderContacts() {
+  const { data, error } = await sb.from("contacts").select("*").order("id");
+  if (error) { document.getElementById("content").innerHTML = `<div class="empty-state">Failed: ${esc(error.message)}</div>`; return; }
+  allContacts = data || [];
+  document.getElementById("content").innerHTML = `
+    <div class="page-header">
+      <div><h1>📋 Contacts (${allContacts.length})</h1></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-small" onclick="renderContacts()">↻ Refresh</button>
+        <button class="btn btn-primary btn-small" onclick="showTab('addcontact')">➕ Add</button>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <label>Search: <input type="text" id="contactSearch" placeholder="Name, phone, city…" oninput="filterContacts()" style="width:260px;"></label>
+    </div>
+    <div class="table-wrap" id="contactsTableWrap">${renderContactsTable(allContacts)}</div>
+  `;
+}
+function filterContacts() {
+  const q = (document.getElementById("contactSearch").value || "").toLowerCase();
+  const filtered = allContacts.filter(c =>
+    c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)) || (c.city && c.city.toLowerCase().includes(q)));
+  document.getElementById("contactsTableWrap").innerHTML = renderContactsTable(filtered);
+}
+function renderContactsTable(rows) {
+  if (!rows.length) return '<div class="empty-state">No contacts.</div>';
+  return `<table><thead><tr>
+    <th>#</th><th>Name</th><th>Phone</th><th>Relation</th><th>City</th><th>Updated</th><th>Actions</th>
+  </tr></thead><tbody>
+    ${rows.map(c => `
+      <tr>
+        <td>${c.id}</td>
+        <td style="font-weight:700;color:var(--lac-deep);">${esc(c.name)}</td>
+        <td class="mono">+91 ${esc(c.phone)}</td>
+        <td>${esc(c.relation || "—")}</td>
+        <td>${esc(c.city || "—")}</td>
+        <td class="time" style="font-size:0.72rem;">${timeAgo(c.updated_at || c.created_at)}</td>
+        <td><div class="action-row">
+          <button class="btn btn-primary btn-small" onclick="openEditModal(${c.id})">✎ Edit</button>
+          <button class="btn btn-danger btn-small" onclick="deleteContact(${c.id}, '${esc(c.name)}')">🗑 Delete</button>
+        </div></td>
+      </tr>
+    `).join("")}
+  </tbody></table>`;
+}
+function openEditModal(id) {
+  const c = allContacts.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById("editId").value = c.id;
+  document.getElementById("editName").value = c.name || "";
+  document.getElementById("editPhone").value = c.phone || "";
+  document.getElementById("editRelation").value = c.relation || "";
+  document.getElementById("editCity").value = c.city || "";
+  document.getElementById("modalTitle").textContent = "Edit Contact #" + c.id;
+  document.getElementById("editModal").classList.add("open");
+}
+function closeEditModal() { document.getElementById("editModal").classList.remove("open"); }
+async function saveContact() {
+  const id = document.getElementById("editId").value;
+  const name = document.getElementById("editName").value.trim();
+  const phone = document.getElementById("editPhone").value.trim().replace(/\D/g, "");
+  const relation = document.getElementById("editRelation").value.trim();
+  const city = document.getElementById("editCity").value.trim();
+  if (!name) { showToast("Name required", "error"); return; }
+  if (!/^\d{10}$/.test(phone)) { showToast("Phone must be 10 digits", "error"); return; }
+  const { error } = await sb.from("contacts").update({ name, phone, relation, city, updated_at: new Date().toISOString() }).eq("id", id);
+  if (error) { showToast("Failed: " + error.message, "error"); return; }
+  await logAdminActivity("edit_contact", { contact_id: id, name, new_phone: phone });
+  showToast("✅ Updated");
+  closeEditModal();
+  renderContacts();
+}
+async function deleteContact(id, name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  const { error } = await sb.from("contacts").delete().eq("id", id);
+  if (error) { showToast("Failed: " + error.message, "error"); return; }
+  await logAdminActivity("delete_contact", { contact_id: id, name });
+  showToast("🗑 Deleted");
+  renderContacts();
+}
+
+// ============================================================
+// TAB: ADD CONTACT
+// ============================================================
+function renderAddContact() {
+  document.getElementById("content").innerHTML = `
+    <div class="page-header"><div><h1>➕ Add Contact</h1></div></div>
+    <div class="form-grid">
+      <div class="form-field"><label>Name *</label><input type="text" id="newName"></div>
+      <div class="form-field"><label>Phone (10 digits) *</label><input type="text" id="newPhone" maxlength="10" inputmode="numeric"></div>
+      <div class="form-field"><label>Relation</label><input type="text" id="newRelation" placeholder="Family"></div>
+      <div class="form-field"><label>City</label><input type="text" id="newCity" placeholder="Dhabla Ghosi"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="clearAddForm()">Clear</button>
+      <button class="btn btn-primary" onclick="addNewContact()">➕ Add</button>
+    </div>
+  `;
+}
+function clearAddForm() { ["newName","newPhone","newRelation","newCity"].forEach(id => document.getElementById(id).value = ""); }
+async function addNewContact() {
+  const name = document.getElementById("newName").value.trim();
+  const phone = document.getElementById("newPhone").value.trim().replace(/\D/g, "");
+  const relation = document.getElementById("newRelation").value.trim();
+  const city = document.getElementById("newCity").value.trim();
+  if (!name) { showToast("Name required", "error"); return; }
+  if (!/^\d{10}$/.test(phone)) { showToast("Phone must be 10 digits", "error"); return; }
+  const { error } = await sb.from("contacts").insert({ name, phone, relation, city });
+  if (error) { showToast("Failed: " + error.message, "error"); return; }
+  await logAdminActivity("add_contact", { name, phone, city });
+  showToast("✅ Added");
+  clearAddForm();
+}
+
+// ============================================================
+// TAB: ACCOUNT
+// ============================================================
+function renderAccount() {
+  document.getElementById("content").innerHTML = `
+    <div class="page-header"><div><h1>⚙️ Account</h1></div></div>
+    <div style="background:#fff;border:1px solid #d6c39a;border-radius:10px;padding:22px;margin-bottom:20px;">
+      <h3 style="font-family:var(--eyebrow);font-size:0.75rem;letter-spacing:0.1em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:14px;">Signed in as</h3>
+      <div style="font-family:var(--body);font-size:1.05rem;color:var(--lac-deep);font-weight:700;">${esc(currentUser?.email || "—")}</div>
+      <div style="font-family:var(--body);font-size:0.85rem;color:var(--ash);margin-top:4px;">ID: ${esc(currentUser?.id || "—")}</div>
+    </div>
+    <div style="background:#fff;border:1px solid #d6c39a;border-radius:10px;padding:22px;">
+      <h3 style="font-family:var(--eyebrow);font-size:0.75rem;letter-spacing:0.1em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:14px;">Change Password</h3>
+      <div class="form-grid">
+        <div class="form-field"><label>New Password</label><input type="password" id="newPassword"></div>
+        <div class="form-field"><label>Confirm</label><input type="password" id="confirmPassword"></div>
+      </div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="changePassword()">Update</button></div>
+    </div>
+  `;
+}
+async function changePassword() {
+  const p1 = document.getElementById("newPassword").value;
+  const p2 = document.getElementById("confirmPassword").value;
+  if (p1.length < 6) { showToast("Min 6 chars", "error"); return; }
+  if (p1 !== p2) { showToast("Passwords don't match", "error"); return; }
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  if (error) { showToast("Failed: " + error.message, "error"); return; }
+  await logAdminActivity("change_password", {});
+  showToast("✅ Password updated");
+  document.getElementById("newPassword").value = "";
+  document.getElementById("confirmPassword").value = "";
+}
+
+// ============================================================
+// TAB: CHARTS
+// ============================================================
+function destroyCharts() {
+  Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch(e) {} });
+  chartInstances = {};
+}
+async function renderCharts() {
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await sb.from("visitor_events")
+    .select("event_type, site, page_name, page_lang, country, device, created_at")
+    .gte("created_at", since).order("created_at", { ascending: false }).limit(20000);
+
+  if (error) { document.getElementById("content").innerHTML = `<div class="empty-state">Failed: ${esc(error.message)}</div>`; return; }
+  const events = data || [];
+
+  // Aggregations
+  const dailyLabels = [], dailyCounts = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    dailyLabels.push(d.toLocaleDateString("en-IN", { day: "numeric", month: "short" }));
+    dailyCounts.push(events.filter(e => e.event_type === "pageview" && e.created_at.startsWith(key)).length);
+  }
+  const typeCounts = { pageview: 0, click: 0, scroll: 0, time_spent: 0 };
+  events.forEach(e => { if (typeCounts[e.event_type] !== undefined) typeCounts[e.event_type]++; });
+  const pageCounts = {};
+  events.filter(e => e.event_type === "pageview").forEach(e => { const k = e.page_name || "Unknown"; pageCounts[k] = (pageCounts[k]||0) + 1; });
+  const topPages = Object.entries(pageCounts).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const langCounts = { en: 0, hi: 0 };
+  events.filter(e => e.event_type === "pageview").forEach(e => { if (e.page_lang === "hi") langCounts.hi++; else langCounts.en++; });
+  const deviceCounts = { Mobile: 0, Desktop: 0 };
+  events.filter(e => e.event_type === "pageview").forEach(e => { if (e.device === "Mobile") deviceCounts.Mobile++; else deviceCounts.Desktop++; });
+  const siteCounts = {};
+  events.filter(e => e.event_type === "pageview").forEach(e => { const k = e.site || "Unknown"; siteCounts[k] = (siteCounts[k]||0) + 1; });
+  const countryCounts = {};
+  events.filter(e => e.event_type === "pageview" && e.country).forEach(e => { countryCounts[e.country] = (countryCounts[e.country]||0) + 1; });
+  const topCountries = Object.entries(countryCounts).sort((a,b) => b[1]-a[1]).slice(0, 8);
+  const hourlyLabels = [], hourlyCounts = [];
+  for (let i = 23; i >= 0; i--) {
+    const d = new Date(); d.setHours(d.getHours() - i, 0, 0, 0);
+    hourlyLabels.push(d.getHours() + ":00");
+    hourlyCounts.push(events.filter(e => e.created_at.startsWith(d.toISOString().slice(0, 13))).length);
+  }
+
+  document.getElementById("content").innerHTML = `
+    <div class="page-header">
+      <div><h1>📈 Charts & Graphs</h1><div class="sub">Visual analytics — last 30 days</div></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-small" onclick="renderCharts()">↻ Refresh</button></div>
+    </div>
+    <div class="chart-grid">
+      <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+        <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">📅 Daily Visitors (14 days)</h3>
+        <canvas id="chartDaily" height="180"></canvas>
+      </div>
+      <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+        <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">📊 Events by Type</h3>
+        <canvas id="chartTypes" height="180"></canvas>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+        <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">🌐 Language Distribution</h3>
+        <canvas id="chartLang" height="180"></canvas>
+      </div>
+      <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+        <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">📱 Device Split</h3>
+        <canvas id="chartDevice" height="180"></canvas>
+      </div>
+    </div>
+    <div class="chart-grid">
+      <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+        <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">🔥 Top Pages</h3>
+        <canvas id="chartPages" height="220"></canvas>
+      </div>
+      <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+        <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">🌍 Top Countries</h3>
+        <canvas id="chartCountries" height="220"></canvas>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;margin-bottom:16px;">
+      <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">⏰ Hourly Activity (last 24h)</h3>
+      <canvas id="chartHourly" height="140"></canvas>
+    </div>
+    <div style="background:#fff;border:1px solid #d6c39a;border-radius:12px;padding:18px;">
+      <h3 style="font-family:var(--eyebrow);font-size:0.72rem;letter-spacing:0.08em;color:var(--lac-deep);text-transform:uppercase;margin-bottom:12px;">🏛️ Traffic by Site</h3>
+      <canvas id="chartSite" height="140"></canvas>
+    </div>
+  `;
+
+  destroyCharts();
+  const gold = "#C99A3A", lac = "#5C1717", lacBright = "#9B2D2D", indigo = "#1B3A5C", green = "#138808";
+  const colors = [gold, lac, indigo, green, "#8B6914", "#7A1F1F", "#E8C166", "#4A3C2C"];
+
+  chartInstances.daily = new Chart(document.getElementById("chartDaily"), {
+    type: "line",
+    data: { labels: dailyLabels, datasets: [{ label: "Pageviews", data: dailyCounts, borderColor: lac, backgroundColor: "rgba(122,31,31,0.15)", borderWidth: 2, tension: 0.35, fill: true, pointBackgroundColor: gold, pointBorderColor: lac, pointRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { font: { size: 10 } } } } }
+  });
+  chartInstances.types = new Chart(document.getElementById("chartTypes"), {
+    type: "doughnut",
+    data: { labels: ["Pageviews","Clicks","Scrolls","Time Spent"], datasets: [{ data: [typeCounts.pageview, typeCounts.click, typeCounts.scroll, typeCounts.time_spent], backgroundColor: [indigo, lacBright, gold, green], borderColor: "#fff", borderWidth: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 11 } } } } }
+  });
+  chartInstances.lang = new Chart(document.getElementById("chartLang"), {
+    type: "pie",
+    data: { labels: ["English","हिन्दी"], datasets: [{ data: [langCounts.en, langCounts.hi], backgroundColor: [gold, lac], borderColor: "#fff", borderWidth: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 12 } } } } }
+  });
+  chartInstances.device = new Chart(document.getElementById("chartDevice"), {
+    type: "pie",
+    data: { labels: ["Mobile","Desktop"], datasets: [{ data: [deviceCounts.Mobile, deviceCounts.Desktop], backgroundColor: ["#8B6914", indigo], borderColor: "#fff", borderWidth: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { font: { size: 12 } } } } }
+  });
+  chartInstances.pages = new Chart(document.getElementById("chartPages"), {
+    type: "bar",
+    data: { labels: topPages.map(([k]) => k), datasets: [{ label: "Views", data: topPages.map(([,v]) => v), backgroundColor: lac, borderRadius: 4 }] },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 11 } } } } }
+  });
+  chartInstances.countries = new Chart(document.getElementById("chartCountries"), {
+    type: "bar",
+    data: { labels: topCountries.map(([k]) => k), datasets: [{ label: "Visitors", data: topCountries.map(([,v]) => v), backgroundColor: gold, borderRadius: 4 }] },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } }, y: { ticks: { font: { size: 11 } } } } }
+  });
+  chartInstances.hourly = new Chart(document.getElementById("chartHourly"), {
+    type: "bar",
+    data: { labels: hourlyLabels, datasets: [{ label: "Events", data: hourlyCounts, backgroundColor: indigo, borderRadius: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { font: { size: 9 } } } } }
+  });
+  chartInstances.site = new Chart(document.getElementById("chartSite"), {
+    type: "bar",
+    data: { labels: Object.keys(siteCounts), datasets: [{ label: "Pageviews", data: Object.values(siteCounts), backgroundColor: colors, borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+  });
+}
+
+// ============================================================
+// TAB: ADMIN LOGS
+// ============================================================
+async function renderAdminLogs(page = 1) {
+  const pageSize = 100;
+  let q = sb.from("admin_activity").select("*", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range((page-1)*pageSize, page*pageSize-1);
+  const { data, error, count } = await q;
+
+  if (error) {
+    document.getElementById("content").innerHTML = `
+      <div class="page-header"><div><h1>🔐 Admin Activity</h1></div></div>
+      <div class="empty-state">Table <code>admin_activity</code> doesn't exist. Run the SQL from Step 1.</div>`;
+    return;
+  }
+
+  const rows = data || [];
+  const total = count || 0;
+  const totalPages = Math.ceil(total / pageSize);
+
+  const logins = rows.filter(x => x.action === "login").length;
+  const edits = rows.filter(x => x.action === "edit_contact").length;
+  const blockActions = rows.filter(x => x.action === "block_ip" || x.action === "unblock_ip").length;
+  const uniqueAdmins = new Set(rows.map(x => x.admin_email)).size;
+
+  const actionIcons = {
+    login: "🟢", logout: "🔴", edit_contact: "✏️", add_contact: "➕",
+    delete_contact: "🗑", block_ip: "🚫", unblock_ip: "✅",
+    unblock_all_ips: "🧹", change_password: "🔑", view_tab: "👁",
+  };
+
+  document.getElementById("content").innerHTML = `
+    <div class="page-header">
+      <div><h1>🔐 Admin Activity</h1><div class="sub">Every admin action logged with IP and timestamp</div></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-small" onclick="renderAdminLogs(${page})">↻ Refresh</button>
+        <button class="btn btn-primary btn-small" onclick="exportAdminLogsCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-icon">🔐</span><div class="stat-label">Total Actions</div><div class="stat-value">${total}</div></div>
+      <div class="stat-card"><span class="stat-icon">🟢</span><div class="stat-label">Logins</div><div class="stat-value">${logins}</div></div>
+      <div class="stat-card"><span class="stat-icon">✏️</span><div class="stat-label">Contact Edits</div><div class="stat-value">${edits}</div></div>
+      <div class="stat-card"><span class="stat-icon">🚫</span><div class="stat-label">IP Blocks</div><div class="stat-value">${blockActions}</div></div>
+      <div class="stat-card"><span class="stat-icon">👤</span><div class="stat-label">Unique Admins</div><div class="stat-value">${uniqueAdmins}</div></div>
+    </div>
+    <div class="filter-bar">
+      <label>Filter:
+        <select id="adminActionFilter" onchange="filterAdminLogs()">
+          <option value="">All Actions</option>
+          <option value="login">Login</option><option value="logout">Logout</option>
+          <option value="edit_contact">Edit Contact</option><option value="add_contact">Add Contact</option>
+          <option value="delete_contact">Delete Contact</option><option value="block_ip">Block IP</option>
+          <option value="unblock_ip">Unblock IP</option><option value="change_password">Change Password</option>
+        </select>
+      </label>
+      <label>Search: <input type="text" id="adminSearch" placeholder="Email or IP…" oninput="filterAdminLogs()" style="width:220px;"></label>
+    </div>
+    <div class="table-wrap" id="adminLogsTableWrap">${renderAdminLogsTable(rows, actionIcons)}</div>
+    ${totalPages > 1 ? renderPagination("renderAdminLogs", page, totalPages) : ""}
+  `;
+}
+function filterAdminLogs() {
+  const action = document.getElementById("adminActionFilter")?.value || "";
+  const q = (document.getElementById("adminSearch")?.value || "").toLowerCase();
+  document.querySelectorAll("#adminLogsTableWrap tbody tr").forEach(tr => {
+    const actionText = tr.dataset.action || "";
+    const text = tr.textContent.toLowerCase();
+    const match = (!action || actionText === action) && (!q || text.includes(q));
+    tr.style.display = match ? "" : "none";
+  });
+}
+function renderAdminLogsTable(rows, actionIcons) {
+  if (!rows.length) return '<div class="empty-state">No admin activity yet.</div>';
+  return `<table><thead><tr>
+    <th>Time (IST)</th><th>When</th><th>Admin</th><th>Action</th><th>Details</th><th>IP</th><th>Location</th><th>Device</th>
+  </tr></thead><tbody>
+    ${rows.map(r => {
+      const icon = actionIcons[r.action] || "•";
+      const details = r.details ? Object.entries(r.details).map(([k,v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`).join(" · ") : "—";
+      const loc = [r.city, r.region, r.country].filter(Boolean).join(", ") || "—";
+      const badgeCls = "badge-" + (r.action.split("_")[0] || "view");
+      return `
+        <tr data-action="${esc(r.action)}">
+          <td class="time">${fmt(r.created_at)}</td>
+          <td class="time" style="color:var(--ash);">${timeAgo(r.created_at)}</td>
+          <td style="font-weight:600;color:var(--lac-deep);">${esc(r.admin_email || "—")}</td>
+          <td><span class="badge ${badgeCls}">${icon} ${esc(r.action)}</span></td>
+          <td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(details)}">${esc(details)}</td>
+          <td class="mono">${esc(dashIfEmpty(r.ip))}</td>
+          <td>${esc(loc)}</td>
+          <td><span class="badge badge-${r.device === 'Mobile' ? 'mobile' : 'desktop'}">${esc(r.device || "—")}</span></td>
+        </tr>`;
+    }).join("")}
+  </tbody></table>`;
+}
+
+// ============================================================
+// PAGINATION
+// ============================================================
+function renderPagination(fnName, current, total) {
+  const b = [];
+  b.push(`<button ${current === 1 ? 'disabled' : ''} onclick="${fnName}(${current - 1})">‹</button>`);
+  for (let i = 1; i <= Math.min(3, total); i++) b.push(`<button class="${i === current ? 'active' : ''}" onclick="${fnName}(${i})">${i}</button>`);
+  if (current > 5) b.push(`<button disabled>…</button>`);
+  for (let i = Math.max(4, current - 2); i <= Math.min(total - 3, current + 2); i++) b.push(`<button class="${i === current ? 'active' : ''}" onclick="${fnName}(${i})">${i}</button>`);
+  if (current < total - 3) b.push(`<button disabled>…</button>`);
+  for (let i = Math.max(4, total - 2); i <= total; i++) b.push(`<button class="${i === current ? 'active' : ''}" onclick="${fnName}(${i})">${i}</button>`);
+  b.push(`<button ${current === total ? 'disabled' : ''} onclick="${fnName}(${current + 1})">›</button>`);
+  return `<div class="pagination">${b.join("")}</div>`;
+}
+
+// ============================================================
+// CSV EXPORTS
+// ============================================================
+async function exportVisitorsCSV() {
+  const fSite = document.getElementById("fSite")?.value || "";
+  const fPage = document.getElementById("fPage")?.value || "";
+  const fLang = document.getElementById("fLang")?.value || "";
+  let q = sb.from("visitor_events").select("*").order("created_at", { ascending: false });
+  if (fSite) q = q.eq("site", fSite);
+  if (fPage) q = q.eq("page_name", fPage);
+  if (fLang) q = q.eq("page_lang", fLang);
+  const { data, error } = await q.limit(50000);
+  if (error || !data) { showToast("Export failed", "error"); return; }
+  const headers = ["id","created_at","event_type","site","page","page_name","page_lang","referrer","landing_page","ip","country","city","region","latitude","longitude","org","device","browser","os","screen","language","timezone","user_id","session_id","time_spent","scroll_percent"];
+  const csv = [headers.join(","), ...data.map(r => headers.map(h => escCSV(r[h])).join(","))].join("\n");
+  downloadCSV(csv, `visitors-${new Date().toISOString().slice(0,10)}.csv`);
+  showToast(`✅ Exported ${data.length} rows`);
+}
+async function exportLogsCSV() {
+  const { data, error } = await sb.from("access_logs").select("*").order("timestamp", { ascending: false }).limit(50000);
+  if (error || !data) { showToast("Export failed", "error"); return; }
+  const headers = ["id","timestamp","ip","country","city","region","latitude","longitude","user_agent","action","contact_id","session_id","suspicious"];
+  const csv = [headers.join(","), ...data.map(r => headers.map(h => escCSV(r[h])).join(","))].join("\n");
+  downloadCSV(csv, `access-logs-${new Date().toISOString().slice(0,10)}.csv`);
+  showToast(`✅ Exported ${data.length} rows`);
+}
+async function exportAdminLogsCSV() {
+  const { data, error } = await sb.from("admin_activity").select("*").order("created_at", { ascending: false }).limit(50000);
+  if (error || !data) { showToast("Export failed", "error"); return; }
+  const headers = ["id","created_at","admin_email","admin_id","action","details","ip","country","city","region","latitude","longitude","browser","device","session_id"];
+  const csv = [headers.join(","), ...data.map(r => headers.map(h => escCSV(typeof r[h] === "object" ? JSON.stringify(r[h]) : r[h])).join(","))].join("\n");
+  downloadCSV(csv, `admin-activity-${new Date().toISOString().slice(0,10)}.csv`);
+  showToast(`✅ Exported ${data.length} rows`);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+async function init() {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  generateCaptcha();
+  ["loginEmail","loginPassword","loginCaptcha"].forEach(id =>
+    document.getElementById(id)?.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); })
+  );
+  document.getElementById("loginCaptcha").addEventListener("input", e => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+  });
+  sb.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") showToast("Password recovery link detected.", "success");
+  });
+  const { data } = await sb.auth.getSession();
+  if (data?.session) { currentUser = data.session.user; enterApp(); }
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+
+</body>
+</html>

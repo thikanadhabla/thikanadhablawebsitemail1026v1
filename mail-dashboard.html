@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1D1310">
+<title>Mail — Thikana Dhabla Ghosi</title>
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="mail-auth.js"></script>
+
+<style>
+  :root {
+    --teak-950: #170E0A;
+    --teak-900: #1D1310;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-200: #F0D68A;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --card: #FFFFFF;
+    --line: #E6DCC6;
+    --line-soft: #F0E8D6;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --bad: #B3261E;
+    --bad-bg: #FBE5E3;
+    --ok: #2E7D32;
+    --info: #1B3A5C;
+    --info-bg: #E2ECF6;
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --sidebar-w: 264px;
+    --r-md: 10px;
+    --r-lg: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--paper); min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+  [hidden] { display: none !important; }
+
+  #app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; }
+
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column; color: #D9CBB2;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(201,154,58,.08) 1px, transparent 0) 0 0 / 20px 20px,
+      linear-gradient(180deg, var(--teak-900), var(--teak-950));
+    border-right: 1px solid rgba(201,154,58,.25);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; text-decoration: none; }
+  .brand .crest-sm { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); background: var(--gold-100); flex-shrink: 0; }
+  .brand .crest-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .brand-name { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.05; color: #fff; }
+  .brand-sub { font-size: 12px; color: var(--gold-400); margin-top: 2px; }
+  .nav { padding: 6px 12px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .nav-group { font-size: 12px; font-weight: 600; color: rgba(240,214,138,.55); padding: 18px 12px 6px; }
+  .nav-item {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; height: 42px; padding: 0 12px;
+    background: transparent; border: none; border-radius: 10px;
+    color: #D9CBB2; font-size: 14px; font-weight: 500; text-align: left;
+    transition: background .15s, color .15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active { background: rgba(201,154,58,.16); color: var(--gold-200); font-weight: 600; }
+  .nav-item.active::before { content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--gold-400); }
+  .nav-item .badge-count { margin-left: auto; padding: 2px 8px; border-radius: 999px; background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; }
+  .side-foot { padding: 12px; border-top: 1px solid rgba(201,154,58,.18); display: flex; gap: 10px; align-items: center; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-500), var(--gold-400)); color: var(--teak-900); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-transform: uppercase; }
+  .user-meta { min-width: 0; flex: 1; }
+  .user-meta strong { display: block; color: #fff; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-meta span { font-size: 12px; color: rgba(217,203,178,.65); }
+  .logout-btn { width: 38px; height: 38px; border-radius: 10px; border: none; background: rgba(255,255,255,.06); color: #D9CBB2; display: flex; align-items: center; justify-content: center; }
+  .logout-btn:hover { background: var(--bad); color: #fff; }
+
+  .mobilebar { display: none; }
+  .scrim { display: none; }
+
+  .main { min-width: 0; }
+  .page { padding: 28px 32px 80px; max-width: 1400px; margin: 0 auto; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .page-head h1 { font-family: var(--display); font-size: 2.3rem; font-weight: 700; color: var(--lac-800); line-height: 1.05; }
+  .page-head .sub { color: var(--muted); margin-top: 4px; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); margin-bottom: 18px; }
+  .panel-body { padding: 20px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--r-md); border: 1px solid transparent; font-size: 14px; font-weight: 600; transition: background .15s; white-space: nowrap; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); }
+  .btn-secondary { background: #fff; color: var(--text); border-color: #D9CDB3; }
+  .btn-secondary:hover:not(:disabled) { background: #FBF7EC; }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,.05); }
+  .btn-danger-soft { background: var(--bad-bg); color: var(--bad); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+
+  .input, .select, .textarea {
+    width: 100%; padding: 11px 14px; box-sizing: border-box;
+    border: 1px solid #D9CDB3; border-radius: var(--r-md);
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 16px;
+    transition: border-color .15s;
+  }
+  .input:focus, .select:focus, .textarea:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,154,58,.22); }
+  .textarea { min-height: 300px; resize: vertical; font-family: var(--ui); font-size: 15px; line-height: 1.7; }
+  .select { padding-right: 32px; cursor: pointer; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .toolbar .search { flex: 1 1 240px; max-width: 340px; position: relative; }
+  .toolbar .search .input { padding-left: 38px; }
+
+  .email-list { display: flex; flex-direction: column; }
+  .email-row { display: grid; grid-template-columns: 200px 200px 1fr 130px; gap: 16px; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--line-soft); cursor: pointer; transition: background .12s; font-size: 14px; }
+  .email-row:hover { background: #FCF9F0; }
+  .email-row.unread { background: #FFFCF2; }
+  .email-row.unread .from-cell { font-weight: 600; }
+  .email-row .from-cell, .email-row .subject-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .email-row .date-cell { text-align: right; color: var(--muted); font-size: 12.5px; }
+  .email-row .to-cell { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge-new { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--bad); color: #fff; font-size: 10.5px; font-weight: 700; vertical-align: middle; }
+
+  .empty { padding: 50px 20px; text-align: center; color: var(--muted); }
+  .empty svg { margin: 0 auto 12px; color: var(--gold-500); display: block; }
+  .empty h4 { color: var(--text); font-size: 16px; margin-bottom: 4px; }
+
+  .email-view { padding: 24px 28px; }
+  .email-view .head-meta { border-bottom: 1px solid var(--line-soft); padding-bottom: 16px; margin-bottom: 20px; }
+  .email-view .head-meta h2 { font-family: var(--display); font-size: 1.7rem; color: var(--lac-800); margin-bottom: 12px; line-height: 1.2; }
+  .email-view .meta-line { font-size: 13.5px; margin-bottom: 4px; color: var(--muted); }
+  .email-view .meta-line b { color: var(--text); font-weight: 600; }
+  .email-view .body-text { font-size: 14.5px; line-height: 1.75; white-space: pre-wrap; word-wrap: break-word; }
+
+  .compose { max-width: 720px; margin: 0 auto; }
+  .compose .row { display: grid; grid-template-columns: 100px 1fr; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+  .compose .row label { font-weight: 600; color: var(--lac-800); font-size: 13px; }
+  .compose .row .input, .compose .row .select { border: none; padding: 6px 0; background: transparent; box-shadow: none; }
+  .compose .body-row { padding: 14px 0; }
+  .compose .body-row .textarea { min-height: 320px; border: none; padding: 12px 0; background: transparent; }
+  .compose-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  .toasts { position: fixed; right: 20px; bottom: 20px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { display: flex; align-items: center; gap: 10px; max-width: 380px; padding: 13px 18px; border-radius: 12px; background: var(--teak-900); color: #fff; font-size: 14px; font-weight: 500; box-shadow: 0 24px 60px rgba(23,14,10,.35); opacity: 0; transform: translateY(14px); transition: opacity .25s, transform .25s; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.success { background: #1F5C24; }
+  .toast.error { background: #7A1712; }
+
+  .modal-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(23,14,10,.65); }
+  .modal-overlay.open { display: flex; }
+  .modal { width: 100%; max-width: 480px; background: #fff; border-radius: 18px; padding: 28px; }
+  .modal h3 { font-family: var(--display); font-size: 1.6rem; color: var(--lac-800); margin-bottom: 8px; }
+  .modal .hint { color: var(--muted); font-size: 13.5px; margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  @media (max-width: 960px) {
+    #app { grid-template-columns: 1fr; }
+    .sidebar { position: fixed; z-index: 950; left: 0; top: 0; bottom: 0; width: 290px; transform: translateX(-100%); transition: transform .25s; }
+    .sidebar.open { transform: none; }
+    .scrim { position: fixed; inset: 0; z-index: 940; background: rgba(23,14,10,.55); display: none; }
+    .sidebar.open ~ .scrim { display: block; }
+    .mobilebar { display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; padding: 12px 16px; background: var(--teak-900); color: #fff; border-bottom: 1px solid rgba(201,154,58,.3); }
+    .mobilebar button { width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(201,154,58,.4); background: transparent; color: var(--gold-200); display: flex; align-items: center; justify-content: center; }
+    .mobilebar strong { font-family: var(--display); font-size: 1.3rem; }
+    .page { padding: 22px 16px 80px; }
+    .page-head h1 { font-size: 1.85rem; }
+    .email-row { grid-template-columns: 1fr; gap: 4px; padding: 12px 14px; }
+    .email-row .date-cell { text-align: left; }
+    .compose .row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app" hidden>
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="brand">
+      <span class="crest-sm"><img src="1200.jpeg" alt=""></span>
+      <span>
+        <div class="brand-name">Thikana<br>Dhabla Ghosi</div>
+        <div class="brand-sub">Mail</div>
+      </span>
+    </a>
+    <nav class="nav">
+      <div class="nav-group">Mailbox</div>
+      <button class="nav-item active" data-tab="inbox" onclick="showTab('inbox')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <span>Inbox</span>
+        <span class="badge-count" id="inboxBadge" hidden>0</span>
+      </button>
+      <button class="nav-item" data-tab="sent" onclick="showTab('sent')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>Sent</span>
+      </button>
+      <button class="nav-item" data-tab="compose" onclick="showTab('compose')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>Compose</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar" id="userAvatar">?</span>
+      <span class="user-meta"><strong id="userName">—</strong><span id="userEmail">—</span></span>
+      <button class="logout-btn" onclick="doLogout()" aria-label="Sign out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+  <div class="scrim" onclick="toggleSidebar(false)"></div>
+
+  <div class="main">
+    <header class="mobilebar">
+      <button onclick="toggleSidebar(true)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <strong>Mail</strong>
+    </header>
+    <main class="page" id="content"></main>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <h3 id="confirmTitle">Confirm</h3>
+    <p class="hint" id="confirmHint">Are you sure?</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeConfirm(false)">Cancel</button>
+      <button class="btn btn-danger-soft" id="confirmYes">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentTab = "inbox";
+let inboxData = [];
+let sentData = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const num = n => Number(n || 0).toLocaleString("en-IN");
+
+function fmt(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }); }
+  catch { return ts; }
+}
+function fmtShort(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  const diff = Date.now() - d;
+  if (diff < 60_000) return "just now";
+  if (diff < 3600_000) return Math.floor(diff / 60_000) + "m ago";
+  if (diff < 86400_000) return Math.floor(diff / 3600_000) + "h ago";
+  if (diff < 7 * 86400_000) return Math.floor(diff / 86400_000) + "d ago";
+  return d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short" });
+}
+
+function showToast(msg, type = "success") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.innerHTML = `<span>${esc(msg)}</span>`;
+  $("toasts").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, 3600);
+}
+
+function toggleSidebar(open) { $("sidebar").classList.toggle("open", open); }
+
+async function doLogout() {
+  await MailAuth.forceLogout();
+}
+
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".nav-item[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  toggleSidebar(false);
+  $("content").innerHTML = '<div style="padding:60px;text-align:center;color:#7B6E5C;">Loading…</div>';
+
+  if (tab === "inbox") renderInbox();
+  else if (tab === "sent") renderSent();
+  else if (tab === "compose") renderCompose();
+}
+
+// ============================================================
+// INBOX
+// ============================================================
+async function renderInbox() {
+  const c = $("content");
+  try {
+    inboxData = await MailAuth.api("inbox", {}, "GET");
+  } catch (e) {
+    if (e.message.includes("401") || e.message.includes("Unauthorized")) { MailAuth.forceLogout("Session expired."); return; }
+    c.innerHTML = errorBlock("Could not load inbox", e.message);
+    return;
+  }
+
+  const unread = inboxData.filter(e => e.status === "unread").length;
+  const badge = $("inboxBadge");
+  if (unread > 0) { badge.textContent = unread; badge.hidden = false; } else badge.hidden = true;
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Inbox</h1><p class="sub">${num(inboxData.length)} messages · ${num(unread)} unread</p></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="renderInbox()">Refresh</button></div>
+    </div>
+    ${inboxData.length === 0
+      ? emptyBlock("No messages", "Emails sent to your address will appear here.")
+      : `<div class="panel"><div class="email-list">
+          ${inboxData.map((e, i) => `
+            <div class="email-row ${e.status === "unread" ? "unread" : ""}" onclick="openInbox(${i})">
+              <div class="from-cell">${e.status === "unread" ? '<span class="badge-new">NEW</span>' : ""}${esc(e.from_email)}</div>
+              <div class="to-cell">To: ${esc(e.recipient_email)}</div>
+              <div class="subject-cell">${esc(e.subject || "(no subject)")}</div>
+              <div class="date-cell">${esc(fmtShort(e.created_at))}</div>
+            </div>`).join("")}
+        </div></div>`}
+  `;
+}
+
+async function openInbox(idx) {
+  const email = inboxData[idx];
+  if (!email) return;
+  const c = $("content");
+  try {
+    const full = await MailAuth.api("inbox_get", {}, "GET", { id: email.id });
+    email.status = "read";
+    const unread = inboxData.filter(e => e.status === "unread").length;
+    const badge = $("inboxBadge");
+    if (unread > 0) { badge.textContent = unread; badge.hidden = false; } else badge.hidden = true;
+
+    c.innerHTML = `
+      <div class="page-head">
+        <div>
+          <button class="btn btn-ghost btn-sm" onclick="showTab('inbox')" style="margin-bottom:8px;">← Back</button>
+          <h1 style="font-size:1.8rem;">${esc(full.subject || "(no subject)")}</h1>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-danger-soft btn-sm" onclick="deleteInbox(${full.id})">Delete</button>
+        </div>
+      </div>
+      <div class="panel"><div class="email-view">
+        <div class="head-meta">
+          <div class="meta-line"><b>From:</b> ${esc(full.from_email)}</div>
+          <div class="meta-line"><b>To:</b> ${esc(full.recipient_email)}</div>
+          <div class="meta-line"><b>Date:</b> ${esc(fmt(full.created_at))}</div>
+        </div>
+        <div class="body-text">${esc(full.body || "(no body)")}</div>
+      </div></div>
+    `;
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not open", e.message);
+  }
+}
+
+async function deleteInbox(id) {
+  if (!await confirmDialog("Delete this email?", "It will be permanently removed.")) return;
+  try {
+    await MailAuth.api("inbox_delete", { id });
+    showToast("Deleted");
+    renderInbox();
+  } catch (e) { showToast("Failed: " + e.message, "error"); }
+}
+
+// ============================================================
+// SENT
+// ============================================================
+async function renderSent() {
+  const c = $("content");
+  try {
+    sentData = await MailAuth.api("sent", {}, "GET");
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load sent", e.message);
+    return;
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Sent</h1><p class="sub">${num(sentData.length)} messages</p></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderSent()">Refresh</button>
+        <button class="btn btn-primary btn-sm" onclick="showTab('compose')">Compose</button>
+      </div>
+    </div>
+    ${sentData.length === 0
+      ? emptyBlock("No sent messages", "Emails you send will appear here.")
+      : `<div class="panel"><div class="email-list">
+          ${sentData.map((e, i) => `
+            <div class="email-row" onclick="openSent(${i})">
+              <div class="from-cell">${esc(e.from_email || "—")}</div>
+              <div class="to-cell">To: ${esc(e.to_email)}</div>
+              <div class="subject-cell">${esc(e.subject || "(no subject)")}</div>
+              <div class="date-cell">${esc(fmtShort(e.created_at))}</div>
+            </div>`).join("")}
+        </div></div>`}
+  `;
+}
+
+function openSent(idx) {
+  const e = sentData[idx];
+  if (!e) return;
+  $("content").innerHTML = `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="showTab('sent')" style="margin-bottom:8px;">← Back</button>
+        <h1 style="font-size:1.8rem;">${esc(e.subject || "(no subject)")}</h1>
+      </div>
+    </div>
+    <div class="panel"><div class="email-view">
+      <div class="head-meta">
+        <div class="meta-line"><b>From:</b> ${esc(e.from_email || "—")}</div>
+        <div class="meta-line"><b>To:</b> ${esc(e.to_email)}</div>
+        <div class="meta-line"><b>Status:</b> ${esc(e.status)}</div>
+        <div class="meta-line"><b>Date:</b> ${esc(fmt(e.created_at))}</div>
+      </div>
+      <div class="body-text">${e.body || "(no body)"}</div>
+    </div></div>
+  `;
+}
+
+// ============================================================
+// COMPOSE
+// ============================================================
+async function renderCompose() {
+  const c = $("content");
+  let senders = [];
+  try { senders = await MailAuth.api("senders", {}, "GET"); } catch (e) {}
+
+  c.innerHTML = `
+    <div class="page-head"><div><h1>Compose</h1><p class="sub">Send from your @thikanadhabla.in address</p></div></div>
+    <div class="panel compose"><div class="panel-body">
+      <div class="row"><label>From</label>
+        <select class="select" id="cFrom">
+          ${senders.map(s => `<option value="${esc(s.email)}">${esc(s.display_name)} &lt;${esc(s.email)}&gt;</option>`).join("")}
+        </select>
+      </div>
+      <div class="row"><label>To</label><input class="input" id="cTo" placeholder="recipient@example.com (comma-separate for multiple)"></div>
+      <div class="row"><label>Cc</label><input class="input" id="cCc" placeholder="(optional)"></div>
+      <div class="row"><label>Bcc</label><input class="input" id="cBcc" placeholder="(optional)"></div>
+      <div class="row"><label>Subject</label><input class="input" id="cSubject" placeholder="Email subject"></div>
+      <div class="row body-row"><textarea class="textarea" id="cBody" placeholder="Write your message…"></textarea></div>
+      <div class="compose-actions">
+        <button class="btn btn-secondary" onclick="clearCompose()">Clear</button>
+        <button class="btn btn-primary" id="sendBtn" onclick="sendEmailNow()">Send</button>
+      </div>
+    </div></div>
+  `;
+}
+
+function clearCompose() { ["cTo","cCc","cBcc","cSubject","cBody"].forEach(id => { if ($(id)) $(id).value = ""; }); }
+
+async function sendEmailNow() {
+  const from = $("cFrom").value;
+  const to = $("cTo").value.trim();
+  const cc = $("cCc").value.trim();
+  const bcc = $("cBcc").value.trim();
+  const subject = $("cSubject").value.trim();
+  const body = $("cBody").value;
+  if (!to || !subject || !body) { showToast("To, subject, body required", "error"); return; }
+
+  const btn = $("sendBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const html = body.split("\n").map(l => `<p>${esc(l)}</p>`).join("");
+    const res = await MailAuth.api("send", { from, to, cc, bcc, subject, html });
+    if (res.ok) { showToast("✅ Sent"); clearCompose(); setTimeout(() => showTab("sent"), 800); }
+    else showToast("❌ " + (res.resend?.message || "Failed"), "error");
+  } catch (e) { showToast("❌ " + e.message, "error"); }
+  finally { btn.disabled = false; btn.textContent = "Send"; }
+}
+
+// ============================================================
+// UI helpers
+// ============================================================
+function emptyBlock(title, text) {
+  return `<div class="panel"><div class="empty"><h4>${esc(title)}</h4><p>${esc(text)}</p></div></div>`;
+}
+function errorBlock(title, msg) {
+  return `<div class="panel"><div class="empty"><h4>${esc(title)}</h4><p>${esc(msg)}</p></div></div>`;
+}
+function confirmDialog(title, hint) {
+  return new Promise(resolve => {
+    $("confirmTitle").textContent = title;
+    $("confirmHint").textContent = hint;
+    $("confirmModal").classList.add("open");
+    const done = v => { $("confirmModal").classList.remove("open"); resolve(v); };
+    $("confirmYes").onclick = () => done(true);
+    $("confirmModal").onclick = e => { if (e.target === $("confirmModal")) done(false); };
+  });
+}
+function closeConfirm() { $("confirmModal").classList.remove("open"); }
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener("DOMContentLoaded", async () => {
+  const session = await MailAuth.requireAuth(false); // false = not admin required
+  if (!session) return; // redirected to login
+
+  // If an admin somehow lands here, send them to admin dashboard
+  if (session.isAdmin) { location.replace("mail-admin.html"); return; }
+
+  $("app").hidden = false;
+  const email = session.user.email || "";
+  $("userEmail").textContent = email;
+  $("userName").textContent = email.split("@")[0];
+  $("userAvatar").textContent = (email[0] || "?").toUpperCase();
+
+  showTab("inbox");
+});
+</script>
+</body>
+</html>

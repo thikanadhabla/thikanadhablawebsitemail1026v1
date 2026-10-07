@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1D1310">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Reports — Thikana Dhabla Ghosi Admin</title>
+
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --teak-950: #170E0A;
+    --teak-900: #1D1310;
+    --teak-800: #2B1810;
+    --lac-900: #3A0E0E;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-200: #F0D68A;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --card: #FFFFFF;
+    --line: #E6DCC6;
+    --line-soft: #F0E8D6;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --ok: #2E7D32;   --ok-bg: #E6F3E7;
+    --warn: #9A6A0B; --warn-bg: #FBF0D2;
+    --bad: #B3261E;  --bad-bg: #FBE5E3;
+    --info: #1B3A5C; --info-bg: #E2ECF6;
+
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --devnag: 'Tiro Devanagari Hindi', serif;
+
+    --sidebar-w: 272px;
+    --r-lg: 16px; --r-md: 10px; --r-sm: 8px;
+    --shadow-pop: 0 24px 60px rgba(23, 14, 10, 0.35);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--paper);
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+    overscroll-behavior-y: contain; overflow-x: hidden;
+  }
+  button { font-family: inherit; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+  .ic { flex-shrink: 0; }
+  [hidden] { display: none !important; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; padding: 0 18px; border-radius: var(--r-md);
+    border: 1px solid transparent; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .15s, box-shadow .15s, border-color .15s, transform .1s;
+    white-space: nowrap; -webkit-tap-highlight-color: rgba(201,154,58,.18); touch-action: manipulation;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); box-shadow: 0 6px 16px rgba(92,23,23,.28); }
+  .btn-secondary { background: #fff; color: var(--text); border-color: #D9CDB3; }
+  .btn-secondary:hover:not(:disabled) { background: #FBF7EC; border-color: var(--gold-500); }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,.05); color: var(--text); }
+  .btn-danger-soft { background: var(--bad-bg); color: var(--bad); }
+  .btn-ok-soft { background: var(--ok-bg); color: var(--ok); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+
+  .input, .select {
+    width: 100%; height: 42px; padding: 0 14px;
+    border: 1px solid #D9CDB3; border-radius: var(--r-md);
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 14.5px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .select { padding-right: 32px; cursor: pointer; }
+  .input:focus, .select:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,154,58,.22); }
+  .input.mono { font-family: var(--mono); font-size: 14px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--lac-800); margin-bottom: 6px; }
+  .field .hint { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+  /* ============ SHELL ============ */
+  #app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; }
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(201,154,58,.08) 1px, transparent 0) 0 0 / 20px 20px,
+      linear-gradient(180deg, var(--teak-900), var(--teak-950));
+    color: #D9CBB2; border-right: 1px solid rgba(201,154,58,.25);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; text-decoration: none; }
+  .brand .crest-sm { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); background: var(--gold-100); box-shadow: 0 0 16px rgba(201,154,58,.4); flex-shrink: 0; }
+  .brand .crest-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .brand-name { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.05; color: #fff; }
+  .brand-sub { font-size: 12px; color: var(--gold-400); margin-top: 2px; }
+  .nav { padding: 6px 12px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .nav-group { font-size: 12px; font-weight: 600; color: rgba(240,214,138,.55); padding: 18px 12px 6px; }
+  .nav-item {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; height: 40px; padding: 0 12px;
+    background: transparent; border: none; border-radius: 10px;
+    color: #D9CBB2; font-size: 14px; font-weight: 500; text-align: left; cursor: pointer;
+    transition: background .15s, color .15s;
+    text-decoration: none;
+    -webkit-tap-highlight-color: rgba(201,154,58,.18);
+    touch-action: manipulation;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active { background: rgba(201,154,58,.16); color: var(--gold-200); font-weight: 600; }
+  .nav-item.active::before { content: ""; position: absolute; left: -12px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--gold-400); }
+  .side-foot { padding: 12px; border-top: 1px solid rgba(201,154,58,.18); display: flex; gap: 8px; align-items: center; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-500), var(--gold-400)); color: var(--teak-900); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-transform: uppercase; font-size: 14px; }
+  .user-meta { min-width: 0; flex: 1; }
+  .user-meta strong { display: block; color: #fff; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-meta span { font-size: 12px; color: rgba(217,203,178,.65); }
+
+  .mobilebar { display: none; }
+  .scrim { display: none; }
+  .main { min-width: 0; }
+  .page { padding: 34px 40px 90px; max-width: 1480px; margin: 0 auto; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .page-head h1 { font-family: var(--display); font-size: 2.5rem; font-weight: 700; line-height: 1.05; color: var(--lac-800); }
+  .page-head .sub { color: var(--muted); margin-top: 6px; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ============ PANELS ============ */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); margin-bottom: 20px; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line-soft); }
+  .panel-head h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+  .panel-body { padding: 20px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 20px; }
+  .kpi { background: #fff; padding: 18px 20px; }
+  .kpi .label { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .kpi .value { font-family: var(--display); font-size: 2.3rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; margin-top: 4px; font-variant-numeric: lining-nums tabular-nums; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .toolbar .spacer { flex: 1; }
+
+  /* ============ TABLE ============ */
+  .table-wrap { overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); max-height: 70vh; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 900px; }
+  thead th {
+    position: sticky; top: 0; z-index: 1; background: #FAF6EC; color: var(--muted);
+    font-size: 12.5px; font-weight: 600; text-align: left;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FCF9F0; }
+  .cell-main { font-weight: 600; color: var(--text); }
+  .cell-sub { font-size: 12.5px; color: var(--muted); }
+  .mono { font-family: var(--mono); font-size: 13px; }
+  .nowrap { white-space: nowrap; }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .b-ok { background: var(--ok-bg); color: var(--ok); }
+  .b-warn { background: var(--warn-bg); color: var(--warn); }
+  .b-bad { background: var(--bad-bg); color: var(--bad); }
+  .b-info { background: var(--info-bg); color: var(--info); }
+  .b-neutral { background: #EFE8D8; color: #5B4E3C; }
+
+  /* ============ STATES ============ */
+  .empty { padding: 56px 20px; text-align: center; color: var(--muted); }
+  .empty .ic-wrap { width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 50%; background: #F3E9CF; color: var(--lac-700); display: flex; align-items: center; justify-content: center; }
+  .empty h4 { font-size: 16px; color: var(--text); margin-bottom: 4px; }
+  .empty p { max-width: 42ch; margin: 0 auto; font-size: 14px; }
+  .loading { padding: 60px 20px; text-align: center; color: var(--muted); }
+
+  /* ============ OVERLAYS ============ */
+  .overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(23,14,10,.6); backdrop-filter: blur(3px); }
+  .overlay.open { display: flex; animation: fade .15s ease-out; }
+  .dialog { width: 100%; max-width: 560px; background: #fff; border-radius: 18px; padding: 28px; box-shadow: var(--shadow-pop); animation: pop .18s ease-out; max-height: 92vh; overflow-y: auto; }
+  .dialog h3 { font-family: var(--display); font-size: 1.7rem; font-weight: 700; color: var(--lac-800); line-height: 1.15; margin-bottom: 8px; }
+  .dialog p { color: var(--muted); }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+  .toasts { position: fixed; right: 20px; bottom: 20px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { display: flex; align-items: center; gap: 10px; max-width: 360px; padding: 13px 18px; border-radius: 12px; background: var(--teak-900); color: #fff; font-size: 14px; font-weight: 500; box-shadow: var(--shadow-pop); opacity: 0; transform: translateY(14px); transition: opacity .25s, transform .25s; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.success .ic { color: #7EE08A; }
+  .toast.error { background: #7A1712; }
+  .toast.error .ic { color: #FFB4AE; }
+
+  /* ============ CUSTOM EMAIL FORM ============ */
+  .custom-form {
+    display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: end;
+  }
+  .custom-form .field { margin-bottom: 0; }
+  .custom-form .two-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  input, select, textarea { font-size: 16px; }
+  @media (min-width: 561px) { input, select, textarea, button { font-size: inherit; } }
+
+  @media (max-width: 960px) {
+    #app { grid-template-columns: 1fr; }
+    .sidebar {
+      position: fixed; z-index: 950; left: 0; top: 0; bottom: 0;
+      width: 290px; transform: translateX(-100%);
+      transition: transform .25s cubic-bezier(.2,.8,.2,1);
+      box-shadow: 8px 0 32px rgba(0,0,0,.4);
+    }
+    .sidebar.open { transform: none; }
+    .scrim {
+      position: fixed; inset: 0; z-index: 940;
+      background: rgba(23,14,10,.55); backdrop-filter: blur(2px);
+      display: none;
+    }
+    .sidebar.open ~ .scrim { display: block; }
+    .mobilebar {
+      display: flex; align-items: center; gap: 12px;
+      position: sticky; top: 0; z-index: 100;
+      padding: 12px 16px;
+      background: var(--teak-900); color: #fff;
+      border-bottom: 1px solid rgba(201,154,58,.3);
+    }
+    .mobilebar button {
+      width: 44px; height: 44px; border-radius: 10px;
+      border: 1px solid rgba(201,154,58,.4); background: transparent;
+      color: var(--gold-200); display: flex; align-items: center;
+      justify-content: center; cursor: pointer;
+    }
+    .mobilebar strong { font-family: var(--display); font-size: 1.35rem; }
+    .page { padding: 22px 16px 80px; }
+    .page-head h1 { font-size: 1.85rem; }
+    .btn { height: 44px; }
+    .input, .select { height: 46px; }
+    .custom-form { grid-template-columns: 1fr; }
+    .kpi .value { font-size: 1.9rem; }
+    .toolbar { gap: 8px; }
+    .toolbar .select { flex: 1 1 calc(50% - 4px); }
+    .toasts { left: 16px; right: 16px; bottom: 16px; }
+    .toast { max-width: none; }
+  }
+  @media (max-width: 400px) {
+    .page-head h1 { font-size: 1.6rem; }
+    table { min-width: 640px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <a href="index.html" class="brand">
+      <span class="crest-sm"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></span>
+      <span>
+        <div class="brand-name">Thikana<br>Dhabla Ghosi</div>
+        <div class="brand-sub">Reports</div>
+      </span>
+    </a>
+    <nav class="nav">
+      <div class="nav-group">Report Center</div>
+      <a class="nav-item active" href="reports.html">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Reports</span>
+      </a>
+      <a class="nav-item" href="dashboard.html">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Back to Dashboard</span>
+      </a>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar" id="userAvatar">A</span>
+      <span class="user-meta"><strong id="userName">admin</strong><span id="userEmail">—</span></span>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" onclick="toggleSidebar(false)"></div>
+
+  <div class="main">
+    <header class="mobilebar">
+      <button onclick="toggleSidebar(true)" aria-label="Open menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <strong>Reports</strong>
+    </header>
+
+    <main class="page">
+      <div class="page-head">
+        <div>
+          <h1>Reports Center</h1>
+          <p class="sub">See every report sent, retry failures, send custom reports to any email — one-time only.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" onclick="loadReports()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+          <button class="btn btn-primary" onclick="openCustomSend()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Send Custom Report
+          </button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <div class="kpis" id="kpis">
+        <div class="kpi"><div class="label">Total reports sent</div><div class="value">—</div></div>
+      </div>
+
+      <!-- Manual send form (collapsible) -->
+      <div class="panel" id="customPanel" hidden>
+        <div class="panel-head">
+          <h3>Send a one-time report to any email</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeCustomSend()">Close</button>
+        </div>
+        <div class="panel-body">
+          <div class="custom-form">
+            <div class="two-row">
+              <div class="field">
+                <label for="customEmails">Email address(es)</label>
+                <input class="input" type="text" id="customEmails" placeholder="someone@example.com, another@example.com">
+                <p class="hint">Separate multiple emails with commas. This is a one-time send — nothing recurring.</p>
+              </div>
+              <div class="field">
+                <label for="customType">Report type</label>
+                <select class="select" id="customType">
+                  <option value="daily">Daily (last 24 hours)</option>
+                  <option value="weekly">Weekly (last 7 days)</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="sendCustomReport()" id="customSendBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Send Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="toolbar">
+        <select class="select" id="fType" onchange="applyFilters()" style="max-width:160px;">
+          <option value="">All types</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+        </select>
+        <select class="select" id="fStatus" onchange="applyFilters()" style="max-width:160px;">
+          <option value="">All statuses</option>
+          <option value="sent">Sent</option>
+          <option value="failed">Failed</option>
+        </select>
+        <select class="select" id="fTriggered" onchange="applyFilters()" style="max-width:180px;">
+          <option value="">All sources</option>
+          <option value="scheduler">Automatic</option>
+          <option value="manual">Manual</option>
+        </select>
+        <input class="input" id="fSearch" type="search" placeholder="Search by recipient, error, report type…" oninput="applyFilters()" style="max-width:300px;">
+        <span class="spacer"></span>
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+
+      <!-- Reports list -->
+      <div class="table-wrap" id="reportsTableWrap">
+        <div class="loading">Loading reports…</div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="overlay" id="customModal" role="dialog" aria-modal="true">
+  <div class="dialog">
+    <h3>Send a custom report</h3>
+    <p style="margin-bottom:20px;">This is a one-time send. Nothing recurring is created. Daily reports will continue going to your default inbox.</p>
+
+    <div class="field">
+      <label for="modalEmails">Email address(es)</label>
+      <input class="input" type="text" id="modalEmails" placeholder="someone@example.com, another@example.com">
+      <p class="hint">Separate multiple emails with commas. Each address receives one copy.</p>
+    </div>
+
+    <div class="field">
+      <label for="modalType">Report type</label>
+      <select class="select" id="modalType">
+        <option value="daily">Daily (last 24 hours)</option>
+        <option value="weekly">Weekly (last 7 days)</option>
+      </select>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="sendFromModal()" id="modalSendBtn">Send Report</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = "https://fmrmiylqjokyrsztfmgp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cNHjqBdWpu98niKZqMvIuA_96VjEQxk";
+const LOGIN_URL = "admin.html";
+
+let sb = null;
+let currentUser = null;
+let allReports = [];
+let filteredReports = [];
+
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// ICONS
+// ============================================================
+function ic(n, s = 18) {
+  const paths = {
+    alert: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  };
+  return `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[n] || ""}</svg>`;
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmt(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }); }
+  catch { return ts; }
+}
+function fmtShort(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }); }
+  catch { return ts; }
+}
+function timeAgo(ts) {
+  if (!ts) return "—";
+  const s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (s < 5) return "just now";
+  if (s < 60) return s + "s ago";
+  const m = Math.floor(s / 60); if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60); if (h < 24) return h + "h ago";
+  return Math.floor(h / 24) + "d ago";
+}
+const num = n => Number(n || 0).toLocaleString("en-IN");
+
+function showToast(msg, type = "success") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.setAttribute("role", type === "error" ? "alert" : "status");
+  el.innerHTML = `${ic(type === "error" ? "alert" : "check", 18)}<span></span>`;
+  el.querySelector("span").textContent = msg;
+  $("toasts").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, 3600);
+}
+
+function escCSV(v) {
+  if (v === null || v === undefined) return "";
+  let s = String(v);
+  if (typeof v === "string" && /^([=+@]|-(?!\d))/.test(s)) s = "'" + s;
+  s = s.replace(/"/g, '""');
+  return /[",\n\r]/.test(s) ? `"${s}"` : s;
+}
+function downloadCSV(csv, filename) {
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function toggleSidebar(open) {
+  $("sidebar").classList.toggle("open", open);
+  document.body.style.overflow = (open && window.innerWidth <= 960) ? "hidden" : "";
+}
+
+// ============================================================
+// LOAD DATA
+// ============================================================
+async function loadReports() {
+  $("reportsTableWrap").innerHTML = '<div class="loading">Loading reports…</div>';
+
+  const { data, error } = await sb
+    .from("report_log")
+    .select("*")
+    .order("sent_at", { ascending: false })
+    .limit(500);
+
+  if (error) {
+    $("reportsTableWrap").innerHTML = `
+      <div class="empty">
+        <div class="ic-wrap">${ic("alert", 24)}</div>
+        <h4>Could not load reports</h4>
+        <p>${esc(error.message)}. Make sure the <code>report_log</code> table exists.</p>
+      </div>`;
+    return;
+  }
+
+  allReports = data || [];
+  renderKpis();
+  applyFilters();
+}
+
+function renderKpis() {
+  const total = allReports.length;
+  const sent = allReports.filter(r => r.status === "sent").length;
+  const failed = allReports.filter(r => r.status === "failed").length;
+  const last = allReports[0];
+  const daily = allReports.filter(r => r.report_type === "daily").length;
+  const weekly = allReports.filter(r => r.report_type === "weekly").length;
+
+  $("kpis").innerHTML = `
+    <div class="kpi"><div class="label">Total reports</div><div class="value">${num(total)}</div></div>
+    <div class="kpi"><div class="label">Sent successfully</div><div class="value" style="color:var(--ok);">${num(sent)}</div></div>
+    <div class="kpi"><div class="label">Failed</div><div class="value" style="color:var(--bad);">${num(failed)}</div></div>
+    <div class="kpi"><div class="label">Daily / Weekly</div><div class="value" style="font-size:1.6rem;">${num(daily)} / ${num(weekly)}</div></div>
+    <div class="kpi"><div class="label">Last report</div><div class="value" style="font-size:1.1rem;">${last ? timeAgo(last.sent_at) : "—"}</div></div>
+  `;
+}
+
+function applyFilters() {
+  const type = $("fType").value;
+  const status = $("fStatus").value;
+  const triggered = $("fTriggered").value;
+  const q = ($("fSearch").value || "").toLowerCase().trim();
+
+  filteredReports = allReports.filter(r => {
+    if (type && r.report_type !== type) return false;
+    if (status && r.status !== status) return false;
+    if (triggered === "scheduler" && r.triggered_by === "manual") return false;
+    if (triggered === "manual" && r.triggered_by !== "manual") return false;
+    if (q) {
+      const hay = `${r.recipient || ""} ${r.error || ""} ${r.report_type || ""} ${r.triggered_by || ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  renderTable();
+}
+
+function renderTable() {
+  if (!filteredReports.length) {
+    $("reportsTableWrap").innerHTML = `
+      <div class="empty">
+        <div class="ic-wrap">${ic("inbox", 24)}</div>
+        <h4>No reports match these filters</h4>
+        <p>Try clearing the filters or send a test report.</p>
+      </div>`;
+    return;
+  }
+
+  const rows = filteredReports.map(r => {
+    const statusBadge = r.status === "sent"
+      ? '<span class="badge b-ok">Sent</span>'
+      : '<span class="badge b-bad">Failed</span>';
+
+    const typeBadge = r.report_type === "daily"
+      ? '<span class="badge b-info">Daily</span>'
+      : '<span class="badge b-neutral">Weekly</span>';
+
+    const triggerBadge = r.triggered_by === "manual"
+      ? '<span class="badge b-warn">Manual</span>'
+      : '<span class="badge b-neutral">Auto</span>';
+
+    const summary = r.summary || {};
+    const stats = `PV: ${num(summary.pageviews || 0)} · IPs: ${num(summary.uniqueIPs || 0)} · Sessions: ${num(summary.sessions || 0)}`;
+
+    return `
+      <tr>
+        <td class="nowrap">
+          <div class="cell-main">${fmtShort(r.sent_at)}</div>
+          <div class="cell-sub">${timeAgo(r.sent_at)}</div>
+        </td>
+        <td>${typeBadge}</td>
+        <td>${statusBadge}</td>
+        <td>${triggerBadge}</td>
+        <td>
+          <div class="mono cell-main">${esc(r.recipient || "—")}</div>
+          <div class="cell-sub">${esc(stats)}</div>
+        </td>
+        <td class="ell" style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+            title="${esc(r.error || "")}">
+          ${r.error ? `<span style="color:var(--bad);">${esc(r.error)}</span>` : "—"}
+        </td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="retryReport('${esc(r.id)}', '${esc(r.report_type)}', '${esc(r.recipient || "")}')">
+            Retry
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  $("reportsTableWrap").innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>When</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Source</th>
+          <th>Recipient & Stats</th>
+          <th>Error</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+// ============================================================
+// SEND CUSTOM REPORT
+// ============================================================
+function openCustomSend() {
+  $("customPanel").hidden = false;
+  $("customEmails").focus();
+}
+function closeCustomSend() {
+  $("customPanel").hidden = true;
+  $("customEmails").value = "";
+}
+
+async function sendCustomReport() {
+  const emails = $("customEmails").value.trim();
+  const type = $("customType").value;
+
+  if (!emails) {
+    showToast("Enter at least one email address", "error");
+    return;
+  }
+
+  // Simple email validation
+  const list = emails.split(",").map(s => s.trim()).filter(Boolean);
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const invalid = list.filter(e => !emailRe.test(e));
+  if (invalid.length) {
+    showToast("Invalid email: " + invalid.join(", "), "error");
+    return;
+  }
+
+  const btn = $("customSendBtn");
+  btn.disabled = true;
+  btn.innerHTML = "Sending…";
+
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/send-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type,
+        recipient: list.join(","),
+        manual: true,
+        triggered_by: currentUser?.email || "admin",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      showToast(`✅ ${type === "daily" ? "Daily" : "Weekly"} report sent to ${list.length} recipient${list.length > 1 ? "s" : ""}`);
+      closeCustomSend();
+      await loadReports();
+    } else {
+      showToast("❌ Failed: " + (data.error || "Unknown"), "error");
+    }
+  } catch (e) {
+    showToast("❌ Network error: " + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Send Now';
+  }
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openModal() { $("customModal").classList.add("open"); }
+function closeModal() { $("customModal").classList.remove("open"); }
+
+async function sendFromModal() {
+  const emails = $("modalEmails").value.trim();
+  const type = $("modalType").value;
+  if (!emails) { showToast("Enter at least one email", "error"); return; }
+
+  const list = emails.split(",").map(s => s.trim()).filter(Boolean);
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (list.some(e => !emailRe.test(e))) { showToast("Invalid email", "error"); return; }
+
+  const btn = $("modalSendBtn");
+  btn.disabled = true;
+  btn.textContent = "Sending…";
+
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/send-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type,
+        recipient: list.join(","),
+        manual: true,
+        triggered_by: currentUser?.email || "admin",
+      }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast(`✅ Sent to ${list.length} recipient${list.length > 1 ? "s" : ""}`);
+      closeModal();
+      await loadReports();
+    } else {
+      showToast("❌ " + (data.error || "Failed"), "error");
+    }
+  } catch (e) {
+    showToast("❌ " + e.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Send Report";
+  }
+}
+
+// ============================================================
+// RETRY
+// ============================================================
+async function retryReport(id, type, recipient) {
+  if (!confirm(`Retry ${type} report to ${recipient || "default recipient"}?`)) return;
+  try {
+    const res = await fetch(SUPABASE_URL + "/functions/v1/send-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type,
+        recipient: recipient && recipient !== "null" ? recipient : undefined,
+        manual: true,
+        triggered_by: currentUser?.email || "admin",
+      }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast("✅ Retry succeeded");
+      loadReports();
+    } else {
+      showToast("❌ Retry failed: " + (data.error || "unknown"), "error");
+    }
+  } catch (e) {
+    showToast("❌ " + e.message, "error");
+  }
+}
+
+// ============================================================
+// CSV EXPORT
+// ============================================================
+function exportCSV() {
+  if (!filteredReports.length) { showToast("Nothing to export", "error"); return; }
+  const headers = ["id", "sent_at", "report_type", "status", "triggered_by", "recipient", "period_start", "period_end", "error"];
+  const csv = [
+    headers.join(","),
+    ...filteredReports.map(r => headers.map(h => escCSV(r[h])).join(",")),
+  ].join("\n");
+  downloadCSV(csv, `reports-${new Date().toISOString().slice(0, 10)}.csv`);
+  showToast(`Exported ${filteredReports.length} reports`);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+async function init() {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  const { data } = await sb.auth.getSession();
+  if (!data?.session) { location.replace(LOGIN_URL); return; }
+
+  const { data: adminRow } = await sb.from("admins").select("id").eq("id", data.session.user.id).maybeSingle();
+  if (!adminRow) {
+    await sb.auth.signOut();
+    location.replace(LOGIN_URL);
+    return;
+  }
+
+  currentUser = data.session.user;
+  const email = currentUser.email || "admin";
+  $("userName").textContent = email.split("@")[0];
+  $("userEmail").textContent = email;
+  $("userAvatar").textContent = email[0] || "A";
+
+  // Esc key closes modal
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if ($("customModal").classList.contains("open")) closeModal();
+      else toggleSidebar(false);
+    }
+  });
+  $("customModal").addEventListener("click", e => { if (e.target === $("customModal")) closeModal(); });
+
+  // Load
+  loadReports();
+
+  // Auto-refresh every 60 seconds
+  setInterval(loadReports, 60000);
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

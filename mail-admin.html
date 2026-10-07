@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1D1310">
+<title>Admin Mail — Thikana Dhabla Ghosi</title>
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="mail-auth.js"></script>
+
+<style>
+  :root {
+    --teak-950: #170E0A;
+    --teak-900: #1D1310;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-200: #F0D68A;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --card: #FFFFFF;
+    --line: #E6DCC6;
+    --line-soft: #F0E8D6;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --bad: #B3261E;
+    --bad-bg: #FBE5E3;
+    --ok: #2E7D32;
+    --ok-bg: #E6F3E7;
+    --info: #1B3A5C;
+    --info-bg: #E2ECF6;
+    --warn: #9A6A0B;
+    --warn-bg: #FBF0D2;
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --sidebar-w: 280px;
+    --r-md: 10px;
+    --r-lg: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--ui); font-size: 15px; line-height: 1.55; color: var(--text); background: var(--paper); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+  [hidden] { display: none !important; }
+
+  #app { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; }
+
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column; color: #D9CBB2;
+    background: radial-gradient(circle at 1px 1px, rgba(201,154,58,.08) 1px, transparent 0) 0 0 / 20px 20px, linear-gradient(180deg, var(--teak-900), var(--teak-950));
+    border-right: 1px solid rgba(201,154,58,.25);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; text-decoration: none; }
+  .brand .crest-sm { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); background: var(--gold-100); flex-shrink: 0; }
+  .brand .crest-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .brand-name { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.05; color: #fff; }
+  .brand-sub { font-size: 12px; color: var(--gold-400); margin-top: 2px; }
+  .nav { padding: 6px 12px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .nav-group { font-size: 12px; font-weight: 600; color: rgba(240,214,138,.55); padding: 18px 12px 6px; }
+  .nav-item { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; height: 42px; padding: 0 12px; background: transparent; border: none; border-radius: 10px; color: #D9CBB2; font-size: 14px; font-weight: 500; text-align: left; transition: background .15s, color .15s; }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active { background: rgba(201,154,58,.16); color: var(--gold-200); font-weight: 600; }
+  .nav-item.active::before { content: ""; position: absolute; left: -12px; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--gold-400); }
+  .side-foot { padding: 12px; border-top: 1px solid rgba(201,154,58,.18); display: flex; gap: 10px; align-items: center; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-500), var(--gold-400)); color: var(--teak-900); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-transform: uppercase; }
+  .user-meta { min-width: 0; flex: 1; }
+  .user-meta strong { display: block; color: #fff; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-meta span { font-size: 12px; color: rgba(217,203,178,.65); }
+  .logout-btn { width: 38px; height: 38px; border-radius: 10px; border: none; background: rgba(255,255,255,.06); color: #D9CBB2; display: flex; align-items: center; justify-content: center; }
+  .logout-btn:hover { background: var(--bad); color: #fff; }
+
+  .mobilebar { display: none; }
+  .scrim { display: none; }
+  .main { min-width: 0; }
+  .page { padding: 28px 32px 80px; max-width: 1500px; margin: 0 auto; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .page-head h1 { font-family: var(--display); font-size: 2.3rem; font-weight: 700; color: var(--lac-800); line-height: 1.05; }
+  .page-head .sub { color: var(--muted); margin-top: 4px; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 20px; }
+  .kpi { background: #fff; padding: 18px 20px; }
+  .kpi .label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+  .kpi .value { font-family: var(--display); font-size: 2.3rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; margin-top: 4px; font-variant-numeric: lining-nums tabular-nums; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); margin-bottom: 18px; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; border-bottom: 1px solid var(--line-soft); }
+  .panel-head h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+  .panel-body { padding: 20px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: var(--r-md); border: 1px solid transparent; font-size: 14px; font-weight: 600; transition: background .15s; white-space: nowrap; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); }
+  .btn-secondary { background: #fff; color: var(--text); border-color: #D9CDB3; }
+  .btn-secondary:hover:not(:disabled) { background: #FBF7EC; }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,.05); }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+
+  .table-wrap { overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 900px; }
+  thead th { position: sticky; top: 0; z-index: 1; background: #FAF6EC; color: var(--muted); font-size: 12px; font-weight: 600; text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; text-transform: uppercase; letter-spacing: .04em; }
+  tbody td { padding: 11px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FCF9F0; }
+
+  .cell-main { font-weight: 600; color: var(--text); }
+  .cell-sub { font-size: 12.5px; color: var(--muted); }
+  .mono { font-family: var(--mono); font-size: 12.5px; }
+  .nowrap { white-space: nowrap; }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .b-ok { background: var(--ok-bg); color: var(--ok); }
+  .b-bad { background: var(--bad-bg); color: var(--bad); }
+  .b-info { background: var(--info-bg); color: var(--info); }
+  .b-warn { background: var(--warn-bg); color: var(--warn); }
+  .b-neutral { background: #EFE8D8; color: #5B4E3C; }
+
+  .empty { padding: 50px 20px; text-align: center; color: var(--muted); }
+  .empty svg { margin: 0 auto 12px; color: var(--gold-500); display: block; }
+  .empty h4 { color: var(--text); font-size: 16px; margin-bottom: 4px; }
+
+  .bar-list { display: flex; flex-direction: column; gap: 12px; }
+  .bar-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 14px; }
+  .bar-row .n { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bar-track { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--line-soft); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold-500), var(--gold-400)); }
+
+  .toasts { position: fixed; right: 20px; bottom: 20px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { display: flex; align-items: center; gap: 10px; max-width: 380px; padding: 13px 18px; border-radius: 12px; background: var(--teak-900); color: #fff; font-size: 14px; font-weight: 500; box-shadow: 0 24px 60px rgba(23,14,10,.35); opacity: 0; transform: translateY(14px); transition: opacity .25s, transform .25s; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.error { background: #7A1712; }
+
+  .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+  .filter-bar .search { flex: 1 1 240px; max-width: 340px; position: relative; }
+  .filter-bar .search .input { padding-left: 38px; }
+  .filter-bar .select, .filter-bar .input { width: auto; }
+
+  .input, .select {
+    padding: 10px 14px; box-sizing: border-box;
+    border: 1px solid #D9CDB3; border-radius: var(--r-md);
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 14px;
+  }
+  .input:focus, .select:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,154,58,.22); }
+  .select { padding-right: 32px; cursor: pointer; }
+  .search .input { width: 100%; }
+
+  @media (max-width: 960px) {
+    #app { grid-template-columns: 1fr; }
+    .sidebar { position: fixed; z-index: 950; left: 0; top: 0; bottom: 0; width: 290px; transform: translateX(-100%); transition: transform .25s; }
+    .sidebar.open { transform: none; }
+    .scrim { position: fixed; inset: 0; z-index: 940; background: rgba(23,14,10,.55); display: none; }
+    .sidebar.open ~ .scrim { display: block; }
+    .mobilebar { display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; padding: 12px 16px; background: var(--teak-900); color: #fff; border-bottom: 1px solid rgba(201,154,58,.3); }
+    .mobilebar button { width: 44px; height: 44px; border-radius: 10px; border: 1px solid rgba(201,154,58,.4); background: transparent; color: var(--gold-200); display: flex; align-items: center; justify-content: center; }
+    .mobilebar strong { font-family: var(--display); font-size: 1.3rem; }
+    .page { padding: 22px 16px 80px; }
+    .page-head h1 { font-size: 1.85rem; }
+    .toasts { left: 16px; right: 16px; bottom: 16px; }
+    .toast { max-width: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app" hidden>
+  <aside class="sidebar" id="sidebar">
+    <a href="index.html" class="brand">
+      <span class="crest-sm"><img src="1200.jpeg" alt=""></span>
+      <span>
+        <div class="brand-name">Thikana<br>Dhabla Ghosi</div>
+        <div class="brand-sub">Admin Mail</div>
+      </span>
+    </a>
+    <nav class="nav">
+      <div class="nav-group">Overview</div>
+      <button class="nav-item active" data-tab="overview" onclick="showTab('overview')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Dashboard</span>
+      </button>
+
+      <div class="nav-group">Mailboxes</div>
+      <button class="nav-item" data-tab="all_inbox" onclick="showTab('all_inbox')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        <span>All Inbox</span>
+      </button>
+      <button class="nav-item" data-tab="all_sent" onclick="showTab('all_sent')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <span>All Sent</span>
+      </button>
+      <button class="nav-item" data-tab="compose" onclick="showTab('compose')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span>Compose</span>
+      </button>
+
+      <div class="nav-group">Tracking</div>
+      <button class="nav-item" data-tab="users" onclick="showTab('users')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Users</span>
+      </button>
+      <button class="nav-item" data-tab="logs" onclick="showTab('logs')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Activity Logs</span>
+      </button>
+      <button class="nav-item" data-tab="sessions" onclick="showTab('sessions')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Sessions</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <span class="avatar" id="userAvatar">?</span>
+      <span class="user-meta"><strong id="userName">—</strong><span id="userEmail">—</span></span>
+      <button class="logout-btn" onclick="doLogout()" aria-label="Sign out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+  <div class="scrim" onclick="toggleSidebar(false)"></div>
+
+  <div class="main">
+    <header class="mobilebar">
+      <button onclick="toggleSidebar(true)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <strong>Admin Mail</strong>
+    </header>
+    <main class="page" id="content"></main>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+let currentTab = "overview";
+let allInboxData = [];
+let allSentData = [];
+let logsData = [];
+let sessionsData = [];
+let usersData = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const num = n => Number(n || 0).toLocaleString("en-IN");
+
+function fmt(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }); }
+  catch { return ts; }
+}
+function fmtShort(ts) {
+  if (!ts) return "—";
+  const d = new Date(ts);
+  const diff = Date.now() - d;
+  if (diff < 60_000) return "just now";
+  if (diff < 3600_000) return Math.floor(diff / 60_000) + "m ago";
+  if (diff < 86400_000) return Math.floor(diff / 3600_000) + "h ago";
+  if (diff < 7 * 86400_000) return Math.floor(diff / 86400_000) + "d ago";
+  return d.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short" });
+}
+
+function showToast(msg, type = "success") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.innerHTML = `<span>${esc(msg)}</span>`;
+  $("toasts").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, 3600);
+}
+
+function toggleSidebar(open) { $("sidebar").classList.toggle("open", open); }
+
+async function doLogout() { await MailAuth.forceLogout(); }
+
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll(".nav-item[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  toggleSidebar(false);
+  $("content").innerHTML = '<div style="padding:60px;text-align:center;color:#7B6E5C;">Loading…</div>';
+
+  if (tab === "overview") renderOverview();
+  else if (tab === "all_inbox") renderAllInbox();
+  else if (tab === "all_sent") renderAllSent();
+  else if (tab === "compose") renderCompose();
+  else if (tab === "users") renderUsers();
+  else if (tab === "logs") renderLogs();
+  else if (tab === "sessions") renderSessions();
+}
+
+// ============================================================
+// OVERVIEW
+// ============================================================
+async function renderOverview() {
+  const c = $("content");
+  let stats, logs, sessions;
+
+  try {
+    [stats, logs, sessions] = await Promise.all([
+      MailAuth.api("admin_stats", {}, "GET"),
+      MailAuth.api("admin_logs", {}, "GET").catch(() => []),
+      MailAuth.api("admin_sessions", {}, "GET").catch(() => []),
+    ]);
+  } catch (e) {
+    c.innerHTML = errorBlock("Could not load overview", e.message);
+    return;
+  }
+
+  // Compute per-user email counts
+  const perUser = {};
+  for (const l of logs) {
+    if (!l.user_email) continue;
+    if (!perUser[l.user_email]) perUser[l.user_email] = { email: l.user_email, logins: 0, sends: 0, deletes: 0, totalActions: 0 };
+    perUser[l.user_email].totalActions++;
+    if (l.action === "login") perUser[l.user_email].logins++;
+    if (l.action === "send") perUser[l.user_email].sends++;
+    if (l.action === "delete") perUser[l.user_email].deletes++;
+  }
+
+  // Active sessions count
+  const now = Date.now();
+  const activeSessions = sessions.filter(s => s.login_at && !s.logout_at);
+
+  // Recent logins (last 10)
+  const recentLogins = logs.filter(l => l.action === "login").slice(0, 10);
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Admin Dashboard</h1><p class="sub">Everything happening across the family mail system</p></div>
+      <div class="page-actions">
+        <button class="btn btn-secondary btn-sm" onclick="renderOverview()">Refresh</button>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="label">Emails received</div><div class="value">${num(stats.totalInbound)}</div></div>
+      <div class="kpi"><div class="label">Unread</div><div class="value" style="color:var(--bad);">${num(stats.unread)}</div></div>
+      <div class="kpi"><div class="label">Emails sent</div><div class="value">${num(stats.totalSent)}</div></div>
+      <div class="kpi"><div class="label">Total log entries</div><div class="value">${num(stats.totalUsers)}</div></div>
+      <div class="kpi"><div class="label">Active sessions</div><div class="value">${num(activeSessions.length)}</div></div>
+      <div class="kpi"><div class="label">Mailbox users</div><div class="value">${num(Object.keys(perUser).length)}</div></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Activity by user</h3><span class="meta" style="font-size:12.5px;color:var(--muted);">Who is doing what</span></div>
+      <div class="panel-body">
+        ${Object.keys(perUser).length === 0
+          ? '<div style="color:var(--muted);">No activity recorded yet.</div>'
+          : `<div class="table-wrap" style="border:none;">
+              <table>
+                <thead>
+                  <tr><th>User</th><th>Logins</th><th>Emails sent</th><th>Deletes</th><th>Total actions</th></tr>
+                </thead>
+                <tbody>
+                  ${Object.values(perUser).map(u => `
+                    <tr>
+                      <td><strong>${esc(u.email)}</strong></td>
+                      <td>${num(u.logins)}</td>
+                      <td>${num(u.sends)}</td>
+                      <td>${num(u.deletes)}</td>
+                      <td>${num(u.totalActions)}</td>
+                    </tr>`).join("")}
+                </tbody>
+              </table>
+            </div>`}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Recent logins</h3></div>
+      <div class="panel-body">
+        ${recentLogins.length === 0
+          ? '<div style="color:var(--muted);">No logins recorded.</div>'
+          : recentLogins.map(l => `
+              <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line-soft);">
+                <div>
+                  <strong>${esc(l.user_email || "—")}</strong>
+                  <div class="cell-sub">${esc(l.ip || "—")} · ${esc((l.device || "").slice(0, 60))}</div>
+                </div>
+                <div class="cell-sub nowrap">${esc(fmt(l.created_at))}</div>
+              </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>Activity by action type</h3></div>
+      <div class="panel-body">
+        ${Object.keys(stats.actionCounts || {}).length === 0
+          ? '<div style="color:var(--muted);">No actions recorded.</div>'
+          : `<div class="bar-list">
+              ${Object.entries(stats.actionCounts).sort((a,b) => b[1]-a[1]).map(([k, v]) => {
+                const max = Math.max(...Object.values(stats.actionCounts));
+                return `
+                  <div class="bar-row">
+                    <span style="text-transform:capitalize;">${esc(k)}</span>
+                    <span class="n">${num(v)}</span>
+                    <div class="bar-track"><div class="bar-fill" style="width:${Math.max(3, v/max*100)}%"></div></div>
+                  </div>`;
+              }).join("")}
+            </div>`}
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// ALL INBOX
+// ============================================================
+async function renderAllInbox() {
+  const c = $("content");
+  try {
+    allInboxData = await MailAuth.api("admin_inbox_all", {}, "GET");
+  } catch (e) { c.innerHTML = errorBlock("Could not load", e.message); return; }
+
+  const recipients = [...new Set(allInboxData.map(e => e.recipient_email))].sort();
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>All Inbox</h1><p class="sub">${num(allInboxData.length)} messages across ${recipients.length} mailboxes</p></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="renderAllInbox()">Refresh</button></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search">
+        <input class="input" id="inboxSearch" placeholder="Search by sender, subject, recipient…" oninput="filterAllInbox()">
+      </div>
+      <select class="select" id="inboxFilterTo" onchange="filterAllInbox()">
+        <option value="">All recipients</option>
+        ${recipients.map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join("")}
+      </select>
+      <select class="select" id="inboxFilterStatus" onchange="filterAllInbox()">
+        <option value="">All statuses</option>
+        <option value="unread">Unread</option>
+        <option value="read">Read</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap" style="border:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>From</th>
+              <th>To (mailbox)</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="allInboxBody">
+            ${allInboxData.map((e, i) => `
+              <tr data-search="${esc((e.from_email + " " + e.subject + " " + e.recipient_email).toLowerCase())}" data-to="${esc(e.recipient_email)}" data-status="${esc(e.status)}">
+                <td class="nowrap mono">${esc(fmtShort(e.created_at))}</td>
+                <td class="cell-main">${esc(e.from_email)}</td>
+                <td><span class="badge b-neutral">${esc(e.recipient_email)}</span></td>
+                <td>${esc(e.subject || "(no subject)")}</td>
+                <td>${e.status === "unread" ? '<span class="badge b-bad">Unread</span>' : '<span class="badge b-ok">Read</span>'}</td>
+                <td>
+                  <button class="btn btn-secondary btn-sm" onclick="openAdminInbox(${i})">View</button>
+                  <button class="btn btn-danger-soft btn-sm" onclick="deleteAdminInbox(${e.id})">Delete</button>
+                </td>
+              </tr>
+            `).join("") || '<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--muted);">No emails yet.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterAllInbox() {
+  const q = ($("inboxSearch").value || "").toLowerCase();
+  const to = $("inboxFilterTo").value;
+  const status = $("inboxFilterStatus").value;
+  document.querySelectorAll("#allInboxBody tr").forEach(tr => {
+    const matchQ = !q || tr.dataset.search.includes(q);
+    const matchTo = !to || tr.dataset.to === to;
+    const matchStatus = !status || tr.dataset.status === status;
+    tr.style.display = (matchQ && matchTo && matchStatus) ? "" : "none";
+  });
+}
+
+function openAdminInbox(i) {
+  const e = allInboxData[i];
+  if (!e) return;
+  $("content").innerHTML = `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="showTab('all_inbox')" style="margin-bottom:8px;">← Back</button>
+        <h1 style="font-size:1.8rem;">${esc(e.subject || "(no subject)")}</h1>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-body">
+        <div style="border-bottom:1px solid var(--line-soft);padding-bottom:14px;margin-bottom:18px;">
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>From:</b> ${esc(e.from_email)}</div>
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>To:</b> ${esc(e.recipient_email)}</div>
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>Date:</b> ${esc(fmt(e.created_at))}</div>
+        </div>
+        <div style="white-space:pre-wrap;word-wrap:break-word;font-size:14.5px;line-height:1.75;">${esc(e.body || "(no body)")}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function deleteAdminInbox(id) {
+  if (!confirm("Delete this email permanently?")) return;
+  try {
+    await MailAuth.api("inbox_delete", { id });
+    showToast("Deleted");
+    renderAllInbox();
+  } catch (e) { showToast("Failed: " + e.message, "error"); }
+}
+
+// ============================================================
+// ALL SENT
+// ============================================================
+async function renderAllSent() {
+  const c = $("content");
+  try {
+    allSentData = await MailAuth.api("admin_sent_all", {}, "GET");
+  } catch (e) { c.innerHTML = errorBlock("Could not load", e.message); return; }
+
+  const senders = [...new Set(allSentData.map(e => e.from_email).filter(Boolean))].sort();
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>All Sent</h1><p class="sub">${num(allSentData.length)} messages sent</p></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="renderAllSent()">Refresh</button></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search">
+        <input class="input" id="sentSearch" placeholder="Search by sender, recipient, subject…" oninput="filterAllSent()">
+      </div>
+      <select class="select" id="sentFilterFrom" onchange="filterAllSent()">
+        <option value="">All senders</option>
+        ${senders.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("")}
+      </select>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap" style="border:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Subject</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="allSentBody">
+            ${allSentData.map((e, i) => `
+              <tr data-search="${esc((e.from_email + " " + e.to_email + " " + e.subject).toLowerCase())}" data-from="${esc(e.from_email || "")}">
+                <td class="nowrap mono">${esc(fmtShort(e.created_at))}</td>
+                <td class="cell-main">${esc(e.from_email || "—")}</td>
+                <td>${esc(e.to_email)}</td>
+                <td>${esc(e.subject || "(no subject)")}</td>
+                <td>${e.status === "sent" ? '<span class="badge b-ok">Sent</span>' : '<span class="badge b-bad">Failed</span>'}</td>
+                <td><button class="btn btn-secondary btn-sm" onclick="openAdminSent(${i})">View</button></td>
+              </tr>
+            `).join("") || '<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--muted);">No sent emails yet.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterAllSent() {
+  const q = ($("sentSearch").value || "").toLowerCase();
+  const from = $("sentFilterFrom").value;
+  document.querySelectorAll("#allSentBody tr").forEach(tr => {
+    const matchQ = !q || tr.dataset.search.includes(q);
+    const matchFrom = !from || tr.dataset.from === from;
+    tr.style.display = (matchQ && matchFrom) ? "" : "none";
+  });
+}
+
+function openAdminSent(i) {
+  const e = allSentData[i];
+  if (!e) return;
+  $("content").innerHTML = `
+    <div class="page-head">
+      <div>
+        <button class="btn btn-ghost btn-sm" onclick="showTab('all_sent')" style="margin-bottom:8px;">← Back</button>
+        <h1 style="font-size:1.8rem;">${esc(e.subject || "(no subject)")}</h1>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-body">
+        <div style="border-bottom:1px solid var(--line-soft);padding-bottom:14px;margin-bottom:18px;">
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>From:</b> ${esc(e.from_email || "—")}</div>
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>To:</b> ${esc(e.to_email)}</div>
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>Status:</b> ${esc(e.status)}</div>
+          <div style="font-size:13.5px;margin-bottom:4px;color:var(--muted);"><b>Date:</b> ${esc(fmt(e.created_at))}</div>
+        </div>
+        <div style="font-size:14.5px;line-height:1.75;">${e.body || "(no body)"}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// COMPOSE
+// ============================================================
+async function renderCompose() {
+  const c = $("content");
+  let senders = [];
+  try { senders = await MailAuth.api("senders", {}, "GET"); } catch (e) {}
+
+  c.innerHTML = `
+    <div class="page-head"><div><h1>Compose</h1><p class="sub">Send from any @thikanadhabla.in address</p></div></div>
+    <div class="panel"><div class="panel-body" style="max-width:720px;">
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);">
+        <label style="font-weight:600;color:var(--lac-800);font-size:13px;">From</label>
+        <select class="select" id="cFrom">
+          ${senders.map(s => `<option value="${esc(s.email)}">${esc(s.display_name)} &lt;${esc(s.email)}&gt;</option>`).join("")}
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);">
+        <label style="font-weight:600;color:var(--lac-800);font-size:13px;">To</label>
+        <input class="input" id="cTo" placeholder="recipient@example.com (comma-separate for multiple)">
+      </div>
+      <div style="display:grid;grid-template-columns:100px 1fr;gap:14px;padding:10px 0;border-bottom:1px solid var(--line-soft);">
+        <label style="font-weight:600;color:var(--lac-800);font-size:13px;">Subject</label>
+        <input class="input" id="cSubject" placeholder="Subject">
+      </div>
+      <div style="padding:14px 0;">
+        <textarea class="input" id="cBody" placeholder="Write your message…" style="min-height:280px;font-family:var(--ui);font-size:15px;line-height:1.7;resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="clearAdminCompose()">Clear</button>
+        <button class="btn btn-primary" id="sendBtn" onclick="sendAdminEmail()">Send</button>
+      </div>
+    </div></div>
+  `;
+}
+
+function clearAdminCompose() { ["cTo","cSubject","cBody"].forEach(id => { if ($(id)) $(id).value = ""; }); }
+
+async function sendAdminEmail() {
+  const from = $("cFrom").value;
+  const to = $("cTo").value.trim();
+  const subject = $("cSubject").value.trim();
+  const body = $("cBody").value;
+  if (!to || !subject || !body) { showToast("To, subject, body required", "error"); return; }
+
+  const btn = $("sendBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const html = body.split("\n").map(l => `<p>${esc(l)}</p>`).join("");
+    const res = await MailAuth.api("send", { from, to, subject, html });
+    if (res.ok) { showToast("✅ Sent"); clearAdminCompose(); }
+    else showToast("❌ " + (res.resend?.message || "Failed"), "error");
+  } catch (e) { showToast("❌ " + e.message, "error"); }
+  finally { btn.disabled = false; btn.textContent = "Send"; }
+}
+
+// ============================================================
+// USERS (aggregated from activity logs)
+// ============================================================
+async function renderUsers() {
+  const c = $("content");
+  try {
+    const logs = await MailAuth.api("admin_logs", {}, "GET");
+    logsData = logs;
+  } catch (e) { c.innerHTML = errorBlock("Could not load", e.message); return; }
+
+  const perUser = {};
+  for (const l of logs) {
+    if (!l.user_email) continue;
+    if (!perUser[l.user_email]) perUser[l.user_email] = {
+      email: l.user_email, logins: 0, logouts: 0, sends: 0, deletes: 0,
+      lastAction: null, lastActionAt: null,
+    };
+    const u = perUser[l.user_email];
+    if (l.action === "login") u.logins++;
+    if (l.action === "logout") u.logouts++;
+    if (l.action === "send") u.sends++;
+    if (l.action === "delete") u.deletes++;
+    if (!u.lastActionAt || l.created_at > u.lastActionAt) {
+      u.lastActionAt = l.created_at;
+      u.lastAction = l.action;
+    }
+  }
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Users</h1><p class="sub">${num(Object.keys(perUser).length)} mailbox users with activity</p></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="renderUsers()">Refresh</button></div>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap" style="border:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Logins</th>
+              <th>Logouts</th>
+              <th>Emails sent</th>
+              <th>Deletes</th>
+              <th>Last activity</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Object.values(perUser).map(u => `
+              <tr>
+                <td class="cell-main">${esc(u.email)}</td>
+                <td>${num(u.logins)}</td>
+                <td>${num(u.logouts)}</td>
+                <td>${num(u.sends)}</td>
+                <td>${num(u.deletes)}</td>
+                <td>
+                  <div>${esc(u.lastAction || "—")}</div>
+                  <div class="cell-sub">${esc(fmtShort(u.lastActionAt))}</div>
+                </td>
+              </tr>
+            `).join("") || '<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--muted);">No users yet.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================================
+// LOGS
+// ============================================================
+async function renderLogs() {
+  const c = $("content");
+  try {
+    logsData = await MailAuth.api("admin_logs", {}, "GET");
+  } catch (e) { c.innerHTML = errorBlock("Could not load", e.message); return; }
+
+  const users = [...new Set(logsData.map(l => l.user_email).filter(Boolean))].sort();
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Activity Logs</h1><p class="sub">${num(logsData.length)} entries</p></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="renderLogs()">Refresh</button></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search">
+        <input class="input" id="logSearch" placeholder="Search by user, action, IP…" oninput="filterLogs()">
+      </div>
+      <select class="select" id="logFilterUser" onchange="filterLogs()">
+        <option value="">All users</option>
+        ${users.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join("")}
+      </select>
+      <select class="select" id="logFilterAction" onchange="filterLogs()">
+        <option value="">All actions</option>
+        <option value="login">Login</option>
+        <option value="logout">Logout</option>
+        <option value="send">Send</option>
+        <option value="delete">Delete</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap" style="border:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>User</th>
+              <th>Action</th>
+              <th>Details</th>
+              <th>IP</th>
+              <th>Device</th>
+            </tr>
+          </thead>
+          <tbody id="logBody">
+            ${logsData.map(l => `
+              <tr data-search="${esc((l.user_email + " " + l.action + " " + l.ip + " " + (l.details||"")).toLowerCase())}" data-user="${esc(l.user_email)}" data-action="${esc(l.action)}">
+                <td class="nowrap mono">${esc(fmt(l.created_at))}</td>
+                <td class="cell-main">${esc(l.user_email || "—")}</td>
+                <td><span class="badge b-${l.action === 'login' ? 'ok' : l.action === 'logout' ? 'neutral' : l.action === 'send' ? 'info' : l.action === 'delete' ? 'bad' : 'neutral'}">${esc(l.action)}</span></td>
+                <td>${esc(l.details || "—")}</td>
+                <td class="mono">${esc(l.ip || "—")}</td>
+                <td class="cell-sub" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(l.device)}">${esc((l.device || "").slice(0, 60))}</td>
+              </tr>
+            `).join("") || '<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--muted);">No logs yet.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterLogs() {
+  const q = ($("logSearch").value || "").toLowerCase();
+  const user = $("logFilterUser").value;
+  const action = $("logFilterAction").value;
+  document.querySelectorAll("#logBody tr").forEach(tr => {
+    const matchQ = !q || tr.dataset.search.includes(q);
+    const matchUser = !user || tr.dataset.user === user;
+    const matchAction = !action || tr.dataset.action === action;
+    tr.style.display = (matchQ && matchUser && matchAction) ? "" : "none";
+  });
+}
+
+// ============================================================
+// SESSIONS
+// ============================================================
+async function renderSessions() {
+  const c = $("content");
+  try {
+    sessionsData = await MailAuth.api("admin_sessions", {}, "GET");
+  } catch (e) { c.innerHTML = errorBlock("Could not load", e.message); return; }
+
+  const users = [...new Set(sessionsData.map(s => s.user_email).filter(Boolean))].sort();
+
+  c.innerHTML = `
+    <div class="page-head">
+      <div><h1>Sessions</h1><p class="sub">${num(sessionsData.length)} login sessions tracked</p></div>
+      <div class="page-actions"><button class="btn btn-secondary btn-sm" onclick="renderSessions()">Refresh</button></div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search">
+        <input class="input" id="sessionSearch" placeholder="Search by user or IP…" oninput="filterSessions()">
+      </div>
+      <select class="select" id="sessionFilterUser" onchange="filterSessions()">
+        <option value="">All users</option>
+        ${users.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join("")}
+      </select>
+      <select class="select" id="sessionFilterStatus" onchange="filterSessions()">
+        <option value="">All</option>
+        <option value="active">Active now</option>
+        <option value="ended">Ended</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <div class="table-wrap" style="border:none;">
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Login</th>
+              <th>Logout</th>
+              <th>Duration</th>
+              <th>IP</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="sessionBody">
+            ${sessionsData.map(s => {
+              const active = s.login_at && !s.logout_at;
+              const dur = s.duration_sec ? Math.floor(s.duration_sec / 60) + "m " + (s.duration_sec % 60) + "s" : "—";
+              return `
+                <tr data-search="${esc((s.user_email + " " + (s.ip || "")).toLowerCase())}" data-user="${esc(s.user_email)}" data-status="${active ? "active" : "ended"}">
+                  <td class="cell-main">${esc(s.user_email || "—")}</td>
+                  <td class="mono nowrap">${esc(s.login_at ? fmt(s.login_at) : "—")}</td>
+                  <td class="mono nowrap">${esc(s.logout_at ? fmt(s.logout_at) : "—")}</td>
+                  <td>${dur}</td>
+                  <td class="mono">${esc(s.ip || "—")}</td>
+                  <td>${active ? '<span class="badge b-ok">Active</span>' : '<span class="badge b-neutral">Ended</span>'}</td>
+                </tr>`;
+            }).join("") || '<tr><td colspan="6" style="padding:40px;text-align:center;color:var(--muted);">No sessions yet.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function filterSessions() {
+  const q = ($("sessionSearch").value || "").toLowerCase();
+  const user = $("sessionFilterUser").value;
+  const status = $("sessionFilterStatus").value;
+  document.querySelectorAll("#sessionBody tr").forEach(tr => {
+    const matchQ = !q || tr.dataset.search.includes(q);
+    const matchUser = !user || tr.dataset.user === user;
+    const matchStatus = !status || tr.dataset.status === status;
+    tr.style.display = (matchQ && matchUser && matchStatus) ? "" : "none";
+  });
+}
+
+// ============================================================
+// Helpers
+// ============================================================
+function errorBlock(title, msg) {
+  return `<div class="panel"><div class="empty"><h4>${esc(title)}</h4><p>${esc(msg)}</p></div></div>`;
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener("DOMContentLoaded", async () => {
+  const session = await MailAuth.requireAuth(true); // requireAdmin = true
+  if (!session) return;
+
+  $("app").hidden = false;
+  const email = session.user.email || "";
+  $("userEmail").textContent = email;
+  $("userName").textContent = email.split("@")[0];
+  $("userAvatar").textContent = (email[0] || "?").toUpperCase();
+
+  showTab("overview");
+});
+</script>
+</body>
+</html>

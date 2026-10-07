@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1D1310">
+<title>Sign in — Thikana Dhabla Mail</title>
+
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="mail-auth.js"></script>
+
+<style>
+  :root {
+    --lac-900: #3A0E0E;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --bad: #B3261E;
+    --ok: #2E7D32;
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --devnag: 'Tiro Devanagari Hindi', serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--paper); min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+
+  .login {
+    min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr;
+  }
+  .login-art {
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; padding: 64px;
+    color: var(--gold-100);
+    background:
+      radial-gradient(circle at 18% 12%, rgba(232,193,102,.20), transparent 45%),
+      linear-gradient(160deg, var(--lac-900) 0%, var(--lac-800) 55%, #1D1310 100%);
+  }
+  .login-art::after {
+    content: ""; position: absolute; right: -140px; bottom: -140px;
+    width: 520px; height: 520px; border-radius: 50%;
+    border: 1px solid rgba(232,193,102,.28);
+    box-shadow: 0 0 0 44px rgba(232,193,102,.05), 0 0 0 88px rgba(232,193,102,.035);
+  }
+  .art-inner { position: relative; z-index: 1; max-width: 460px; }
+  .crest {
+    width: 92px; height: 92px; border-radius: 50%; overflow: hidden;
+    border: 3px solid var(--gold-500); background: var(--gold-100);
+    box-shadow: 0 0 40px rgba(201,154,58,.45); margin-bottom: 28px;
+  }
+  .crest img { width: 100%; height: 100%; object-fit: cover; }
+  .devnag-line { font-family: var(--devnag); font-size: 1.15rem; color: var(--gold-400); margin-bottom: 14px; }
+  .login-art h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 5vw, 4rem); line-height: 1.02; color: #fff; margin-bottom: 18px; }
+  .art-sub { font-size: 1.02rem; color: rgba(247,235,201,.78); max-width: 34ch; }
+
+  .login-side { display: flex; align-items: center; justify-content: center; padding: 32px 24px; }
+  .login-card { width: 100%; max-width: 420px; }
+  .login-card h2 { font-family: var(--display); font-size: 2.2rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; }
+  .login-card .lead { color: var(--muted); margin: 6px 0 26px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--lac-800); margin-bottom: 6px; }
+  .input {
+    width: 100%; padding: 12px 14px; box-sizing: border-box;
+    border: 1px solid #D9CDB3; border-radius: 10px;
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 16px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,154,58,.22); }
+
+  .pw-wrap { position: relative; }
+  .pw-wrap .input { padding-right: 46px; }
+  .pw-toggle {
+    position: absolute; right: 4px; top: 4px; width: 36px; height: 36px;
+    border: none; background: transparent; color: var(--muted);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .pw-toggle:hover { background: rgba(0,0,0,.05); }
+
+  .captcha-box {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; margin-bottom: 12px;
+    background: linear-gradient(135deg, #FFF8E1, #FFF3CC);
+    border: 2px dashed var(--gold-500); border-radius: 10px;
+  }
+  .captcha-box .question {
+    font-family: var(--mono); font-size: 1.4rem; font-weight: 600;
+    color: var(--lac-800); letter-spacing: .05em;
+  }
+  .captcha-box button {
+    border: none; background: transparent; color: var(--lac-700);
+    font-size: 13px; text-decoration: underline; font-weight: 500;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 46px; padding: 0 20px; border-radius: 10px;
+    border: 1px solid transparent;
+    font-size: 15px; font-weight: 600;
+    transition: background .15s, box-shadow .15s, transform .1s;
+    width: 100%;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); box-shadow: 0 6px 16px rgba(92,23,23,.28); }
+
+  .login-msg { min-height: 20px; font-size: 14px; font-weight: 500; margin-top: 14px; text-align: center; }
+  .login-msg.err { color: var(--bad); }
+
+  .spinner {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 960px) {
+    .login { grid-template-columns: 1fr; }
+    .login-art { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login">
+  <section class="login-art" aria-hidden="true">
+    <div class="art-inner">
+      <div class="crest"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></div>
+      <p class="devnag-line">॥ राघवाय नमः ॥</p>
+      <h1>Thikana<br>Dhabla Ghosi</h1>
+      <p class="art-sub">Family mail server — send and receive from @thikanadhabla.in</p>
+    </div>
+  </section>
+
+  <section class="login-side">
+    <div class="login-card">
+      <h2>Mail sign in</h2>
+      <p class="lead">Sign in with your @thikanadhabla.in mailbox.</p>
+
+      <form id="loginForm" onsubmit="event.preventDefault(); doLogin();" novalidate>
+        <div class="field">
+          <label for="loginEmail">Email address</label>
+          <input class="input" type="email" id="loginEmail" placeholder="support@thikanadhabla.in" autocomplete="username" required>
+        </div>
+
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="pw-wrap">
+            <input class="input" type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" required>
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" onclick="togglePw()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Verification</label>
+          <div class="captcha-box">
+            <div class="question" id="captchaQuestion">— × — = ?</div>
+            <button type="button" onclick="generateCaptcha()">↻ New question</button>
+          </div>
+          <input class="input" type="text" id="loginCaptcha" placeholder="Your answer" inputmode="numeric" autocomplete="off" required style="text-align:center;font-family:var(--mono);font-size:1.2rem;">
+        </div>
+
+        <button class="btn btn-primary" id="loginBtn" type="submit">Sign in</button>
+        <p class="login-msg err" id="loginMsg"></p>
+      </form>
+
+      <p style="margin-top:24px;font-size:12.5px;color:var(--muted);text-align:center;">
+        <a href="index.html" style="color:var(--lac-700);">← Back to main site</a>
+      </p>
+    </div>
+  </section>
+</div>
+
+<script>
+let currentCaptchaAnswer = 0;
+
+function togglePw() {
+  const inp = document.getElementById("loginPassword");
+  inp.type = inp.type === "password" ? "text" : "password";
+}
+
+function generateCaptcha() {
+  const ops = ["+", "−", "×"];
+  const op = ops[Math.floor(Math.random() * ops.length)];
+  let a, b, answer;
+
+  if (op === "+") {
+    a = Math.floor(Math.random() * 15) + 2;
+    b = Math.floor(Math.random() * 15) + 2;
+    answer = a + b;
+  } else if (op === "−") {
+    a = Math.floor(Math.random() * 15) + 5;
+    b = Math.floor(Math.random() * (a - 1)) + 1;
+    answer = a - b;
+  } else {
+    a = Math.floor(Math.random() * 9) + 2;
+    b = Math.floor(Math.random() * 9) + 2;
+    answer = a * b;
+  }
+
+  currentCaptchaAnswer = answer;
+  document.getElementById("captchaQuestion").textContent = `${a} ${op} ${b} = ?`;
+  document.getElementById("loginCaptcha").value = "";
+}
+
+async function doLogin() {
+  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+  const password = document.getElementById("loginPassword").value;
+  const captcha = parseInt(document.getElementById("loginCaptcha").value, 10);
+  const msg = document.getElementById("loginMsg");
+  msg.textContent = "";
+
+  if (!email || !password) { msg.textContent = "Enter email and password."; return; }
+  if (captcha !== currentCaptchaAnswer) {
+    msg.textContent = "Wrong answer to the verification question.";
+    generateCaptcha();
+    return;
+  }
+
+  const btn = document.getElementById("loginBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  try {
+    const res = await fetch(MAIL_FN_URL + "?action=login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok || !data.ok) {
+      msg.textContent = "❌ " + (data.error || "Login failed");
+      generateCaptcha();
+      btn.disabled = false;
+      btn.textContent = "Sign in";
+      return;
+    }
+
+    // Save session
+    MailAuth.saveSession(data);
+
+    // Log the login
+    try {
+      await MailAuth.api("log_login", { session_id: data.session_id });
+    } catch (e) { /* ignore */ }
+
+    // Redirect based on role
+    if (data.isAdmin) {
+      location.replace("mail-admin.html");
+    } else {
+      location.replace("mail-dashboard.html");
+    }
+  } catch (e) {
+    msg.textContent = "❌ " + e.message;
+    btn.disabled = false;
+    btn.textContent = "Sign in";
+    generateCaptcha();
+  }
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  MailAuth.init();
+  generateCaptcha();
+
+  // If already logged in, redirect
+  await MailAuth.redirectIfLoggedIn();
+
+  // Show reason if we got kicked out
+  const reason = sessionStorage.getItem("_mail_login_reason");
+  if (reason) {
+    sessionStorage.removeItem("_mail_login_reason");
+    document.getElementById("loginMsg").textContent = reason;
+  }
+
+  // Focus first field
+  document.getElementById("loginEmail").focus();
+});
+</script>
+</body>
+</html>

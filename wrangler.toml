@@ -1,0 +1,5 @@
+name = "thikanadhablawebsitemail1026v1" # <-- Change this to your exact project name
+compatibility_date = "2026-10-07"
+
+[assets]
+directory = "./" # This tells Wrangler to look in the current folder for your files

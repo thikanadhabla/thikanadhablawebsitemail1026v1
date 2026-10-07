@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1D1310">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Sign in — Thikana Dhabla Ghosi Admin</title>
+ <link rel="icon" href="thikanadhabla.jpeg" type="image/jpeg" />
+<link rel="apple-touch-icon" href="thikanadhabla.jpeg" />
+  
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root {
+    --teak-950: #170E0A;
+    --teak-900: #1D1310;
+    --teak-800: #2B1810;
+    --lac-900: #3A0E0E;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-200: #F0D68A;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --ok: #2E7D32;
+    --bad: #B3261E;
+
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --devnag: 'Tiro Devanagari Hindi', serif;
+
+    --r-md: 10px;
+    --shadow-pop: 0 24px 60px rgba(23, 14, 10, 0.35);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--paper);
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+    overscroll-behavior-y: contain; overflow-x: hidden;
+  }
+  button { font-family: inherit; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+  .ic { flex-shrink: 0; }
+  [hidden] { display: none !important; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; padding: 0 18px; border-radius: var(--r-md);
+    border: 1px solid transparent; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .15s, box-shadow .15s, border-color .15s, transform .1s;
+    white-space: nowrap; -webkit-tap-highlight-color: rgba(201,154,58,.18); touch-action: manipulation;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); box-shadow: 0 6px 16px rgba(92,23,23,.28); }
+  .btn-secondary { background: #fff; color: var(--text); border-color: #D9CDB3; }
+  .btn-secondary:hover:not(:disabled) { background: #FBF7EC; border-color: var(--gold-500); }
+  .btn-block { width: 100%; height: 46px; font-size: 15px; }
+
+  .input {
+    width: 100%; height: 42px; padding: 0 14px;
+    border: 1px solid #D9CDB3; border-radius: var(--r-md);
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 16px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,154,58,.22); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; color: var(--lac-800); margin-bottom: 6px; }
+
+  /* ============ LOGIN LAYOUT ============ */
+  .login { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; }
+  .login-art {
+    position: relative; overflow: hidden; color: var(--gold-100);
+    display: flex; align-items: center; padding: 64px;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(232,193,102,.20), transparent 45%),
+      linear-gradient(160deg, var(--lac-900) 0%, var(--lac-800) 55%, var(--teak-900) 100%);
+  }
+  .login-art::after {
+    content: ""; position: absolute; right: -140px; bottom: -140px;
+    width: 520px; height: 520px; border-radius: 50%;
+    border: 1px solid rgba(232,193,102,.28);
+    box-shadow: 0 0 0 44px rgba(232,193,102,.05), 0 0 0 88px rgba(232,193,102,.035);
+  }
+  .art-inner { position: relative; z-index: 1; max-width: 460px; }
+  .crest {
+    width: 92px; height: 92px; border-radius: 50%; overflow: hidden;
+    border: 3px solid var(--gold-500); background: var(--gold-100);
+    box-shadow: 0 0 40px rgba(201,154,58,.45); margin-bottom: 28px;
+  }
+  .crest img { width: 100%; height: 100%; object-fit: cover; }
+  .invocation { font-family: var(--devnag); font-size: 1.15rem; color: var(--gold-400); margin-bottom: 14px; }
+  .login-art h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 5vw, 4rem); line-height: 1.02; color: #fff; margin-bottom: 18px; }
+  .art-sub { font-size: 1.02rem; color: rgba(247,235,201,.78); max-width: 34ch; }
+
+  .login-side { display: flex; align-items: center; justify-content: center; padding: 32px 24px; background: var(--paper); }
+  .login-card { width: 100%; max-width: 400px; }
+  .login-card .mini-crest { display: none; }
+  .login-card h2 { font-family: var(--display); font-size: 2.2rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; }
+  .login-card .lead { color: var(--muted); margin: 6px 0 26px; }
+
+  .pw-wrap { position: relative; }
+  .pw-wrap .input { padding-right: 46px; }
+  .pw-toggle { position: absolute; right: 4px; top: 4px; width: 34px; height: 34px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pw-toggle:hover { background: rgba(0,0,0,.05); color: var(--text); }
+
+  .captcha { display: flex; gap: 10px; margin-bottom: 10px; }
+  .captcha-code {
+    flex: 1; height: 46px; border-radius: var(--r-md); border: 1px dashed var(--gold-500);
+    background: repeating-linear-gradient(135deg, #FFF8E1 0 8px, #FFF3CC 8px 16px);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 1.5rem; font-weight: 500; letter-spacing: .45em; padding-left: .45em;
+    color: var(--lac-800); user-select: none; -webkit-user-select: none;
+  }
+  .captcha-input { text-align: center; letter-spacing: .5em; font-family: var(--mono); font-size: 1.25rem; }
+
+  .login-msg { min-height: 22px; font-size: 14px; font-weight: 500; margin: 14px 0 0; }
+  .login-msg.err { color: var(--bad); }
+  .login-msg.ok { color: var(--ok); }
+
+  .login-links { display: flex; justify-content: space-between; margin-top: 18px; font-size: 14px; }
+  .login-links a { color: var(--lac-700); cursor: pointer; text-decoration: none; font-weight: 500; background: none; border: none; font-size: inherit; padding: 0; }
+  .login-links a:hover { text-decoration: underline; }
+
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 960px) {
+    .login { grid-template-columns: 1fr; }
+    .login-art { display: none; }
+    .login-card .mini-crest { display: block; width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); margin-bottom: 18px; }
+    .login-card .mini-crest img { width: 100%; height: 100%; object-fit: cover; }
+    .btn-block { height: 48px; }
+    .input { height: 46px; }
+    .captcha-code { height: 50px; font-size: 1.6rem; }
+    .pw-toggle { width: 38px; height: 38px; top: 4px; right: 4px; }
+  }
+  @media (max-width: 400px) {
+    .login-side { padding: 20px 16px; }
+    .login-card h2 { font-size: 1.75rem; }
+    .captcha-code { height: 46px; font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login">
+  <section class="login-art" aria-hidden="true">
+    <div class="art-inner">
+      <div class="crest"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></div>
+      <p class="invocation">॥ राघवाय नमः ॥</p>
+      <h1>Thikana<br>Dhabla Ghosi</h1>
+      <p class="art-sub">Visitors, contacts and site security, managed in one place.</p>
+    </div>
+  </section>
+
+  <section class="login-side">
+    <div class="login-card">
+      <div class="mini-crest"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></div>
+
+      <form id="loginFormView" onsubmit="event.preventDefault(); doLogin();" novalidate>
+        <h2>Admin sign in</h2>
+        <p class="lead">Use your admin account to continue.</p>
+
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input class="input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="username" required>
+        </div>
+
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="pw-wrap">
+            <input class="input" type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" required>
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" onclick="togglePw('loginPassword', this)"></button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="loginCaptcha">Verification code</label>
+          <div class="captcha">
+            <div class="captcha-code" id="captchaCode" aria-label="Verification code">••••</div>
+            <button type="button" class="btn btn-secondary" style="height:46px;width:46px;padding:0;" onclick="generateCaptcha()" aria-label="Get a new code" id="captchaRefresh"></button>
+          </div>
+          <input class="input captcha-input" type="text" id="loginCaptcha" placeholder="Type the 4 digits" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" required>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="loginBtn" type="submit">Sign in</button>
+        <p class="login-msg err" id="loginMsg" role="alert"></p>
+
+        <div class="login-links">
+          <a onclick="showForgotPassword()" role="button" tabindex="0">Forgot password?</a>
+          <a href="index.html">Back to site</a>
+        </div>
+      </form>
+
+      <form id="forgotView" style="display:none;" onsubmit="event.preventDefault(); doForgotPassword();" novalidate>
+        <h2>Reset password</h2>
+        <p class="lead">We will email you a link to set a new password.</p>
+        <div class="field">
+          <label for="forgotEmail">Admin email</label>
+          <input class="input" type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="username">
+        </div>
+        <button class="btn btn-primary btn-block" id="forgotBtn" type="submit">Send reset link</button>
+        <p class="login-msg err" id="forgotMsg" role="alert"></p>
+        <div class="login-links"><a onclick="showLogin()" role="button" tabindex="0">Back to sign in</a></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = "https://fmrmiylqjokyrsztfmgp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cNHjqBdWpu98niKZqMvIuA_96VjEQxk";
+const DASHBOARD_URL = "dashboard.html";
+
+let sb = null;
+let currentCaptcha = null;
+let failCount = 0;
+let lockUntil = 0;
+
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// ICONS
+// ============================================================
+const ICONS = {
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  refresh: '<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+};
+const ic = (n, s = 18) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ""}</svg>`;
+
+// ============================================================
+// CAPTCHA
+// ============================================================
+function generateCaptcha() {
+  currentCaptcha = String(Math.floor(1000 + Math.random() * 9000));
+  $("captchaCode").textContent = currentCaptcha;
+  $("loginCaptcha").value = "";
+}
+
+// ============================================================
+// PASSWORD TOGGLE
+// ============================================================
+function togglePw(id, btn) {
+  const inp = $(id); const show = inp.type === "password";
+  inp.type = show ? "text" : "password";
+  btn.innerHTML = ic(show ? "eyeoff" : "eye", 18);
+  btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+}
+
+// ============================================================
+// ADMIN GEO CACHE (used by dashboard too)
+// ============================================================
+async function fetchAdminGeo() {
+  try {
+    const res = await fetch("https://ipapi.co/json/");
+    const d = await res.json();
+    if (d.ip) {
+      sessionStorage.setItem("_admin_ip", d.ip);
+      sessionStorage.setItem("_admin_country", d.country_name || "");
+      sessionStorage.setItem("_admin_city", d.city || "");
+      sessionStorage.setItem("_admin_region", d.region || "");
+      sessionStorage.setItem("_admin_lat", d.latitude || "");
+      sessionStorage.setItem("_admin_lon", d.longitude || "");
+    }
+  } catch (e) { console.warn("Geo lookup skipped:", e); }
+}
+
+// ============================================================
+// ADMIN ACTIVITY LOG
+// ============================================================
+async function logAdminActivity(action, details = {}) {
+  try {
+    await sb.from("admin_activity").insert({
+      admin_email: sessionStorage.getItem("_admin_email") || "unknown",
+      admin_id: sessionStorage.getItem("_admin_id") || null,
+      action, details,
+      ip: sessionStorage.getItem("_admin_ip") || null,
+      country: sessionStorage.getItem("_admin_country") || null,
+      city: sessionStorage.getItem("_admin_city") || null,
+      region: sessionStorage.getItem("_admin_region") || null,
+      latitude: parseFloat(sessionStorage.getItem("_admin_lat")) || null,
+      longitude: parseFloat(sessionStorage.getItem("_admin_lon")) || null,
+      browser: navigator.userAgent,
+      device: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop",
+      session_id: sessionStorage.getItem("_admin_session") || null,
+    });
+  } catch (e) { console.warn("Admin log failed:", e); }
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+async function doLogin() {
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+  const captcha = $("loginCaptcha").value.trim();
+  const msg = $("loginMsg");
+  msg.className = "login-msg err"; msg.textContent = "";
+
+  // Lockout check
+  if (Date.now() < lockUntil) {
+    const secs = Math.ceil((lockUntil - Date.now()) / 1000);
+    msg.textContent = `Too many attempts. Try again in ${secs} seconds.`;
+    return;
+  }
+
+  // Validation
+  if (!email || !password) {
+    msg.textContent = "Enter your email and password.";
+    return;
+  }
+  if (captcha !== currentCaptcha) {
+    msg.textContent = "The verification code is wrong. Try the new code.";
+    generateCaptcha();
+    return;
+  }
+
+  const btn = $("loginBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in…';
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+  btn.disabled = false;
+  btn.textContent = "Sign in";
+
+  if (error) {
+    failCount++;
+    if (failCount >= 5) {
+      lockUntil = Date.now() + 30000;
+      failCount = 0;
+      msg.textContent = "Too many failed attempts. Wait 30 seconds and try again.";
+    } else {
+      msg.textContent = error.message;
+    }
+    generateCaptcha();
+    return;
+  }
+
+  failCount = 0;
+
+  // Verify this user is a registered admin
+  const { data: adminRow } = await sb.from("admins").select("id").eq("id", data.user.id).maybeSingle();
+  if (!adminRow) {
+    await sb.auth.signOut();
+    msg.textContent = "This account is not authorized as an admin.";
+    generateCaptcha();
+    return;
+  }
+
+  // ---- Create session ID and register ----
+  const sessionId = "admin_" + Date.now() + "_" + Math.random().toString(36).substring(2, 8);
+  sessionStorage.setItem("_admin_session", sessionId);
+  sessionStorage.setItem("_admin_email", data.user.email || "");
+  sessionStorage.setItem("_admin_id", data.user.id || "");
+  sessionStorage.setItem("_admin_login_time", String(Date.now()));
+  sessionStorage.setItem("_admin_last_active", String(Date.now()));
+
+  // Fetch geo (best-effort, doesn't block login)
+  await fetchAdminGeo();
+
+  // Register the session — overwrites any previous session for this admin
+  try {
+    await sb.from("admin_sessions").upsert({
+      admin_id: data.user.id,
+      admin_email: data.user.email || "",
+      session_id: sessionId,
+      device: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop",
+      browser: navigator.userAgent,
+      ip: sessionStorage.getItem("_admin_ip") || null,
+      started_at: new Date().toISOString(),
+    }, { onConflict: "admin_id" });
+  } catch (e) {
+    console.warn("Session registration failed:", e);
+  }
+
+  // Log the login
+  await logAdminActivity("login", { method: "password" });
+
+  // Redirect to dashboard
+  location.replace(DASHBOARD_URL);
+}
+
+// ============================================================
+// FORGOT PASSWORD
+// ============================================================
+function showForgotPassword() {
+  $("loginFormView").style.display = "none";
+  $("forgotView").style.display = "block";
+  $("forgotEmail").value = $("loginEmail").value;
+  $("forgotEmail").focus();
+}
+
+function showLogin() {
+  $("forgotView").style.display = "none";
+  $("loginFormView").style.display = "block";
+  $("loginEmail").focus();
+}
+
+async function doForgotPassword() {
+  const email = $("forgotEmail").value.trim();
+  const msg = $("forgotMsg");
+  msg.className = "login-msg err"; msg.textContent = "";
+
+  if (!email) { msg.textContent = "Enter your admin email."; return; }
+
+  const btn = $("forgotBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/admin.html",
+  });
+
+  btn.disabled = false; btn.textContent = "Send reset link";
+
+  if (error) { msg.textContent = error.message; return; }
+
+  msg.className = "login-msg ok";
+  msg.textContent = "Reset link sent. Check your email inbox.";
+  setTimeout(() => { msg.textContent = ""; showLogin(); }, 5000);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+async function init() {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  generateCaptcha();
+  $("pwToggle").innerHTML = ic("eye", 18);
+  $("captchaRefresh").innerHTML = ic("refresh", 18);
+
+  // Captcha input: digits only, max 4
+  $("loginCaptcha").addEventListener("input", e => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
+  });
+
+  // ---- If already signed in, redirect to dashboard ----
+  // BUT do not auto-redirect if we were just kicked out from another device
+  const { data } = await sb.auth.getSession();
+  if (data?.session && !sessionStorage.getItem("_admin_idle")) {
+    // Check that this session is still the active one
+    const { data: active } = await sb
+      .from("admin_sessions")
+      .select("session_id")
+      .eq("admin_id", data.session.id ? data.session.id : data.session.user.id)
+      .maybeSingle();
+
+    const mySession = sessionStorage.getItem("_admin_session");
+    if (active && active.session_id === mySession) {
+      location.replace(DASHBOARD_URL);
+      return;
+    }
+  }
+
+  // ---- Show reason if we were signed out ----
+  if (sessionStorage.getItem("_admin_idle")) {
+    sessionStorage.removeItem("_admin_idle");
+    const reason = sessionStorage.getItem("_admin_kicked_reason");
+    sessionStorage.removeItem("_admin_kicked_reason");
+    $("loginMsg").textContent = reason || "You were signed out after 5 minutes of inactivity.";
+    setTimeout(() => $("loginEmail")?.focus(), 100);
+  }
+
+  // ---- Password-recovery flow returns here too ----
+  sb.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") {
+      // Continue to dashboard where the user can set a new password
+      location.replace(DASHBOARD_URL);
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

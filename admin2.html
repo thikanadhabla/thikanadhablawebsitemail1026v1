@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1D1310">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Admin Panel — Thikana Dhabla Ghosi</title>
+
+<link rel="icon" href="1200.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<style>
+  :root {
+    /* Heritage palette: lac red, temple gold, dark teak, parchment */
+    --teak-950: #170E0A;
+    --teak-900: #1D1310;
+    --teak-800: #2B1810;
+    --lac-900: #3A0E0E;
+    --lac-800: #5C1717;
+    --lac-700: #7A1F1F;
+    --lac-600: #9B2D2D;
+    --gold-500: #C99A3A;
+    --gold-400: #E8C166;
+    --gold-200: #F0D68A;
+    --gold-100: #F7EBC9;
+    --paper: #F4EFE4;
+    --card: #FFFFFF;
+    --line: #E6DCC6;
+    --line-soft: #F0E8D6;
+    --text: #2A2118;
+    --muted: #7B6E5C;
+    --ok: #2E7D32;   --ok-bg: #E6F3E7;
+    --warn: #9A6A0B; --warn-bg: #FBF0D2;
+    --bad: #B3261E;  --bad-bg: #FBE5E3;
+    --info: #1B3A5C; --info-bg: #E2ECF6;
+
+    --display: 'Cormorant Garamond', Georgia, serif;
+    --ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --devnag: 'Tiro Devanagari Hindi', serif;
+
+    --sidebar-w: 272px;
+    --r-lg: 16px; --r-md: 10px; --r-sm: 8px;
+    --shadow-pop: 0 24px 60px rgba(23, 14, 10, 0.35);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--ui); font-size: 15px; line-height: 1.55;
+    color: var(--text); background: var(--paper);
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  button { font-family: inherit; }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 3px solid var(--gold-500); outline-offset: 2px; border-radius: 6px; }
+  .ic { flex-shrink: 0; }
+  .skip { position: absolute; left: -999px; top: 8px; background: #fff; padding: 8px 14px; border-radius: 8px; z-index: 2000; }
+  .skip:focus { left: 8px; }
+  [hidden] { display: none !important; }
+
+  /* ============ BUTTONS & INPUTS ============ */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 40px; padding: 0 18px; border-radius: var(--r-md);
+    border: 1px solid transparent; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background .15s, box-shadow .15s, border-color .15s, transform .1s;
+    white-space: nowrap;
+  }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--lac-700); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--lac-800); box-shadow: 0 6px 16px rgba(92,23,23,.28); }
+  .btn-secondary { background: #fff; color: var(--text); border-color: #D9CDB3; }
+  .btn-secondary:hover:not(:disabled) { background: #FBF7EC; border-color: var(--gold-500); }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover:not(:disabled) { background: rgba(0,0,0,.05); color: var(--text); }
+  .btn-danger { background: var(--bad); color: #fff; }
+  .btn-danger:hover:not(:disabled) { background: #8F1D17; box-shadow: 0 6px 16px rgba(179,38,30,.3); }
+  .btn-danger-soft { background: var(--bad-bg); color: var(--bad); }
+  .btn-danger-soft:hover:not(:disabled) { background: #F6D3D0; }
+  .btn-ok-soft { background: var(--ok-bg); color: var(--ok); }
+  .btn-ok-soft:hover:not(:disabled) { background: #D3EAD5; }
+  .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; border-radius: 8px; }
+  .btn-icon { width: 32px; padding: 0; }
+  .btn-block { width: 100%; height: 46px; font-size: 15px; }
+
+  .input, .select {
+    width: 100%; height: 42px; padding: 0 14px;
+    border: 1px solid #D9CDB3; border-radius: var(--r-md);
+    background: #fff; color: var(--text);
+    font-family: var(--ui); font-size: 14.5px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .select { padding-right: 32px; cursor: pointer; }
+  .input:focus, .select:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 4px rgba(201,154,58,.22); }
+  .input.mono { font-family: var(--mono); font-size: 14px; }
+  .field label, .field-label { display: block; font-size: 13px; font-weight: 600; color: var(--lac-800); margin-bottom: 6px; }
+  .field .hint { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  .search { position: relative; }
+  .search .ic { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .search .input { padding-left: 40px; }
+
+  /* ============ LOGIN ============ */
+  .login { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; }
+  .login-art {
+    position: relative; overflow: hidden; color: var(--gold-100);
+    display: flex; align-items: center; padding: 64px;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(232,193,102,.20), transparent 45%),
+      linear-gradient(160deg, var(--lac-900) 0%, var(--lac-800) 55%, var(--teak-900) 100%);
+  }
+  .login-art::after {
+    content: ""; position: absolute; right: -140px; bottom: -140px;
+    width: 520px; height: 520px; border-radius: 50%;
+    border: 1px solid rgba(232,193,102,.28);
+    box-shadow: 0 0 0 44px rgba(232,193,102,.05), 0 0 0 88px rgba(232,193,102,.035);
+  }
+  .art-inner { position: relative; z-index: 1; max-width: 460px; }
+  .crest {
+    width: 92px; height: 92px; border-radius: 50%; overflow: hidden;
+    border: 3px solid var(--gold-500); background: var(--gold-100);
+    box-shadow: 0 0 40px rgba(201,154,58,.45); margin-bottom: 28px;
+  }
+  .crest img { width: 100%; height: 100%; object-fit: cover; }
+  .invocation { font-family: var(--devnag); font-size: 1.15rem; color: var(--gold-400); margin-bottom: 14px; }
+  .login-art h1 { font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 5vw, 4rem); line-height: 1.02; color: #fff; margin-bottom: 18px; }
+  .art-sub { font-size: 1.02rem; color: rgba(247,235,201,.78); max-width: 34ch; }
+
+  .login-side { display: flex; align-items: center; justify-content: center; padding: 32px 24px; background: var(--paper); }
+  .login-card { width: 100%; max-width: 400px; }
+  .login-card .mini-crest { display: none; }
+  .login-card h2 { font-family: var(--display); font-size: 2.2rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; }
+  .login-card .lead { color: var(--muted); margin: 6px 0 26px; }
+  .login-card .field { margin-bottom: 16px; }
+  .pw-wrap { position: relative; }
+  .pw-wrap .input { padding-right: 46px; }
+  .pw-toggle { position: absolute; right: 4px; top: 4px; width: 34px; height: 34px; border: none; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .pw-toggle:hover { background: rgba(0,0,0,.05); color: var(--text); }
+  .captcha { display: flex; gap: 10px; margin-bottom: 10px; }
+  .captcha-code {
+    flex: 1; height: 46px; border-radius: var(--r-md); border: 1px dashed var(--gold-500);
+    background: repeating-linear-gradient(135deg, #FFF8E1 0 8px, #FFF3CC 8px 16px);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 1.5rem; font-weight: 500; letter-spacing: .45em; padding-left: .45em;
+    color: var(--lac-800); user-select: none; -webkit-user-select: none;
+  }
+  .captcha-input { text-align: center; letter-spacing: .5em; font-family: var(--mono); font-size: 1.25rem; }
+  .login-msg { min-height: 22px; font-size: 14px; font-weight: 500; margin: 14px 0 0; }
+  .login-msg.err { color: var(--bad); }
+  .login-msg.ok { color: var(--ok); }
+  .login-links { display: flex; justify-content: space-between; margin-top: 18px; font-size: 14px; }
+  .login-links a, .link-btn { color: var(--lac-700); cursor: pointer; text-decoration: none; font-weight: 500; background: none; border: none; font-size: inherit; }
+  .login-links a:hover, .link-btn:hover { text-decoration: underline; }
+  .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ SHELL ============ */
+  #app { display: none; }
+  .shell { display: grid; grid-template-columns: var(--sidebar-w) minmax(0, 1fr); min-height: 100vh; }
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column;
+    background:
+      radial-gradient(circle at 1px 1px, rgba(201,154,58,.08) 1px, transparent 0) 0 0 / 20px 20px,
+      linear-gradient(180deg, var(--teak-900), var(--teak-950));
+    color: #D9CBB2; border-right: 1px solid rgba(201,154,58,.25);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 18px; text-decoration: none; }
+  .brand .crest-sm { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); background: var(--gold-100); box-shadow: 0 0 16px rgba(201,154,58,.4); flex-shrink: 0; }
+  .brand .crest-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .brand-name { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.05; color: #fff; }
+  .brand-sub { font-size: 12px; color: var(--gold-400); margin-top: 2px; }
+  .nav { padding: 6px 12px 12px; display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .nav-group { font-size: 12px; font-weight: 600; color: rgba(240,214,138,.55); padding: 18px 12px 6px; }
+  .nav-item {
+    position: relative; display: flex; align-items: center; gap: 12px;
+    width: 100%; height: 40px; padding: 0 12px;
+    background: transparent; border: none; border-radius: 10px;
+    color: #D9CBB2; font-size: 14px; font-weight: 500; text-align: left; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav-item.active { background: rgba(201,154,58,.16); color: var(--gold-200); font-weight: 600; }
+  .nav-item.active::before { content: ""; position: absolute; left: -12px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0; background: var(--gold-400); }
+  .side-foot { padding: 12px; border-top: 1px solid rgba(201,154,58,.18); display: flex; gap: 8px; align-items: center; }
+  .user-card { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; background: transparent; border: none; cursor: pointer; text-align: left; color: inherit; }
+  .user-card:hover, .user-card.active { background: rgba(255,255,255,.06); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-500), var(--gold-400)); color: var(--teak-900); font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-transform: uppercase; }
+  .user-meta { min-width: 0; }
+  .user-meta strong { display: block; color: #fff; font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .user-meta span { font-size: 12px; color: rgba(217,203,178,.65); }
+  .logout { width: 38px; height: 38px; border-radius: 10px; border: none; background: rgba(255,255,255,.06); color: #D9CBB2; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .logout:hover { background: var(--bad); color: #fff; }
+
+  .mobilebar { display: none; }
+  .scrim { display: none; }
+  .main { min-width: 0; }
+  .page { padding: 34px 40px 90px; max-width: 1480px; margin: 0 auto; }
+
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .page-head h1 { font-family: var(--display); font-size: 2.5rem; font-weight: 700; line-height: 1.05; color: var(--lac-800); }
+  .page-head .sub { color: var(--muted); margin-top: 6px; }
+  .page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* ============ PANELS & KPIs ============ */
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line-soft); }
+  .panel-head h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+  .panel-head .meta { font-size: 13px; color: var(--muted); }
+  .panel-body { padding: 20px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 20px; }
+  .stack { display: flex; flex-direction: column; gap: 20px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; margin-bottom: 20px; }
+  .kpi { background: #fff; padding: 18px 20px; }
+  .kpi .label { font-size: 13px; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .kpi .value { font-family: var(--display); font-size: 2.3rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; margin-top: 4px; font-variant-numeric: lining-nums tabular-nums; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .toolbar .search { flex: 1 1 240px; max-width: 360px; }
+  .toolbar .select { width: auto; min-width: 130px; }
+  .toolbar .spacer { flex: 1; }
+  .seg { display: inline-flex; background: #fff; border: 1px solid #D9CDB3; border-radius: var(--r-md); padding: 3px; gap: 2px; }
+  .seg button { height: 34px; padding: 0 14px; border: none; background: transparent; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .seg button:hover { color: var(--text); }
+  .seg button.on { background: var(--lac-700); color: #fff; }
+
+  /* ============ TABLES ============ */
+  .table-wrap { overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: var(--r-lg); max-height: 74vh; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 860px; }
+  thead th {
+    position: sticky; top: 0; z-index: 1; background: #FAF6EC; color: var(--muted);
+    font-size: 12.5px; font-weight: 600; text-align: left;
+    padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  tbody td { padding: 12px 16px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #FCF9F0; }
+  tr.clickable { cursor: pointer; }
+  .cell-main { font-weight: 600; color: var(--text); }
+  .cell-sub { font-size: 12.5px; color: var(--muted); }
+  .mono { font-family: var(--mono); font-size: 13px; }
+  .nowrap { white-space: nowrap; }
+  .ell { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .t-right { text-align: right; }
+
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: capitalize; white-space: nowrap; }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .b-neutral { background: #EFE8D8; color: #5B4E3C; }
+  .b-info { background: var(--info-bg); color: var(--info); }
+  .b-ok { background: var(--ok-bg); color: var(--ok); }
+  .b-warn { background: var(--warn-bg); color: var(--warn); }
+  .b-bad { background: var(--bad-bg); color: var(--bad); }
+  .b-lac { background: #F6E1E1; color: var(--lac-700); }
+
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+  .person { display: flex; align-items: center; gap: 12px; }
+  .person .avatar { width: 36px; height: 36px; font-size: 14px; background: #F3E4BC; color: var(--lac-800); }
+  .copy-inline { display: inline-flex; align-items: center; gap: 8px; }
+  .copy-inline button { border: none; background: transparent; color: var(--muted); cursor: pointer; padding: 4px; border-radius: 6px; display: inline-flex; }
+  .copy-inline button:hover { background: #F0E8D6; color: var(--lac-700); }
+
+  /* ============ BAR LISTS ============ */
+  .barlist { display: flex; flex-direction: column; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 14px; }
+  .bar-row .n { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bar-track { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--line-soft); overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--gold-500), var(--gold-400)); }
+  .plain-list > div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line-soft); }
+  .plain-list > div:last-child { border-bottom: none; }
+  .plain-list .k { color: var(--muted); font-size: 14px; }
+  .plain-list .v { font-family: var(--display); font-size: 1.5rem; font-weight: 700; color: var(--lac-800); font-variant-numeric: lining-nums tabular-nums; }
+  .feed > div { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line-soft); }
+  .feed > div:last-child { border-bottom: none; }
+  .feed .grow { flex: 1; min-width: 0; }
+
+  /* ============ OVERVIEW HERO ============ */
+  .ov-grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 20px; margin-bottom: 20px; }
+  .hero {
+    position: relative; overflow: hidden; color: var(--gold-100);
+    border-radius: 20px; padding: 28px 28px 0; min-height: 340px;
+    display: flex; flex-direction: column;
+    background: radial-gradient(circle at 85% 0%, rgba(232,193,102,.18), transparent 50%), linear-gradient(150deg, var(--lac-800), var(--lac-900) 70%, var(--teak-900));
+    box-shadow: 0 18px 40px rgba(58,14,14,.25);
+  }
+  .hero .eyebrow { font-size: 14px; color: rgba(247,235,201,.8); }
+  .hero .big { font-family: var(--display); font-weight: 700; font-size: clamp(3.6rem, 7vw, 5.6rem); line-height: 1; color: var(--gold-200); margin: 6px 0 12px; font-variant-numeric: lining-nums tabular-nums; }
+  .delta { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; background: rgba(255,255,255,.12); }
+  .delta.up { color: #9BE3A0; }
+  .delta.down { color: #FFB4AE; }
+  .hero-chart { position: relative; height: 130px; margin: auto -28px 0; }
+
+  /* ============ STATES ============ */
+  .empty { padding: 56px 20px; text-align: center; color: var(--muted); }
+  .empty .ic-wrap { width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 50%; background: #F3E9CF; color: var(--lac-700); display: flex; align-items: center; justify-content: center; }
+  .empty h4 { font-size: 16px; color: var(--text); margin-bottom: 4px; }
+  .empty p { max-width: 42ch; margin: 0 auto; font-size: 14px; }
+  .empty .btn { margin-top: 16px; }
+  .sk { border-radius: 12px; background: linear-gradient(90deg, #EDE5D2 25%, #F6F0E2 50%, #EDE5D2 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite linear; }
+  .sk-title { width: 220px; height: 40px; margin-bottom: 10px; } .sk-sub { width: 320px; height: 16px; }
+  .sk-kpis { height: 92px; margin: 24px 0 20px; } .sk-table { height: 360px; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  .pagination { display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: 20px; flex-wrap: wrap; }
+  .pagination button { min-width: 38px; height: 38px; padding: 0 10px; border: 1px solid #D9CDB3; background: #fff; color: var(--text); border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .pagination button:hover:not(:disabled):not(.active) { background: #FBF7EC; border-color: var(--gold-500); }
+  .pagination button.active { background: var(--lac-700); border-color: var(--lac-700); color: #fff; }
+  .pagination button:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ============ FORMS ============ */
+  .form-card { max-width: 760px; padding: 26px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+  .info-note { display: flex; gap: 12px; padding: 14px 16px; background: var(--info-bg); color: var(--info); border-radius: var(--r-md); font-size: 14px; margin-bottom: 20px; }
+  .kv-row { display: flex; flex-direction: column; gap: 2px; padding: 12px 0; border-bottom: 1px solid var(--line-soft); }
+  .kv-row:last-child { border-bottom: none; }
+  .kv-row .k { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+  .kv-row .v { word-break: break-all; }
+
+  /* ============ OVERLAYS ============ */
+  .overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(23,14,10,.6); backdrop-filter: blur(3px); }
+  .overlay.open { display: flex; animation: fade .15s ease-out; }
+  .dialog { width: 100%; max-width: 460px; background: #fff; border-radius: 18px; padding: 28px; box-shadow: var(--shadow-pop); animation: pop .18s ease-out; max-height: 92vh; overflow-y: auto; }
+  .dialog.wide { max-width: 560px; }
+  .dialog h3 { font-family: var(--display); font-size: 1.7rem; font-weight: 700; color: var(--lac-800); line-height: 1.15; margin-bottom: 8px; }
+  .dialog p { color: var(--muted); }
+  .dialog-icon { width: 46px; height: 46px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .dialog-icon.bad { background: var(--bad-bg); color: var(--bad); }
+  .dialog-icon.info { background: var(--info-bg); color: var(--info); }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+
+  .drawer-wrap { position: fixed; inset: 0; z-index: 900; display: none; }
+  .drawer-wrap.open { display: block; }
+  .drawer-backdrop { position: absolute; inset: 0; background: rgba(23,14,10,.45); animation: fade .15s ease-out; }
+  .drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(460px, 100%); background: #fff; display: flex; flex-direction: column; box-shadow: var(--shadow-pop); animation: slide .22s cubic-bezier(.2,.8,.2,1); }
+  @keyframes slide { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+  .drawer-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid var(--line); }
+  .drawer-head h3 { font-family: var(--display); font-size: 1.6rem; font-weight: 700; color: var(--lac-800); line-height: 1.1; }
+  .drawer-head p { font-size: 13px; color: var(--muted); }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 6px 24px 20px; }
+  .drawer-foot { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 24px; border-top: 1px solid var(--line); background: #FAF6EC; }
+
+  .toasts { position: fixed; right: 20px; bottom: 20px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+  .toast { display: flex; align-items: center; gap: 10px; max-width: 360px; padding: 13px 18px; border-radius: 12px; background: var(--teak-900); color: #fff; font-size: 14px; font-weight: 500; box-shadow: var(--shadow-pop); opacity: 0; transform: translateY(14px); transition: opacity .25s, transform .25s; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast.success .ic { color: #7EE08A; }
+  .toast.error { background: #7A1712; }
+  .toast.error .ic { color: #FFB4AE; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1100px) {
+    .ov-grid { grid-template-columns: 1fr; }
+    .page { padding: 28px 24px 80px; }
+  }
+  @media (max-width: 960px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: fixed; z-index: 950; left: 0; top: 0; bottom: 0; width: 290px; transform: translateX(-100%); transition: transform .25s ease; }
+    .sidebar.open { transform: none; box-shadow: var(--shadow-pop); }
+    .scrim { position: fixed; inset: 0; z-index: 940; background: rgba(23,14,10,.5); }
+    .sidebar.open ~ .scrim { display: block; }
+    .mobilebar { display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; padding: 10px 16px; background: var(--teak-900); color: #fff; border-bottom: 1px solid rgba(201,154,58,.3); }
+    .mobilebar button { width: 40px; height: 40px; border-radius: 10px; border: 1px solid rgba(201,154,58,.4); background: transparent; color: var(--gold-200); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .mobilebar strong { font-family: var(--display); font-size: 1.25rem; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .page-head h1 { font-size: 2rem; }
+    .login { grid-template-columns: 1fr; }
+    .login-art { display: none; }
+    .login-card .mini-crest { display: block; width: 68px; height: 68px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold-500); margin-bottom: 18px; }
+    .login-card .mini-crest img { width: 100%; height: 100%; object-fit: cover; }
+  }
+  @media (max-width: 560px) {
+    .page { padding: 22px 16px 80px; }
+    .toolbar .select, .toolbar .search { flex: 1 1 100%; max-width: none; }
+    .kpi .value { font-size: 1.9rem; }
+    .hero { padding: 22px 22px 0; }
+    .hero-chart { margin: auto -22px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+
+<!-- ================= LOGIN ================= -->
+<div id="loginScreen" class="login">
+  <section class="login-art" aria-hidden="true">
+    <div class="art-inner">
+      <div class="crest"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></div>
+      <p class="invocation">॥ राघवाय नमः ॥</p>
+      <h1>Thikana<br>Dhabla Ghosi</h1>
+      <p class="art-sub">Visitors, contacts and site security, managed in one place.</p>
+    </div>
+  </section>
+
+  <section class="login-side">
+    <div class="login-card">
+      <div class="mini-crest"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></div>
+
+      <form id="loginFormView" onsubmit="event.preventDefault(); doLogin();" novalidate>
+        <h2>Admin sign in</h2>
+        <p class="lead">Use your admin account to continue.</p>
+
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input class="input" type="email" id="loginEmail" placeholder="you@example.com" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="pw-wrap">
+            <input class="input" type="password" id="loginPassword" placeholder="Your password" autocomplete="current-password" required>
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="Show password" onclick="togglePw('loginPassword', this)"></button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="loginCaptcha">Verification code</label>
+          <div class="captcha">
+            <div class="captcha-code" id="captchaCode" aria-label="Verification code">••••</div>
+            <button type="button" class="btn btn-secondary btn-icon" style="height:46px;width:46px;" onclick="generateCaptcha()" aria-label="Get a new code" id="captchaRefresh"></button>
+          </div>
+          <input class="input captcha-input" type="text" id="loginCaptcha" placeholder="Type the 4 digits" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+        </div>
+
+        <button class="btn btn-primary btn-block" id="loginBtn" type="submit">Sign in</button>
+        <p class="login-msg err" id="loginMsg" role="alert"></p>
+        <div class="login-links">
+          <a onclick="showForgotPassword()" role="button" tabindex="0">Forgot password?</a>
+          <a href="index.html">Back to site</a>
+        </div>
+      </form>
+
+      <form id="forgotView" style="display:none;" onsubmit="event.preventDefault(); doForgotPassword();" novalidate>
+        <h2>Reset password</h2>
+        <p class="lead">We will email you a link to set a new password.</p>
+        <div class="field">
+          <label for="forgotEmail">Admin email</label>
+          <input class="input" type="email" id="forgotEmail" placeholder="you@example.com" autocomplete="username">
+        </div>
+        <button class="btn btn-primary btn-block" id="forgotBtn" type="submit">Send reset link</button>
+        <p class="login-msg err" id="forgotMsg" role="alert"></p>
+        <div class="login-links"><a onclick="showLogin()" role="button" tabindex="0">Back to sign in</a></div>
+      </form>
+    </div>
+  </section>
+</div>
+
+<!-- ================= APP ================= -->
+<div id="app">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+      <a href="index.html" class="brand">
+        <span class="crest-sm"><img src="thikanadhabla.jpeg" alt="" onerror="this.style.display='none'"></span>
+        <span>
+          <div class="brand-name">Thikana<br>Dhabla Ghosi</div>
+          <div class="brand-sub">Admin panel</div>
+        </span>
+      </a>
+      <nav class="nav" id="nav"></nav>
+      <div class="side-foot">
+        <button class="user-card" id="userCard" onclick="showTab('account')" aria-label="Open account settings">
+          <span class="avatar" id="userAvatar">A</span>
+          <span class="user-meta"><strong id="userName">admin</strong><span>Account settings</span></span>
+        </button>
+        <button class="logout" onclick="doLogout()" aria-label="Sign out" title="Sign out" id="logoutBtn"></button>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim" onclick="toggleSidebar(false)"></div>
+
+    <div class="main">
+      <header class="mobilebar">
+        <button onclick="toggleSidebar(true)" aria-label="Open menu" id="menuBtn"></button>
+        <strong>Admin panel</strong>
+      </header>
+      <main class="page" id="content" tabindex="-1"></main>
+    </div>
+  </div>
+</div>
+
+<!-- ================= OVERLAYS ================= -->
+<div class="overlay" id="editModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="dialog wide">
+    <h3 id="modalTitle">Edit contact</h3>
+    <p style="margin-bottom:20px;">Changes are saved immediately and shown on the site.</p>
+    <div class="form-grid">
+      <div class="field"><label for="editName">Name</label><input class="input" type="text" id="editName"></div>
+      <div class="field"><label for="editPhone">Phone (10 digits)</label><input class="input mono" type="text" id="editPhone" maxlength="10" inputmode="numeric"></div>
+      <div class="field"><label for="editRelation">Relation</label><input class="input" type="text" id="editRelation"></div>
+      <div class="field"><label for="editCity">City</label><input class="input" type="text" id="editCity"></div>
+    </div>
+    <input type="hidden" id="editId">
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" id="saveContactBtn" onclick="saveContact()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="confirmModal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMsg">
+  <div class="dialog">
+    <div class="dialog-icon info" id="confirmIcon"></div>
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmMsg"></p>
+    <div class="field" id="confirmRequire" style="margin-top:18px;" hidden>
+      <label for="confirmRequireInput">Type <strong id="confirmRequireWord"></strong> to confirm</label>
+      <input class="input" type="text" id="confirmRequireInput" autocomplete="off">
+    </div>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" id="confirmCancel">Cancel</button>
+      <button class="btn btn-primary" id="confirmOk">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-wrap" id="drawerWrap">
+  <div class="drawer-backdrop" onclick="closeDrawer()"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+    <div class="drawer-head">
+      <div><h3 id="drawerTitle"></h3><p id="drawerSub"></p></div>
+      <button class="btn btn-ghost btn-icon" onclick="closeDrawer()" aria-label="Close details" id="drawerClose"></button>
+    </div>
+    <div class="drawer-body" id="drawerBody"></div>
+    <div class="drawer-foot" id="drawerFoot"></div>
+  </aside>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const SUPABASE_URL = "https://fmrmiylqjokyrsztfmgp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_cNHjqBdWpu98niKZqMvIuA_96VjEQxk";
+const IDLE_LIMIT_MS = 30 * 60 * 1000;
+
+let sb = null;
+let currentUser = null;
+let currentCaptcha = null;
+let adminSessionId = null;
+let adminLoginTime = null;
+let chartInstances = {};
+let currentTab = "overview";
+let tabToken = 0;
+let failCount = 0, lockUntil = 0;
+let lastActive = Date.now();
+
+const state = {
+  visitors: { site: "", page: "", lang: "", range: "all", size: 100, q: "", rows: [] },
+  logs: { size: 100, q: "" },
+  blocked: { rows: [] },
+  contacts: { rows: [] },
+  admin: { action: "", q: "", rows: [] },
+};
+const $ = id => document.getElementById(id);
+
+// ============================================================
+// ICONS
+// ============================================================
+const ICONS = {
+  grid: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  activity: '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>',
+  bot: '<rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><path d="M8 16h.01"/><path d="M16 16h.01"/>',
+  chart: '<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>',
+  shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  ban: '<circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  userplus: '<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+  refresh: '<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>',
+  copy: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  menu: '<line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>',
+  logout: '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  eyeoff: '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>',
+  search: '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  alert: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  pin: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+};
+const ic = (n, s = 18) => `<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n] || ""}</svg>`;
+
+const NAV = [
+  { group: null, items: [{ id: "overview", label: "Overview", icon: "grid" }] },
+  { group: "Traffic", items: [
+    { id: "visitors", label: "Visitors", icon: "users" },
+    { id: "charts", label: "Charts", icon: "chart" },
+    { id: "logs", label: "Access logs", icon: "activity" },
+    { id: "bots", label: "Blocked bots", icon: "bot" } ] },
+  { group: "Security", items: [
+    { id: "blockedips", label: "Blocked IPs", icon: "ban" },
+    { id: "blocknew", label: "Block an IP", icon: "shield" },
+    { id: "adminlogs", label: "Admin activity", icon: "lock" } ] },
+  { group: "Contacts", items: [
+    { id: "contacts", label: "All contacts", icon: "book" },
+    { id: "addcontact", label: "Add contact", icon: "userplus" } ] },
+];
+const TAB_TITLES = { overview: "Overview", visitors: "Visitors", charts: "Charts", logs: "Access logs", bots: "Blocked bots", blockedips: "Blocked IPs", blocknew: "Block an IP", adminlogs: "Admin activity", contacts: "Contacts", addcontact: "Add contact", account: "Account" };
+
+// ============================================================
+// HELPERS
+// ============================================================
+function esc(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function fmt(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }); }
+  catch { return ts; }
+}
+function fmtShort(ts) {
+  if (!ts) return "—";
+  try { return new Date(ts).toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }); }
+  catch { return ts; }
+}
+function timeAgo(ts) {
+  if (!ts) return "—";
+  const s = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (s < 5) return "just now";
+  if (s < 60) return s + "s ago";
+  const m = Math.floor(s / 60); if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60); if (h < 24) return h + "h ago";
+  return Math.floor(h / 24) + "d ago";
+}
+function timeLeft(ts) {
+  const ms = new Date(ts).getTime() - Date.now();
+  if (ms <= 0) return "Expired";
+  const m = Math.floor(ms / 60000);
+  if (m < 60) return m + "m left";
+  const h = Math.floor(m / 60); if (h < 24) return h + "h left";
+  return Math.floor(h / 24) + "d left";
+}
+const num = n => Number(n || 0).toLocaleString("en-IN");
+const dash = v => (v === null || v === undefined || v === "" || v === "unknown") ? "—" : v;
+const human = s => String(s || "—").replace(/_/g, " ");
+function shortRef(ref) {
+  if (!ref || ref === "Direct") return "Direct";
+  try { return new URL(ref).hostname.replace(/^www\./, ""); } catch { return String(ref).slice(0, 30); }
+}
+function browserName(ua) {
+  if (!ua) return "—";
+  const map = [[/Edg\//, "Edge"], [/OPR\/|Opera/, "Opera"], [/SamsungBrowser/, "Samsung Internet"], [/Firefox\//, "Firefox"], [/Chrome\/|CriOS/, "Chrome"], [/Safari\//, "Safari"]];
+  for (const [r, n] of map) if (r.test(ua)) return n;
+  return ua.length > 24 ? ua.slice(0, 24) + "…" : ua;
+}
+function osName(ua) {
+  if (!ua) return "";
+  if (/Android/.test(ua)) return "Android";
+  if (/iPhone|iPad|iPod/.test(ua)) return "iOS";
+  if (/Windows/.test(ua)) return "Windows";
+  if (/Mac OS X/.test(ua)) return "macOS";
+  if (/Linux/.test(ua)) return "Linux";
+  return "";
+}
+function escCSV(v) {
+  if (v === null || v === undefined) return "";
+  let s = String(v);
+  if (typeof v === "string" && /^([=+@]|-(?!\d))/.test(s)) s = "'" + s; // block spreadsheet formula injection
+  s = s.replace(/"/g, '""');
+  return /[",\n\r]/.test(s) ? `"${s}"` : s;
+}
+function downloadCSV(csv, filename) {
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function initials(name) {
+  const p = String(name || "?").trim().split(/\s+/);
+  return ((p[0]?.[0] || "?") + (p.length > 1 ? p[p.length - 1][0] : "")).toUpperCase();
+}
+function copyText(text, label = "Copied") {
+  navigator.clipboard.writeText(text).then(() => showToast(`${label}: ${text}`)).catch(() => showToast("Could not copy", "error"));
+}
+function localDayStarts(n) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i); out.push(d.getTime()); }
+  return out;
+}
+function bucketCounts(times, starts) {
+  const counts = new Array(starts.length).fill(0);
+  for (const t of times) {
+    if (t < starts[0]) continue;
+    for (let i = starts.length - 1; i >= 0; i--) if (t >= starts[i]) { counts[i]++; break; }
+  }
+  return counts;
+}
+function statusTone(kind) {
+  return ({ pageview: "info", click: "lac", scroll: "warn", time_spent: "ok" })[kind] || "neutral";
+}
+function actionTone(a) {
+  return ({ login: "ok", logout: "neutral", add_contact: "ok", edit_contact: "warn", delete_contact: "bad", block_ip: "bad", unblock_ip: "ok", unblock_all_ips: "bad", change_password: "info", view_tab: "neutral" })[a] || "neutral";
+}
+const badge = (text, tone = "neutral") => `<span class="badge b-${tone}">${esc(human(text))}</span>`;
+
+function showToast(msg, type = "success") {
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.setAttribute("role", type === "error" ? "alert" : "status");
+  el.innerHTML = `${ic(type === "error" ? "alert" : "check", 18)}<span></span>`;
+  el.querySelector("span").textContent = msg;
+  $("toasts").appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  setTimeout(() => { el.classList.remove("show"); setTimeout(() => el.remove(), 300); }, 3600);
+}
+
+function lockScroll() {
+  document.body.style.overflow = document.querySelector(".overlay.open, .drawer-wrap.open") ? "hidden" : "";
+}
+function confirmDialog({ title, message, confirmText = "Confirm", danger = false, requireText = null }) {
+  return new Promise(resolve => {
+    const m = $("confirmModal"), ok = $("confirmOk"), cancel = $("confirmCancel"), inp = $("confirmRequireInput");
+    $("confirmTitle").textContent = title;
+    $("confirmMsg").textContent = message;
+    $("confirmIcon").className = "dialog-icon " + (danger ? "bad" : "info");
+    $("confirmIcon").innerHTML = ic(danger ? "alert" : "info", 22);
+    ok.textContent = confirmText;
+    ok.className = "btn " + (danger ? "btn-danger" : "btn-primary");
+    $("confirmRequire").hidden = !requireText;
+    inp.value = ""; ok.disabled = !!requireText;
+    if (requireText) {
+      $("confirmRequireWord").textContent = requireText;
+      inp.oninput = () => { ok.disabled = inp.value.trim() !== requireText; };
+    }
+    const done = v => { m.classList.remove("open"); lockScroll(); resolve(v); };
+    ok.onclick = () => done(true);
+    cancel.onclick = () => done(false);
+    m.onclick = e => { if (e.target === m) done(false); };
+    m.classList.add("open"); lockScroll();
+    (requireText ? inp : cancel).focus();
+  });
+}
+
+function openDrawer({ title, sub = "", fields, actions = [] }) {
+  $("drawerTitle").textContent = title;
+  $("drawerSub").textContent = sub;
+  $("drawerBody").innerHTML = fields.filter(([, v]) => v !== null && v !== undefined && v !== "")
+    .map(([k, v]) => `<div class="kv-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join("");
+  const foot = $("drawerFoot"); foot.innerHTML = "";
+  actions.forEach(a => {
+    const b = document.createElement("button");
+    b.className = "btn btn-sm " + (a.cls || "btn-secondary");
+    b.innerHTML = ic(a.icon, 15) + `<span>${esc(a.label)}</span>`;
+    b.onclick = a.onClick;
+    foot.appendChild(b);
+  });
+  foot.style.display = actions.length ? "flex" : "none";
+  $("drawerWrap").classList.add("open"); lockScroll();
+  $("drawerClose").focus();
+}
+function closeDrawer() { $("drawerWrap").classList.remove("open"); lockScroll(); }
+
+function pageHead(title, sub = "", actions = "") {
+  return `<div class="page-head"><div><h1>${esc(title)}</h1>${sub ? `<p class="sub">${sub}</p>` : ""}</div><div class="page-actions">${actions}</div></div>`;
+}
+function emptyState(icon, title, text, action = "") {
+  return `<div class="empty"><div class="ic-wrap">${ic(icon, 24)}</div><h4>${esc(title)}</h4><p>${esc(text)}</p>${action}</div>`;
+}
+function errorState(title, err) {
+  return pageHead(title) + `<div class="panel">${emptyState("alert", "We could not load this data", (err?.message || "Unknown error") + ". Check that the table exists in Supabase and that your admin account has permission to read it.", `<button class="btn btn-secondary" onclick="showTab(currentTab)">${ic("refresh", 16)} Try again</button>`)}</div>`;
+}
+function skeleton() {
+  return `<div class="sk sk-title"></div><div class="sk sk-sub"></div><div class="sk sk-kpis"></div><div class="sk sk-table"></div>`;
+}
+function setContent(html, tk) {
+  if (tk !== undefined && tk !== tabToken) return false;
+  $("content").innerHTML = html;
+  return true;
+}
+function barList(entries, empty = "No data yet") {
+  if (!entries.length) return `<p class="cell-sub">${empty}</p>`;
+  const max = Math.max(...entries.map(e => e[1]), 1);
+  return `<div class="barlist">${entries.map(([k, v]) => `
+    <div class="bar-row"><span>${esc(k)}</span><span class="n">${num(v)}</span>
+    <div class="bar-track"><div class="bar-fill" style="width:${Math.max(3, v / max * 100)}%"></div></div></div>`).join("")}</div>`;
+}
+function countUp(el, to) {
+  if (!el) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || to < 10) { el.textContent = num(to); return; }
+  const t0 = performance.now(), dur = 900;
+  const step = t => { const p = Math.min(1, (t - t0) / dur); el.textContent = num(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function togglePw(id, btn) {
+  const inp = $(id); const show = inp.type === "password";
+  inp.type = show ? "text" : "password";
+  btn.innerHTML = ic(show ? "eyeoff" : "eye", 18);
+  btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+}
+
+// ============================================================
+// CAPTCHA & ADMIN ACTIVITY LOG
+// ============================================================
+function generateCaptcha() {
+  currentCaptcha = String(Math.floor(1000 + Math.random() * 9000));
+  $("captchaCode").textContent = currentCaptcha;
+  $("loginCaptcha").value = "";
+}
+function getAdminSessionId() {
+  if (!adminSessionId) {
+    adminSessionId = "admin_" + Date.now() + "_" + Math.random().toString(36).substring(2, 8);
+    sessionStorage.setItem("_admin_session", adminSessionId);
+  }
+  return adminSessionId;
+}
+async function logAdminActivity(action, details = {}) {
+  try {
+    await sb.from("admin_activity").insert({
+      admin_email: currentUser?.email || "unknown",
+      admin_id: currentUser?.id || null,
+      action, details,
+      ip: sessionStorage.getItem("_admin_ip") || null,
+      country: sessionStorage.getItem("_admin_country") || null,
+      city: sessionStorage.getItem("_admin_city") || null,
+      region: sessionStorage.getItem("_admin_region") || null,
+      latitude: parseFloat(sessionStorage.getItem("_admin_lat")) || null,
+      longitude: parseFloat(sessionStorage.getItem("_admin_lon")) || null,
+      browser: navigator.userAgent,
+      device: /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop",
+      session_id: getAdminSessionId(),
+    });
+  } catch (e) { console.warn("Admin log failed:", e); }
+}
+async function fetchAdminGeo() {
+  try {
+    const d = await (await fetch("https://ipapi.co/json/")).json();
+    if (d.ip) {
+      sessionStorage.setItem("_admin_ip", d.ip);
+      sessionStorage.setItem("_admin_country", d.country_name || "");
+      sessionStorage.setItem("_admin_city", d.city || "");
+      sessionStorage.setItem("_admin_region", d.region || "");
+      sessionStorage.setItem("_admin_lat", d.latitude || "");
+      sessionStorage.setItem("_admin_lon", d.longitude || "");
+    }
+  } catch (e) { console.warn(e); }
+}
+
+// ============================================================
+// LOGIN / LOGOUT / FORGOT
+// ============================================================
+async function doLogin() {
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+  const captcha = $("loginCaptcha").value.trim();
+  const msg = $("loginMsg");
+  msg.className = "login-msg err"; msg.textContent = "";
+
+  if (Date.now() < lockUntil) { msg.textContent = `Too many attempts. Try again in ${Math.ceil((lockUntil - Date.now()) / 1000)} seconds.`; return; }
+  if (!email || !password) { msg.textContent = "Enter your email and password."; return; }
+  if (captcha !== currentCaptcha) { msg.textContent = "The verification code is wrong. Try the new code."; generateCaptcha(); return; }
+
+  const btn = $("loginBtn");
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Signing in…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  btn.disabled = false; btn.textContent = "Sign in";
+
+  if (error) {
+    if (++failCount >= 5) { lockUntil = Date.now() + 30000; failCount = 0; msg.textContent = "Too many failed attempts. Wait 30 seconds and try again."; }
+    else msg.textContent = error.message;
+    generateCaptcha();
+    return;
+  }
+  failCount = 0;
+  currentUser = data.user;
+  adminLoginTime = Date.now();
+  await fetchAdminGeo();
+  await logAdminActivity("login", { method: "password" });
+  enterApp();
+}
+function showForgotPassword() {
+  $("loginFormView").style.display = "none";
+  $("forgotView").style.display = "block";
+  $("forgotEmail").value = $("loginEmail").value;
+  $("forgotEmail").focus();
+}
+function showLogin() {
+  $("forgotView").style.display = "none";
+  $("loginFormView").style.display = "block";
+}
+async function doForgotPassword() {
+  const email = $("forgotEmail").value.trim();
+  const msg = $("forgotMsg");
+  msg.className = "login-msg err";
+  if (!email) { msg.textContent = "Enter your admin email."; return; }
+  const btn = $("forgotBtn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/admin.html" });
+  btn.disabled = false; btn.textContent = "Send reset link";
+  if (error) { msg.textContent = error.message; return; }
+  msg.className = "login-msg ok";
+  msg.textContent = "Reset link sent. Check your email.";
+  setTimeout(() => { msg.textContent = ""; showLogin(); }, 4000);
+}
+async function doLogout(idle = false) {
+  const dur = adminLoginTime ? Math.round((Date.now() - adminLoginTime) / 1000) : 0;
+  await logAdminActivity("logout", { session_duration_seconds: dur, reason: idle ? "idle_timeout" : "manual" });
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// ============================================================
+// APP SHELL
+// ============================================================
+function buildNav() {
+  $("nav").innerHTML = NAV.map(g => `${g.group ? `<div class="nav-group">${g.group}</div>` : ""}${g.items.map(i =>
+    `<button class="nav-item" data-tab="${i.id}" onclick="showTab('${i.id}')">${ic(i.icon, 18)}<span>${i.label}</span></button>`).join("")}`).join("");
+  $("menuBtn").innerHTML = ic("menu", 20);
+  $("logoutBtn").innerHTML = ic("logout", 18);
+  $("drawerClose").innerHTML = ic("x", 18);
+}
+function enterApp() {
+  $("loginScreen").style.display = "none";
+  $("app").style.display = "block";
+  const email = currentUser?.email || "admin";
+  $("userName").textContent = email.split("@")[0];
+  $("userAvatar").textContent = email[0] || "A";
+  buildNav();
+  showTab("overview");
+}
+function toggleSidebar(open) { $("sidebar").classList.toggle("open", open); }
+
+const TABS = {
+  overview: () => renderOverview(), visitors: () => renderVisitors(1), logs: () => renderLogs(1), bots: () => renderBots(1),
+  blockedips: () => renderBlockedIPs(1), blocknew: () => renderBlockNew(), contacts: () => renderContacts(),
+  addcontact: () => renderAddContact(), account: () => renderAccount(), charts: () => renderCharts(), adminlogs: () => renderAdminLogs(1),
+};
+function showTab(tab) {
+  if (!TABS[tab]) tab = "overview";
+  currentTab = tab; tabToken++;
+  document.querySelectorAll(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  $("userCard").classList.toggle("active", tab === "account");
+  toggleSidebar(false);
+  destroyCharts();
+  document.title = `${TAB_TITLES[tab]} — Admin, Thikana Dhabla Ghosi`;
+  $("content").innerHTML = skeleton();
+  window.scrollTo({ top: 0 });
+  if (currentUser && tab !== "adminlogs") logAdminActivity("view_tab", { tab });
+  TABS[tab]();
+}
+
+// ============================================================
+// OVERVIEW
+// ============================================================
+async function renderOverview() {
+  const tk = tabToken;
+  const starts = localDayStarts(14);
+  const since = new Date(starts[0]).toISOString();
+  const [ev, blocked, contacts] = await Promise.all([
+    sb.from("visitor_events").select("event_type,ip,session_id,page_name,site,city,country,device,created_at").gte("created_at", since).order("created_at", { ascending: false }).limit(20000),
+    sb.from("blocked_ips").select("id", { count: "exact", head: true }),
+    sb.from("contacts").select("id", { count: "exact", head: true }),
+  ]);
+  if (tk !== tabToken) return;
+  if (ev.error) { setContent(errorState("Overview", ev.error), tk); return; }
+
+  const events = ev.data || [];
+  const views = events.filter(e => e.event_type === "pageview");
+  const counts = bucketCounts(views.map(e => new Date(e.created_at).getTime()), starts);
+  const last7 = counts.slice(7).reduce((a, b) => a + b, 0);
+  const prev7 = counts.slice(0, 7).reduce((a, b) => a + b, 0);
+  const delta = prev7 ? Math.round((last7 - prev7) / prev7 * 100) : null;
+  const today = events.filter(e => new Date(e.created_at).getTime() >= starts[13]);
+  const uniqueToday = new Set(today.filter(e => e.ip).map(e => e.ip)).size;
+  const sessionsToday = new Set(today.filter(e => e.session_id).map(e => e.session_id)).size;
+  const views7 = views.filter(e => new Date(e.created_at).getTime() >= starts[7]);
+  const mobileShare = views7.length ? Math.round(views7.filter(e => e.device === "Mobile").length / views7.length * 100) : 0;
+  const pageCounts = {};
+  views7.forEach(e => { const k = e.page_name || "Unknown"; pageCounts[k] = (pageCounts[k] || 0) + 1; });
+  const topPages = Object.entries(pageCounts).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const recent = views.slice(0, 8);
+  const name = (currentUser?.email || "admin").split("@")[0];
+
+  const deltaChip = delta === null ? "" :
+    `<span class="delta ${delta >= 0 ? "up" : "down"}">${delta >= 0 ? "Up" : "Down"} ${Math.abs(delta)}% from the previous 7 days</span>`;
+
+  setContent(`
+    ${pageHead("Overview", `Namaste, ${esc(name)}. Here is how the site is doing.`,
+      `<button class="btn btn-secondary" onclick="renderOverviewRefresh()">${ic("refresh", 16)} Refresh</button>`)}
+    <div class="ov-grid">
+      <section class="hero" aria-label="Pageviews in the last 7 days">
+        <div class="eyebrow">Pageviews in the last 7 days</div>
+        <div class="big" id="heroNum">0</div>
+        <div>${deltaChip}</div>
+        <div class="hero-chart"><canvas id="spark" aria-label="Daily pageviews for the last 14 days" role="img"></canvas></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Today at a glance</h3></div>
+        <div class="panel-body plain-list">
+          <div><span class="k">Pageviews today</span><span class="v">${num(counts[13])}</span></div>
+          <div><span class="k">Unique visitors</span><span class="v">${num(uniqueToday)}</span></div>
+          <div><span class="k">Sessions</span><span class="v">${num(sessionsToday)}</span></div>
+          <div><span class="k">Mobile share (7 days)</span><span class="v">${mobileShare}%</span></div>
+          <div><span class="k">Blocked IPs</span><span class="v">${blocked.error ? "—" : num(blocked.count)}</span></div>
+          <div><span class="k">Contacts</span><span class="v">${contacts.error ? "—" : num(contacts.count)}</span></div>
+        </div>
+      </section>
+    </div>
+    <div class="grid-2">
+      <section class="panel">
+        <div class="panel-head"><h3>Most viewed pages</h3><span class="meta">Last 7 days</span></div>
+        <div class="panel-body">${barList(topPages, "No pageviews in the last 7 days.")}</div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><h3>Latest visits</h3><button class="link-btn" onclick="showTab('visitors')">See all visitors</button></div>
+        <div class="panel-body feed">
+          ${recent.length ? recent.map(e => `
+            <div><span class="avatar" style="width:32px;height:32px;font-size:12px;background:#F3E4BC;color:var(--lac-800);">${ic(e.device === "Mobile" ? "pin" : "grid", 15)}</span>
+              <div class="grow"><div class="cell-main">${esc(dash(e.page_name))}</div>
+              <div class="cell-sub">${esc([e.city, e.country].filter(Boolean).join(", ") || "Unknown location")}</div></div>
+              <span class="cell-sub nowrap">${timeAgo(e.created_at)}</span></div>`).join("")
+            : emptyState("inbox", "No visits yet", "Visits appear here as soon as someone opens the site.")}
+        </div>
+      </section>
+    </div>
+  `, tk);
+
+  countUp($("heroNum"), last7);
+  const labels = starts.map(t => new Date(t).toLocaleDateString("en-IN", { day: "numeric", month: "short" }));
+  chartInstances.spark = new Chart($("spark"), {
+    type: "line",
+    data: { labels, datasets: [{ label: "Pageviews", data: counts, borderColor: "#E8C166", borderWidth: 2.5, tension: 0.4, fill: true,
+      backgroundColor: c => { const g = c.chart.ctx.createLinearGradient(0, 0, 0, c.chart.height); g.addColorStop(0, "rgba(232,193,102,.35)"); g.addColorStop(1, "rgba(232,193,102,0)"); return g; },
+      pointRadius: 0, pointHoverRadius: 5, pointHoverBackgroundColor: "#F0D68A" }] },
+    options: { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false },
+      layout: { padding: { top: 8 } },
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: "#1D1310", titleColor: "#F0D68A", bodyColor: "#fff", padding: 10, displayColors: false } },
+      scales: { x: { display: false }, y: { display: false, beginAtZero: true } } },
+  });
+}
+function renderOverviewRefresh() { showTab("overview"); }
+
+// ============================================================
+// VISITORS
+// ============================================================
+function rangeSince(r) {
+  if (r === "today") { const s = new Date(); s.setHours(0, 0, 0, 0); return s.toISOString(); }
+  if (r === "7d") return new Date(Date.now() - 7 * 864e5).toISOString();
+  if (r === "30d") return new Date(Date.now() - 30 * 864e5).toISOString();
+  return null;
+}
+function applyVisitorFilters(q, f) {
+  if (f.site) q = q.eq("site", f.site);
+  if (f.page) q = q.eq("page_name", f.page);
+  if (f.lang) q = q.eq("page_lang", f.lang);
+  const since = rangeSince(f.range);
+  if (since) q = q.gte("created_at", since);
+  return q;
+}
+function setVisitorFilter(key, val) { state.visitors[key] = key === "size" ? parseInt(val, 10) : val; renderVisitors(1); }
+
+async function renderVisitors(page = 1) {
+  const tk = tabToken, f = state.visitors;
+  const q = applyVisitorFilters(sb.from("visitor_events").select("*", { count: "exact" }), f)
+    .order("created_at", { ascending: false }).range((page - 1) * f.size, page * f.size - 1);
+  const [{ data, error, count }, stats] = await Promise.all([q, computeVisitorStats(f)]);
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Visitors", error), tk); return; }
+
+  const rows = data || [];
+  f.rows = rows;
+  const total = count || 0, totalPages = Math.ceil(total / f.size);
+  const ranges = [["today", "Today"], ["7d", "7 days"], ["30d", "30 days"], ["all", "All time"]];
+  const pages = ["Home", "History", "Family Tree", "Location & Map", "Directory", "About", "Contact", "Privacy", "Sitemap"];
+
+  setContent(`
+    ${pageHead("Visitors", `Showing ${num(rows.length)} of <strong>${num(total)}</strong> events`,
+      `<button class="btn btn-secondary" onclick="renderVisitors(${page})">${ic("refresh", 16)} Refresh</button>
+       <button class="btn btn-primary" onclick="exportVisitorsCSV()">${ic("download", 16)} Export CSV</button>`)}
+
+    <div class="kpis">
+      <div class="kpi"><div class="label">Unique IPs</div><div class="value">${num(stats.uniqueIPs)}</div></div>
+      <div class="kpi"><div class="label">Sessions</div><div class="value">${num(stats.sessions)}</div></div>
+      <div class="kpi"><div class="label">Pageviews</div><div class="value">${num(stats.pageviews)}</div></div>
+      <div class="kpi"><div class="label">Mobile events</div><div class="value">${num(stats.mobile)}</div></div>
+      <div class="kpi"><div class="label">Total events</div><div class="value">${num(stats.total)}</div></div>
+      <div class="kpi"><div class="label">Average time on page</div><div class="value">${stats.avgTime}s</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Date range">
+        ${ranges.map(([v, l]) => `<button class="${f.range === v ? "on" : ""}" onclick="setVisitorFilter('range','${v}')">${l}</button>`).join("")}
+      </div>
+      <select class="select" aria-label="Site" onchange="setVisitorFilter('site', this.value)">
+        <option value="">All sites</option>
+        ${["Thikana Dhabla Ghosi", "Rajvardhan Singh"].map(s => `<option ${f.site === s ? "selected" : ""}>${s}</option>`).join("")}
+      </select>
+      <select class="select" aria-label="Page" onchange="setVisitorFilter('page', this.value)">
+        <option value="">All pages</option>
+        ${pages.map(p => `<option ${f.page === p ? "selected" : ""}>${esc(p)}</option>`).join("")}
+      </select>
+      <select class="select" aria-label="Language" onchange="setVisitorFilter('lang', this.value)">
+        <option value="">All languages</option>
+        <option value="en" ${f.lang === "en" ? "selected" : ""}>English</option>
+        <option value="hi" ${f.lang === "hi" ? "selected" : ""}>हिन्दी</option>
+      </select>
+      <select class="select" aria-label="Rows per page" onchange="setVisitorFilter('size', this.value)">
+        ${[50, 100, 250, 500, 1000].map(n => `<option value="${n}" ${f.size === n ? "selected" : ""}>${n} rows</option>`).join("")}
+      </select>
+    </div>
+
+    <div class="grid-2">
+      <section class="panel"><div class="panel-head"><h3>Views by site</h3></div><div class="panel-body">${barList(Object.entries(stats.bySite).sort((a, b) => b[1] - a[1]))}</div></section>
+      <section class="panel"><div class="panel-head"><h3>Top pages</h3></div><div class="panel-body">${barList(Object.entries(stats.byPage).sort((a, b) => b[1] - a[1]).slice(0, 6))}</div></section>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">${ic("search", 17)}<input class="input" type="search" id="vSearch" placeholder="Search this page by IP, city, page or referrer" value="${esc(f.q)}" oninput="filterVisitorRows(this.value)" aria-label="Search visitors on this page"></div>
+    </div>
+    <div class="table-wrap">${renderVisitorTable(rows)}</div>
+    ${totalPages > 1 ? renderPagination("renderVisitors", page, totalPages) : ""}
+  `, tk);
+  if (f.q) filterVisitorRows(f.q);
+}
+function filterVisitorRows(v) {
+  state.visitors.q = v; const q = v.toLowerCase().trim();
+  document.querySelectorAll("#vTable tbody tr").forEach(tr => { tr.style.display = !q || tr.dataset.s.includes(q) ? "" : "none"; });
+}
+function renderVisitorTable(rows) {
+  if (!rows.length) return emptyState("inbox", "No events match these filters", "Try a wider date range or clear the site, page and language filters.");
+  return `<table id="vTable"><thead><tr>
+    <th>Time (IST)</th><th>Visitor</th><th>Event</th><th>Device</th><th>Source</th><th>Engagement</th>
+  </tr></thead><tbody>
+  ${rows.map((v, i) => {
+    const s = [v.ip, v.city, v.country, v.page_name, v.site, v.referrer, v.browser].join(" ").toLowerCase();
+    const loc = [v.city, v.country].filter(Boolean).join(", ");
+    return `<tr class="clickable" data-s="${esc(s)}" onclick="openVisitorDrawer(${i})" tabindex="0" onkeydown="if(event.key==='Enter')openVisitorDrawer(${i})">
+      <td class="nowrap"><div class="cell-main">${fmtShort(v.created_at)}</div><div class="cell-sub">${timeAgo(v.created_at)}</div></td>
+      <td><div class="mono cell-main">${esc(dash(v.ip))}</div><div class="cell-sub">${esc(loc || "Unknown location")}</div></td>
+      <td><div>${badge(v.event_type, statusTone(v.event_type))} ${badge(v.page_lang === "hi" ? "hi" : "en", v.page_lang === "hi" ? "lac" : "neutral")}</div>
+          <div class="cell-main" style="margin-top:4px;">${esc(dash(v.page_name))}</div><div class="cell-sub">${esc(dash(v.site))}</div></td>
+      <td><div>${badge(v.device || "—", v.device === "Mobile" ? "warn" : "info")}</div>
+          <div class="cell-sub" style="margin-top:4px;" title="${esc(v.browser)}">${esc(browserName(v.browser))}${(v.os || osName(v.browser)) ? ", " + esc(v.os || osName(v.browser)) : ""}</div></td>
+      <td>${esc(shortRef(v.referrer))}</td>
+      <td class="nowrap"><div>${v.scroll_percent ? v.scroll_percent + "% scrolled" : "—"}</div><div class="cell-sub">${v.time_spent ? v.time_spent + "s on page" : ""}</div></td>
+    </tr>`;
+  }).join("")}
+  </tbody></table>`;
+}
+function openVisitorDrawer(i) {
+  const v = state.visitors.rows[i]; if (!v) return;
+  const order = ["created_at", "event_type", "site", "page_name", "page_lang", "page", "landing_page", "referrer", "ip", "city", "region", "country", "latitude", "longitude", "org", "device", "os", "browser", "screen", "language", "timezone", "session_id", "user_id", "time_spent", "scroll_percent"];
+  const keys = [...order.filter(k => k in v), ...Object.keys(v).filter(k => !order.includes(k) && k !== "id")];
+  const actions = [];
+  if (v.ip) {
+    actions.push({ label: "Block this IP", icon: "ban", cls: "btn-danger-soft", onClick: () => quickBlockIP(v.ip, "Blocked from visitor log") });
+    actions.push({ label: "Copy IP", icon: "copy", onClick: () => copyText(v.ip, "Copied IP") });
+  }
+  if (v.latitude && v.longitude) actions.push({ label: "View on map", icon: "pin", onClick: () => window.open(`https://www.google.com/maps?q=${encodeURIComponent(v.latitude)},${encodeURIComponent(v.longitude)}`, "_blank", "noopener") });
+  openDrawer({ title: human(v.event_type) || "Event", sub: fmt(v.created_at), fields: keys.map(k => [human(k), k === "created_at" ? fmt(v[k]) : v[k]]), actions });
+}
+async function computeVisitorStats(f) {
+  const { data } = await applyVisitorFilters(sb.from("visitor_events").select("ip,session_id,event_type,site,page_name,page_lang,device,time_spent"), f).limit(50000);
+  const empty = { uniqueIPs: 0, sessions: 0, pageviews: 0, mobile: 0, total: 0, avgTime: 0, bySite: {}, byPage: {} };
+  if (!data) return empty;
+  const ts = data.filter(x => x.event_type === "time_spent" && x.time_spent);
+  const bySite = {}, byPage = {};
+  data.filter(x => x.event_type === "pageview").forEach(x => {
+    const s = x.site || "Unknown"; bySite[s] = (bySite[s] || 0) + 1;
+    const p = `${x.page_name || "Unknown"} (${x.page_lang || "en"})`; byPage[p] = (byPage[p] || 0) + 1;
+  });
+  return {
+    uniqueIPs: new Set(data.filter(x => x.ip).map(x => x.ip)).size,
+    sessions: new Set(data.filter(x => x.session_id).map(x => x.session_id)).size,
+    pageviews: data.filter(x => x.event_type === "pageview").length,
+    mobile: data.filter(x => x.device === "Mobile").length,
+    total: data.length,
+    avgTime: ts.length ? Math.round(ts.reduce((s, x) => s + x.time_spent, 0) / ts.length) : 0,
+    bySite, byPage,
+  };
+}
+
+// ============================================================
+// ACCESS LOGS
+// ============================================================
+async function renderLogs(page = 1) {
+  const tk = tabToken, f = state.logs;
+  const { data, error, count } = await sb.from("access_logs").select("*", { count: "exact" })
+    .order("timestamp", { ascending: false }).range((page - 1) * f.size, page * f.size - 1);
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Access logs", error), tk); return; }
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / f.size);
+
+  setContent(`
+    ${pageHead("Access logs", `${num(total)} logged events`,
+      `<button class="btn btn-secondary" onclick="renderLogs(${page})">${ic("refresh", 16)} Refresh</button>
+       <button class="btn btn-primary" onclick="exportLogsCSV()">${ic("download", 16)} Export CSV</button>`)}
+    <div class="toolbar">
+      <div class="search">${ic("search", 17)}<input class="input" type="search" placeholder="Search this page by IP or location" oninput="filterRows('logsTable', this.value)" aria-label="Search access logs"></div>
+      <select class="select" aria-label="Rows per page" onchange="state.logs.size=parseInt(this.value,10); renderLogs(1)">
+        ${[100, 250, 500, 1000].map(n => `<option value="${n}" ${f.size === n ? "selected" : ""}>${n} rows</option>`).join("")}
+      </select>
+    </div>
+    <div class="table-wrap">
+      ${rows.length ? `<table id="logsTable"><thead><tr><th>Time (IST)</th><th>Visitor</th><th>Action</th><th>Contact</th><th>Flag</th></tr></thead><tbody>
+        ${rows.map(l => `<tr data-s="${esc([l.ip, l.city, l.region, l.country, l.action].join(" ").toLowerCase())}">
+          <td class="nowrap"><div class="cell-main">${fmtShort(l.timestamp)}</div><div class="cell-sub">${timeAgo(l.timestamp)}</div></td>
+          <td><div class="mono cell-main">${esc(dash(l.ip))}</div><div class="cell-sub">${esc([l.city, l.region, l.country].filter(Boolean).join(", ") || "Unknown location")}</div></td>
+          <td>${badge(l.action || "—", "neutral")}</td>
+          <td>${l.contact_id ? "Contact #" + esc(l.contact_id) : "—"}</td>
+          <td>${l.suspicious ? badge("Suspicious", "bad") : "—"}</td>
+        </tr>`).join("")}</tbody></table>`
+        : emptyState("inbox", "No access logs yet", "Events show up here when visitors reveal or copy contact details.")}
+    </div>
+    ${totalPages > 1 ? renderPagination("renderLogs", page, totalPages) : ""}
+  `, tk);
+}
+function filterRows(tableId, v) {
+  const q = v.toLowerCase().trim();
+  document.querySelectorAll(`#${tableId} tbody tr`).forEach(tr => { tr.style.display = !q || tr.dataset.s.includes(q) ? "" : "none"; });
+}
+
+// ============================================================
+// BLOCKED BOTS
+// ============================================================
+async function renderBots(page = 1) {
+  const tk = tabToken, size = 100;
+  const { data, error, count } = await sb.from("bot_signatures").select("*", { count: "exact" })
+    .order("detected_at", { ascending: false }).range((page - 1) * size, page * size - 1);
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Blocked bots", error), tk); return; }
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / size);
+
+  setContent(`
+    ${pageHead("Blocked bots", `${num(total)} bots detected and stopped automatically`,
+      `<button class="btn btn-secondary" onclick="renderBots(${page})">${ic("refresh", 16)} Refresh</button>`)}
+    <div class="table-wrap">
+      ${rows.length ? `<table><thead><tr><th>Detected (IST)</th><th>IP</th><th>Reason</th><th>User agent</th><th></th></tr></thead><tbody>
+        ${rows.map(b => `<tr>
+          <td class="nowrap"><div class="cell-main">${fmtShort(b.detected_at)}</div><div class="cell-sub">${timeAgo(b.detected_at)}</div></td>
+          <td class="mono cell-main">${esc(b.ip || "—")}</td>
+          <td>${badge(b.reason || "Bot", "bad")}</td>
+          <td><div class="ell" title="${esc(b.user_agent)}">${esc(b.user_agent || "—")}</div></td>
+          <td>${b.ip ? `<button class="btn btn-danger-soft btn-sm" data-ip="${esc(b.ip)}" data-reason="${esc(b.reason || "Bot")}" onclick="quickBlockIP(this.dataset.ip, this.dataset.reason)">${ic("ban", 14)} Block IP</button>` : ""}</td>
+        </tr>`).join("")}</tbody></table>`
+        : emptyState("bot", "No bots blocked yet", "Automatic bot detections will be listed here.")}
+    </div>
+    ${totalPages > 1 ? renderPagination("renderBots", page, totalPages) : ""}
+  `, tk);
+}
+
+// ============================================================
+// BLOCKED IPs
+// ============================================================
+async function renderBlockedIPs(page = 1) {
+  const tk = tabToken, size = 100;
+  const { data, error, count } = await sb.from("blocked_ips").select("*", { count: "exact" })
+    .order("blocked_at", { ascending: false }).range((page - 1) * size, page * size - 1);
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Blocked IPs", error), tk); return; }
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / size);
+  state.blocked.rows = rows;
+
+  setContent(`
+    ${pageHead("Blocked IPs", `${num(total)} IP${total === 1 ? "" : "s"} currently on the blocklist`,
+      `<button class="btn btn-secondary" onclick="renderBlockedIPs(${page})">${ic("refresh", 16)} Refresh</button>
+       <button class="btn btn-primary" onclick="showTab('blocknew')">${ic("plus", 16)} Block an IP</button>`)}
+    ${rows.length ? `
+      <div class="toolbar">
+        <div class="search">${ic("search", 17)}<input class="input" type="search" placeholder="Search by IP or reason" oninput="filterRows('blockedTable', this.value)" aria-label="Search blocked IPs"></div>
+        <span class="spacer"></span>
+        <button class="btn btn-danger-soft" onclick="unblockAllBlocked()">${ic("trash", 16)} Unblock all</button>
+      </div>
+      <div class="table-wrap"><table id="blockedTable"><thead><tr><th>IP</th><th>Reason</th><th>Blocked by</th><th>Blocked</th><th>Status</th><th></th></tr></thead><tbody>
+        ${rows.map(b => {
+          const perm = !b.expires_at, expired = !perm && new Date(b.expires_at) < new Date();
+          return `<tr data-s="${esc([b.ip, b.reason, b.blocked_by].join(" ").toLowerCase())}">
+            <td class="mono cell-main">${esc(b.ip)}</td>
+            <td>${esc(b.reason || "—")}</td>
+            <td>${esc(b.blocked_by || "—")}</td>
+            <td class="nowrap"><div>${fmtShort(b.blocked_at)}</div><div class="cell-sub">${timeAgo(b.blocked_at)}</div></td>
+            <td>${perm ? badge("Permanent", "bad") : expired ? badge("Expired", "neutral") : badge(timeLeft(b.expires_at), "warn")}</td>
+            <td><div class="actions">
+              <button class="btn btn-ok-soft btn-sm" onclick="unblockIP(${Number(b.id)})">${ic("check", 14)} Unblock</button>
+              <button class="btn btn-secondary btn-sm" data-ip="${esc(b.ip)}" onclick="copyText(this.dataset.ip, 'Copied IP')" aria-label="Copy IP">${ic("copy", 14)}</button>
+            </div></td></tr>`;
+        }).join("")}
+      </tbody></table></div>
+      ${totalPages > 1 ? renderPagination("renderBlockedIPs", page, totalPages) : ""}`
+    : `<div class="panel">${emptyState("shield", "No IPs are blocked", "Everyone can reach the site. Block an IP when you spot scraping or spam.", `<button class="btn btn-primary" onclick="showTab('blocknew')">${ic("plus", 16)} Block an IP</button>`)}</div>`}
+  `, tk);
+}
+async function unblockIP(id) {
+  const row = state.blocked.rows.find(r => r.id === id); const ip = row?.ip || "this IP";
+  if (!await confirmDialog({ title: "Unblock this IP?", message: `${ip} will be able to visit the site again.`, confirmText: "Unblock" })) return;
+  const { error } = await sb.from("blocked_ips").delete().eq("id", id);
+  if (error) { showToast("Could not unblock: " + error.message, "error"); return; }
+  await logAdminActivity("unblock_ip", { ip });
+  showToast(`Unblocked ${ip}`);
+  renderBlockedIPs(1);
+}
+async function unblockAllBlocked() {
+  if (!await confirmDialog({ title: "Unblock every IP?", message: "This removes all entries from the blocklist. It cannot be undone.", confirmText: "Unblock all", danger: true, requireText: "UNBLOCK" })) return;
+  const { error } = await sb.from("blocked_ips").delete().neq("id", 0);
+  if (error) { showToast("Could not unblock: " + error.message, "error"); return; }
+  await logAdminActivity("unblock_all_ips", {});
+  showToast("All IPs unblocked");
+  renderBlockedIPs(1);
+}
+
+// ============================================================
+// BLOCK NEW IP
+// ============================================================
+function renderBlockNew() {
+  setContent(`
+    ${pageHead("Block an IP", "Visitors from a blocked address are denied access to the site.")}
+    <div class="panel form-card">
+      <div class="form-grid">
+        <div class="field"><label for="blockIp">IP address</label><input class="input mono" type="text" id="blockIp" placeholder="106.222.217.103" autocomplete="off" spellcheck="false"></div>
+        <div class="field"><label for="blockReason">Reason</label><input class="input" type="text" id="blockReason" placeholder="Scraping, spam, abuse"></div>
+      </div>
+      <div class="field" style="margin-top:18px;">
+        <span class="field-label">How long?</span>
+        <div class="seg" id="blockDurationSeg" role="group" aria-label="Block duration">
+          ${[["0", "Permanent"], ["1", "1 hour"], ["24", "24 hours"], ["168", "1 week"], ["720", "30 days"]].map(([v, l], i) => `<button type="button" class="${i === 0 ? "on" : ""}" data-h="${v}" onclick="pickDuration(this)">${l}</button>`).join("")}
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="clearBlockForm()">Clear</button>
+        <button class="btn btn-danger" onclick="submitBlockIP()">${ic("ban", 16)} Block IP</button>
+      </div>
+    </div>
+  `, tabToken);
+  $("blockIp").focus();
+}
+function pickDuration(btn) { document.querySelectorAll("#blockDurationSeg button").forEach(b => b.classList.toggle("on", b === btn)); }
+function clearBlockForm() { $("blockIp").value = ""; $("blockReason").value = ""; }
+function validIP(ip) {
+  const v4 = /^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)){3}$/;
+  const v6 = /^[0-9a-fA-F:]{3,45}$/;
+  return v4.test(ip) || (ip.includes(":") && v6.test(ip));
+}
+async function insertBlock(ip, reason, hours = 0) {
+  if (ip === sessionStorage.getItem("_admin_ip")) {
+    if (!await confirmDialog({ title: "This is your own IP", message: "Blocking it may lock you out of the site. Block it anyway?", confirmText: "Block anyway", danger: true })) return false;
+  }
+  const payload = { ip, reason: reason || "Manually blocked", blocked_by: currentUser?.email || "admin" };
+  if (hours > 0) payload.expires_at = new Date(Date.now() + hours * 3600 * 1000).toISOString();
+  const { error } = await sb.from("blocked_ips").insert(payload);
+  if (error) { showToast(error.code === "23505" ? `${ip} is already blocked` : "Could not block: " + error.message, "error"); return false; }
+  await logAdminActivity("block_ip", { ip, reason: payload.reason, expires_hours: hours });
+  showToast(`Blocked ${ip}${hours > 0 ? " for " + hours + " hours" : " permanently"}`);
+  return true;
+}
+async function submitBlockIP() {
+  const ip = $("blockIp").value.trim(), reason = $("blockReason").value.trim();
+  const hours = parseInt(document.querySelector("#blockDurationSeg .on")?.dataset.h || "0", 10);
+  if (!ip) { showToast("Enter an IP address", "error"); $("blockIp").focus(); return; }
+  if (!validIP(ip)) { showToast("That is not a valid IPv4 or IPv6 address", "error"); $("blockIp").focus(); return; }
+  if (await insertBlock(ip, reason, hours)) { clearBlockForm(); setTimeout(() => showTab("blockedips"), 700); }
+}
+async function quickBlockIP(ip, reason) {
+  if (!await confirmDialog({ title: "Block this IP?", message: `${ip} will be denied access to the site.`, confirmText: "Block IP", danger: true })) return;
+  if (await insertBlock(ip, reason || "Bot")) { closeDrawer(); if (currentTab === "blockedips") renderBlockedIPs(1); }
+}
+
+// ============================================================
+// CONTACTS
+// ============================================================
+async function renderContacts() {
+  const tk = tabToken;
+  const { data, error } = await sb.from("contacts").select("*").order("id");
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Contacts", error), tk); return; }
+  state.contacts.rows = data || [];
+  setContent(`
+    ${pageHead("Contacts", `${num(state.contacts.rows.length)} people in the directory`,
+      `<button class="btn btn-secondary" onclick="renderContacts()">${ic("refresh", 16)} Refresh</button>
+       <button class="btn btn-primary" onclick="showTab('addcontact')">${ic("plus", 16)} Add contact</button>`)}
+    <div class="toolbar">
+      <div class="search">${ic("search", 17)}<input class="input" type="search" id="contactSearch" placeholder="Search by name, phone or city" oninput="filterContacts()" aria-label="Search contacts"></div>
+    </div>
+    <div class="table-wrap" id="contactsTableWrap">${renderContactsTable(state.contacts.rows)}</div>
+  `, tk);
+}
+function filterContacts() {
+  const q = ($("contactSearch").value || "").toLowerCase().trim();
+  const f = state.contacts.rows.filter(c => (c.name || "").toLowerCase().includes(q) || (c.phone || "").includes(q) || (c.city || "").toLowerCase().includes(q) || (c.relation || "").toLowerCase().includes(q));
+  $("contactsTableWrap").innerHTML = renderContactsTable(f, !!q);
+}
+function renderContactsTable(rows, searching = false) {
+  if (!rows.length) return searching ? emptyState("search", "No matching contacts", "Check the spelling or search by phone number instead.")
+    : emptyState("book", "No contacts yet", "Add the first person to the directory.", `<button class="btn btn-primary" onclick="showTab('addcontact')">${ic("plus", 16)} Add contact</button>`);
+  return `<table style="min-width:720px;"><thead><tr><th>Name</th><th>Phone</th><th>Relation</th><th>City</th><th>Updated</th><th></th></tr></thead><tbody>
+    ${rows.map(c => `<tr>
+      <td><div class="person"><span class="avatar">${esc(initials(c.name))}</span><div><div class="cell-main">${esc(c.name)}</div><div class="cell-sub">ID ${esc(c.id)}</div></div></div></td>
+      <td><span class="copy-inline"><span class="mono">+91 ${esc(c.phone)}</span>
+        <button data-p="${esc(c.phone)}" onclick="copyText('+91 ' + this.dataset.p, 'Copied number')" aria-label="Copy phone number">${ic("copy", 14)}</button></span></td>
+      <td>${esc(c.relation || "—")}</td>
+      <td>${esc(c.city || "—")}</td>
+      <td class="nowrap cell-sub">${timeAgo(c.updated_at || c.created_at)}</td>
+      <td><div class="actions">
+        <button class="btn btn-secondary btn-sm" onclick="openEditModal(${Number(c.id)})">${ic("edit", 14)} Edit</button>
+        <button class="btn btn-danger-soft btn-sm" onclick="deleteContact(${Number(c.id)})">${ic("trash", 14)} Delete</button>
+      </div></td></tr>`).join("")}
+  </tbody></table>`;
+}
+function openEditModal(id) {
+  const c = state.contacts.rows.find(x => x.id === id); if (!c) return;
+  $("editId").value = c.id;
+  $("editName").value = c.name || ""; $("editPhone").value = c.phone || "";
+  $("editRelation").value = c.relation || ""; $("editCity").value = c.city || "";
+  $("modalTitle").textContent = "Edit " + (c.name || "contact");
+  $("editModal").classList.add("open"); lockScroll();
+  $("editName").focus();
+}
+function closeEditModal() { $("editModal").classList.remove("open"); lockScroll(); }
+async function saveContact() {
+  const id = $("editId").value;
+  const name = $("editName").value.trim(), phone = $("editPhone").value.trim().replace(/\D/g, "");
+  const relation = $("editRelation").value.trim(), city = $("editCity").value.trim();
+  if (!name) { showToast("Enter a name", "error"); return; }
+  if (!/^\d{10}$/.test(phone)) { showToast("Phone must be exactly 10 digits", "error"); return; }
+  const btn = $("saveContactBtn"); btn.disabled = true;
+  const { error } = await sb.from("contacts").update({ name, phone, relation, city, updated_at: new Date().toISOString() }).eq("id", id);
+  btn.disabled = false;
+  if (error) { showToast("Could not save: " + error.message, "error"); return; }
+  await logAdminActivity("edit_contact", { contact_id: id, name, new_phone: phone });
+  showToast("Contact saved");
+  closeEditModal(); renderContacts();
+}
+async function deleteContact(id) {
+  const c = state.contacts.rows.find(x => x.id === id);
+  if (!await confirmDialog({ title: `Delete ${c?.name || "this contact"}?`, message: "They will be removed from the directory. This cannot be undone.", confirmText: "Delete contact", danger: true })) return;
+  const { error } = await sb.from("contacts").delete().eq("id", id);
+  if (error) { showToast("Could not delete: " + error.message, "error"); return; }
+  await logAdminActivity("delete_contact", { contact_id: id, name: c?.name });
+  showToast("Contact deleted");
+  renderContacts();
+}
+
+function renderAddContact() {
+  setContent(`
+    ${pageHead("Add contact", "New contacts appear in the site directory straight away.")}
+    <div class="panel form-card">
+      <div class="form-grid">
+        <div class="field"><label for="newName">Name</label><input class="input" type="text" id="newName" autocomplete="off"></div>
+        <div class="field"><label for="newPhone">Phone (10 digits)</label><input class="input mono" type="text" id="newPhone" maxlength="10" inputmode="numeric" autocomplete="off"></div>
+        <div class="field"><label for="newRelation">Relation</label><input class="input" type="text" id="newRelation" placeholder="Family"></div>
+        <div class="field"><label for="newCity">City</label><input class="input" type="text" id="newCity" placeholder="Dhabla Ghosi"></div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" onclick="clearAddForm()">Clear</button>
+        <button class="btn btn-primary" onclick="addNewContact()">${ic("plus", 16)} Add contact</button>
+      </div>
+    </div>
+  `, tabToken);
+  $("newName").focus();
+}
+function clearAddForm() { ["newName", "newPhone", "newRelation", "newCity"].forEach(id => $(id).value = ""); $("newName").focus(); }
+async function addNewContact() {
+  const name = $("newName").value.trim(), phone = $("newPhone").value.trim().replace(/\D/g, "");
+  const relation = $("newRelation").value.trim(), city = $("newCity").value.trim();
+  if (!name) { showToast("Enter a name", "error"); $("newName").focus(); return; }
+  if (!/^\d{10}$/.test(phone)) { showToast("Phone must be exactly 10 digits", "error"); $("newPhone").focus(); return; }
+  const { error } = await sb.from("contacts").insert({ name, phone, relation, city });
+  if (error) { showToast("Could not add contact: " + error.message, "error"); return; }
+  await logAdminActivity("add_contact", { name, phone, city });
+  showToast(`${name} added. You can add another.`);
+  clearAddForm();
+}
+
+// ============================================================
+// ACCOUNT
+// ============================================================
+function renderAccount() {
+  const s = k => sessionStorage.getItem(k) || "";
+  const loc = [s("_admin_city"), s("_admin_region"), s("_admin_country")].filter(Boolean).join(", ");
+  setContent(`
+    ${pageHead("Account", "Your sign-in details and password.")}
+    <div class="stack" style="max-width:760px;">
+      <section class="panel"><div class="panel-head"><h3>Signed in as</h3></div>
+        <div class="panel-body">
+          <div class="person"><span class="avatar" style="width:52px;height:52px;font-size:20px;">${esc((currentUser?.email || "A")[0])}</span>
+            <div><div class="cell-main" style="font-size:17px;">${esc(currentUser?.email || "—")}</div><div class="cell-sub mono">${esc(currentUser?.id || "—")}</div></div></div>
+          <div style="margin-top:14px;">
+            <div class="kv-row"><span class="k">This session's IP</span><span class="v mono">${esc(s("_admin_ip") || "Unknown")}</span></div>
+            <div class="kv-row"><span class="k">Location</span><span class="v">${esc(loc || "Unknown")}</span></div>
+            <div class="kv-row"><span class="k">Automatic sign-out</span><span class="v">After 30 minutes of inactivity</span></div>
+          </div>
+        </div></section>
+      <section class="panel"><div class="panel-head"><h3>Change password</h3></div>
+        <div class="panel-body">
+          <div class="form-grid">
+            <div class="field"><label for="newPassword">New password</label>
+              <div class="pw-wrap"><input class="input" type="password" id="newPassword" autocomplete="new-password"><button type="button" class="pw-toggle" onclick="togglePw('newPassword', this)" aria-label="Show password">${ic("eye", 18)}</button></div>
+              <p class="hint">At least 6 characters. Longer is safer.</p></div>
+            <div class="field"><label for="confirmPassword">Confirm new password</label>
+              <input class="input" type="password" id="confirmPassword" autocomplete="new-password"></div>
+          </div>
+          <div class="form-actions"><button class="btn btn-primary" onclick="changePassword()">Update password</button></div>
+        </div></section>
+    </div>
+  `, tabToken);
+}
+async function changePassword() {
+  const p1 = $("newPassword").value, p2 = $("confirmPassword").value;
+  if (p1.length < 6) { showToast("Use at least 6 characters", "error"); return; }
+  if (p1 !== p2) { showToast("The two passwords do not match", "error"); return; }
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  if (error) { showToast("Could not update: " + error.message, "error"); return; }
+  await logAdminActivity("change_password", {});
+  showToast("Password updated");
+  $("newPassword").value = ""; $("confirmPassword").value = "";
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+function destroyCharts() { Object.values(chartInstances).forEach(c => { try { c.destroy(); } catch (e) {} }); chartInstances = {}; }
+async function renderCharts() {
+  const tk = tabToken;
+  const since = new Date(Date.now() - 30 * 864e5).toISOString();
+  const { data, error } = await sb.from("visitor_events").select("event_type, site, page_name, page_lang, country, device, created_at")
+    .gte("created_at", since).order("created_at", { ascending: false }).limit(20000);
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Charts", error), tk); return; }
+  const events = data || [];
+  const views = events.filter(e => e.event_type === "pageview");
+
+  const dayStarts = localDayStarts(14);
+  const dailyCounts = bucketCounts(views.map(e => new Date(e.created_at).getTime()), dayStarts);
+  const dailyLabels = dayStarts.map(t => new Date(t).toLocaleDateString("en-IN", { day: "numeric", month: "short" }));
+  const hb = new Date(); hb.setMinutes(0, 0, 0);
+  const hourStarts = Array.from({ length: 24 }, (_, i) => hb.getTime() - (23 - i) * 3600e3);
+  const hourlyCounts = bucketCounts(events.map(e => new Date(e.created_at).getTime()), hourStarts);
+  const hourlyLabels = hourStarts.map(t => new Date(t).toLocaleTimeString("en-IN", { hour: "numeric", hour12: true }));
+
+  const typeCounts = { pageview: 0, click: 0, scroll: 0, time_spent: 0 };
+  events.forEach(e => { if (typeCounts[e.event_type] !== undefined) typeCounts[e.event_type]++; });
+  const tally = (list, key, fallback) => { const o = {}; list.forEach(e => { const k = e[key] || fallback; if (k) o[k] = (o[k] || 0) + 1; }); return Object.entries(o).sort((a, b) => b[1] - a[1]); };
+  const topPages = tally(views, "page_name", "Unknown").slice(0, 8);
+  const topCountries = tally(views, "country", null).slice(0, 8);
+  const siteCounts = tally(views, "site", "Unknown");
+  const hi = views.filter(e => e.page_lang === "hi").length, en = views.length - hi;
+  const mob = views.filter(e => e.device === "Mobile").length, desk = views.length - mob;
+
+  const card = (title, id, h = 260, wide = false) => `<section class="panel" ${wide ? 'style="margin-bottom:20px;"' : ""}><div class="panel-head"><h3>${title}</h3></div><div class="panel-body"><div style="position:relative;height:${h}px;"><canvas id="${id}"></canvas></div></div></section>`;
+  setContent(`
+    ${pageHead("Charts", "Traffic patterns from the last 30 days.", `<button class="btn btn-secondary" onclick="renderCharts()">${ic("refresh", 16)} Refresh</button>`)}
+    <div class="grid-2">${card("Daily pageviews, last 14 days", "chartDaily")}${card("Events by type", "chartTypes")}</div>
+    <div class="grid-2">${card("Language", "chartLang")}${card("Device", "chartDevice")}</div>
+    <div class="grid-2">${card("Top pages", "chartPages")}${card("Top countries", "chartCountries")}</div>
+    ${card("Activity by hour, last 24 hours", "chartHourly", 240, true)}
+    ${card("Pageviews by site", "chartSite", 220)}
+  `, tk);
+
+  const gold = "#C99A3A", lac = "#7A1F1F", lacDeep = "#5C1717", indigo = "#1B3A5C", green = "#2E7D32";
+  Chart.defaults.font.family = "Figtree, system-ui, sans-serif"; Chart.defaults.color = "#7B6E5C"; Chart.defaults.borderColor = "rgba(120,100,70,.12)";
+  const tip = { backgroundColor: "#1D1310", titleColor: "#F0D68A", bodyColor: "#fff", padding: 10, cornerRadius: 8 };
+  const noLegend = { legend: { display: false }, tooltip: tip };
+  const legendBottom = { legend: { position: "bottom", labels: { usePointStyle: true, boxWidth: 8, padding: 16 } }, tooltip: tip };
+  const yInt = { beginAtZero: true, ticks: { precision: 0 }, grid: { color: "rgba(120,100,70,.10)" } };
+  const base = { responsive: true, maintainAspectRatio: false };
+
+  chartInstances.daily = new Chart($("chartDaily"), { type: "line",
+    data: { labels: dailyLabels, datasets: [{ label: "Pageviews", data: dailyCounts, borderColor: lac, backgroundColor: "rgba(122,31,31,.12)", borderWidth: 2.5, tension: .35, fill: true, pointBackgroundColor: gold, pointBorderColor: lacDeep, pointRadius: 3.5 }] },
+    options: { ...base, plugins: noLegend, scales: { y: yInt, x: { grid: { display: false }, ticks: { font: { size: 11 } } } } } });
+  chartInstances.types = new Chart($("chartTypes"), { type: "doughnut",
+    data: { labels: ["Pageviews", "Clicks", "Scrolls", "Time spent"], datasets: [{ data: [typeCounts.pageview, typeCounts.click, typeCounts.scroll, typeCounts.time_spent], backgroundColor: [indigo, lac, gold, green], borderColor: "#fff", borderWidth: 3 }] },
+    options: { ...base, cutout: "64%", plugins: legendBottom } });
+  chartInstances.lang = new Chart($("chartLang"), { type: "doughnut",
+    data: { labels: ["English", "हिन्दी"], datasets: [{ data: [en, hi], backgroundColor: [gold, lac], borderColor: "#fff", borderWidth: 3 }] },
+    options: { ...base, cutout: "64%", plugins: legendBottom } });
+  chartInstances.device = new Chart($("chartDevice"), { type: "doughnut",
+    data: { labels: ["Mobile", "Desktop"], datasets: [{ data: [mob, desk], backgroundColor: ["#B7791F", indigo], borderColor: "#fff", borderWidth: 3 }] },
+    options: { ...base, cutout: "64%", plugins: legendBottom } });
+  const hbar = (id, list, color) => chartInstances[id] = new Chart($(id), { type: "bar",
+    data: { labels: list.map(([k]) => k), datasets: [{ data: list.map(([, v]) => v), backgroundColor: color, borderRadius: 5, maxBarThickness: 22 }] },
+    options: { ...base, indexAxis: "y", plugins: noLegend, scales: { x: yInt, y: { grid: { display: false } } } } });
+  hbar("chartPages", topPages, lac); hbar("chartCountries", topCountries, gold);
+  chartInstances.hourly = new Chart($("chartHourly"), { type: "bar",
+    data: { labels: hourlyLabels, datasets: [{ data: hourlyCounts, backgroundColor: indigo, borderRadius: 4 }] },
+    options: { ...base, plugins: noLegend, scales: { y: yInt, x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true } } } } });
+  chartInstances.site = new Chart($("chartSite"), { type: "bar",
+    data: { labels: siteCounts.map(([k]) => k), datasets: [{ data: siteCounts.map(([, v]) => v), backgroundColor: [lac, gold, indigo, green], borderRadius: 6, maxBarThickness: 64 }] },
+    options: { ...base, plugins: noLegend, scales: { y: yInt, x: { grid: { display: false } } } } });
+}
+
+// ============================================================
+// ADMIN ACTIVITY
+// ============================================================
+async function renderAdminLogs(page = 1) {
+  const tk = tabToken, f = state.admin, size = 100;
+  let q = sb.from("admin_activity").select("*", { count: "exact" }).order("created_at", { ascending: false }).range((page - 1) * size, page * size - 1);
+  if (f.action) q = q.eq("action", f.action);
+  const cnt = a => sb.from("admin_activity").select("id", { count: "exact", head: true }).eq("action", a);
+  const [{ data, error, count }, logins, edits, blocks, admins] = await Promise.all([
+    q, cnt("login"), cnt("edit_contact"), cnt("block_ip"),
+    sb.from("admin_activity").select("admin_email").order("created_at", { ascending: false }).limit(5000),
+  ]);
+  if (tk !== tabToken) return;
+  if (error) { setContent(errorState("Admin activity", error), tk); return; }
+
+  const rows = data || [], total = count || 0, totalPages = Math.ceil(total / size);
+  f.rows = rows;
+  const uniqueAdmins = new Set((admins.data || []).map(x => x.admin_email)).size;
+  const actions = [["", "All actions"], ["login", "Login"], ["logout", "Logout"], ["edit_contact", "Edit contact"], ["add_contact", "Add contact"], ["delete_contact", "Delete contact"], ["block_ip", "Block IP"], ["unblock_ip", "Unblock IP"], ["change_password", "Change password"]];
+
+  setContent(`
+    ${pageHead("Admin activity", "Every admin action, with IP address and time.",
+      `<button class="btn btn-secondary" onclick="renderAdminLogs(${page})">${ic("refresh", 16)} Refresh</button>
+       <button class="btn btn-primary" onclick="exportAdminLogsCSV()">${ic("download", 16)} Export CSV</button>`)}
+    <div class="kpis">
+      <div class="kpi"><div class="label">Total actions</div><div class="value">${num(total)}</div></div>
+      <div class="kpi"><div class="label">Logins</div><div class="value">${num(logins.count)}</div></div>
+      <div class="kpi"><div class="label">Contact edits</div><div class="value">${num(edits.count)}</div></div>
+      <div class="kpi"><div class="label">IP blocks</div><div class="value">${num(blocks.count)}</div></div>
+      <div class="kpi"><div class="label">Admins</div><div class="value">${num(uniqueAdmins)}</div></div>
+    </div>
+    <div class="toolbar">
+      <select class="select" aria-label="Filter by action" onchange="state.admin.action=this.value; renderAdminLogs(1)">
+        ${actions.map(([v, l]) => `<option value="${v}" ${f.action === v ? "selected" : ""}>${l}</option>`).join("")}
+      </select>
+      <div class="search">${ic("search", 17)}<input class="input" type="search" placeholder="Search this page by email or IP" oninput="filterRows('adminTable', this.value)" aria-label="Search admin activity"></div>
+    </div>
+    <div class="table-wrap">
+      ${rows.length ? `<table id="adminTable"><thead><tr><th>Time (IST)</th><th>Admin</th><th>Action</th><th>Details</th><th>IP and location</th><th>Device</th></tr></thead><tbody>
+        ${rows.map((r, i) => {
+          const details = r.details && Object.keys(r.details).length ? Object.entries(r.details).map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : v}`).join(", ") : "—";
+          const loc = [r.city, r.region, r.country].filter(Boolean).join(", ");
+          return `<tr class="clickable" data-s="${esc([r.admin_email, r.ip, r.action, r.city].join(" ").toLowerCase())}" onclick="openAdminDrawer(${i})" tabindex="0" onkeydown="if(event.key==='Enter')openAdminDrawer(${i})">
+            <td class="nowrap"><div class="cell-main">${fmtShort(r.created_at)}</div><div class="cell-sub">${timeAgo(r.created_at)}</div></td>
+            <td class="cell-main">${esc(r.admin_email || "—")}</td>
+            <td>${badge(r.action, actionTone(r.action))}</td>
+            <td><div class="ell" title="${esc(details)}">${esc(details)}</div></td>
+            <td><div class="mono">${esc(dash(r.ip))}</div><div class="cell-sub">${esc(loc || "Unknown location")}</div></td>
+            <td>${badge(r.device || "—", r.device === "Mobile" ? "warn" : "info")}</td></tr>`;
+        }).join("")}</tbody></table>`
+        : emptyState("lock", "No admin activity found", f.action ? "Try a different action filter." : "Admin actions will be recorded here.")}
+    </div>
+    ${totalPages > 1 ? renderPagination("renderAdminLogs", page, totalPages) : ""}
+  `, tk);
+}
+function openAdminDrawer(i) {
+  const r = state.admin.rows[i]; if (!r) return;
+  openDrawer({ title: human(r.action), sub: fmt(r.created_at), fields: [
+    ["Admin", r.admin_email], ["IP", r.ip], ["Location", [r.city, r.region, r.country].filter(Boolean).join(", ")],
+    ["Device", r.device], ["Browser", r.browser], ["Session", r.session_id],
+    ["Details", r.details && Object.keys(r.details).length ? JSON.stringify(r.details, null, 1) : ""] ] });
+}
+
+// ============================================================
+// PAGINATION
+// ============================================================
+function renderPagination(fnName, current, total) {
+  const b = [];
+  b.push(`<button ${current === 1 ? "disabled" : ""} onclick="${fnName}(${current - 1})" aria-label="Previous page">‹</button>`);
+  for (let i = 1; i <= Math.min(3, total); i++) b.push(`<button class="${i === current ? "active" : ""}" onclick="${fnName}(${i})">${i}</button>`);
+  if (current > 5) b.push(`<button disabled>…</button>`);
+  for (let i = Math.max(4, current - 2); i <= Math.min(total - 3, current + 2); i++) b.push(`<button class="${i === current ? "active" : ""}" onclick="${fnName}(${i})">${i}</button>`);
+  if (current < total - 3) b.push(`<button disabled>…</button>`);
+  for (let i = Math.max(4, total - 2); i <= total; i++) b.push(`<button class="${i === current ? "active" : ""}" onclick="${fnName}(${i})">${i}</button>`);
+  b.push(`<button ${current === total ? "disabled" : ""} onclick="${fnName}(${current + 1})" aria-label="Next page">›</button>`);
+  return `<nav class="pagination" aria-label="Pagination">${b.join("")}</nav>`;
+}
+
+// ============================================================
+// CSV EXPORTS
+// ============================================================
+function toCSV(headers, rows) { return [headers.join(","), ...rows.map(r => headers.map(h => escCSV(typeof r[h] === "object" && r[h] !== null ? JSON.stringify(r[h]) : r[h])).join(","))].join("\n"); }
+const today = () => new Date().toISOString().slice(0, 10);
+async function exportVisitorsCSV() {
+  showToast("Preparing export…");
+  const { data, error } = await applyVisitorFilters(sb.from("visitor_events").select("*"), state.visitors).order("created_at", { ascending: false }).limit(50000);
+  if (error || !data) { showToast("Export failed", "error"); return; }
+  const headers = ["id", "created_at", "event_type", "site", "page", "page_name", "page_lang", "referrer", "landing_page", "ip", "country", "city", "region", "latitude", "longitude", "org", "device", "browser", "os", "screen", "language", "timezone", "user_id", "session_id", "time_spent", "scroll_percent"];
+  downloadCSV(toCSV(headers, data), `visitors-${today()}.csv`);
+  showToast(`Exported ${num(data.length)} rows`);
+}
+async function exportLogsCSV() {
+  const { data, error } = await sb.from("access_logs").select("*").order("timestamp", { ascending: false }).limit(50000);
+  if (error || !data) { showToast("Export failed", "error"); return; }
+  downloadCSV(toCSV(["id", "timestamp", "ip", "country", "city", "region", "latitude", "longitude", "user_agent", "action", "contact_id", "session_id", "suspicious"], data), `access-logs-${today()}.csv`);
+  showToast(`Exported ${num(data.length)} rows`);
+}
+async function exportAdminLogsCSV() {
+  const { data, error } = await sb.from("admin_activity").select("*").order("created_at", { ascending: false }).limit(50000);
+  if (error || !data) { showToast("Export failed", "error"); return; }
+  downloadCSV(toCSV(["id", "created_at", "admin_email", "admin_id", "action", "details", "ip", "country", "city", "region", "latitude", "longitude", "browser", "device", "session_id"], data), `admin-activity-${today()}.csv`);
+  showToast(`Exported ${num(data.length)} rows`);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+async function init() {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  generateCaptcha();
+  $("pwToggle").innerHTML = ic("eye", 18);
+  $("captchaRefresh").innerHTML = ic("refresh", 18);
+  $("loginCaptcha").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4); });
+  $("editModal").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.tagName === "INPUT") saveContact(); });
+  $("editModal").addEventListener("click", e => { if (e.target === $("editModal")) closeEditModal(); });
+
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if ($("confirmModal").classList.contains("open")) $("confirmCancel").click();
+    else if ($("editModal").classList.contains("open")) closeEditModal();
+    else if ($("drawerWrap").classList.contains("open")) closeDrawer();
+    else toggleSidebar(false);
+  });
+
+  ["click", "keydown", "touchstart", "mousemove"].forEach(ev => document.addEventListener(ev, () => { lastActive = Date.now(); }, { passive: true }));
+  setInterval(() => { if (currentUser && Date.now() - lastActive > IDLE_LIMIT_MS) { sessionStorage.setItem("_admin_idle", "1"); doLogout(true); } }, 60000);
+
+  if (sessionStorage.getItem("_admin_idle")) {
+    sessionStorage.removeItem("_admin_idle");
+    $("loginMsg").textContent = "You were signed out after 30 minutes of inactivity.";
+  }
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event === "PASSWORD_RECOVERY" && session) {
+      currentUser = session.user; enterApp(); showTab("account");
+      showToast("Choose a new password below.");
+    }
+  });
+  const { data } = await sb.auth.getSession();
+  if (data?.session && !currentUser) { currentUser = data.session.user; adminLoginTime = Date.now(); enterApp(); }
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
